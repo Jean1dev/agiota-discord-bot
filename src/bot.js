@@ -53,12 +53,4 @@ client.on("messageCreate", async function (message) {
   const args = commandBody.split(' ');
   const command = args.shift().toLowerCase();
   return commands(command, args, message)
-  // if (command === 'agt') {
-  //   console.log(command, args, message)
-
-
-
-
-  // }
-
 });

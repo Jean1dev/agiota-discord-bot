@@ -3,8 +3,8 @@ const {
   joinVoiceChannel,
   entersState,
 } = require('@discordjs/voice')
-const createDiscordJSAdapter = require('../adapters/discord-adapter')
-const context = require('../context')
+const createDiscordJSAdapter = require('../../adapters/discord-adapter')
+const context = require('../../context')
 
 async function connectToChannel(channel) {
   const connection = joinVoiceChannel({
