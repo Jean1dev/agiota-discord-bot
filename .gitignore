@@ -3,7 +3,6 @@ node_modules/
 .fxp
 .prg
 nodeJS_fxPro/node_modules/
-package-lock.json
 .DS_Store
 .env
 data.json

@@ -1,4 +1,4 @@
-const context = require('../context')
+const context = require('../../context')
 
 module.exports = async message => {
   if (!context.dividas.length) {

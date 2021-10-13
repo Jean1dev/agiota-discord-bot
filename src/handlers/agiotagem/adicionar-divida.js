@@ -1,5 +1,4 @@
-const context = require('../context')
-const repository = require('../repository/operations')
+const context = require('../../context')
 
 module.exports = async (args, message) => {
   message.reply('blz, vou adicionar a divida')
@@ -15,7 +14,7 @@ module.exports = async (args, message) => {
       descricao
     })
 
-    repository.save(context.dividas)
+    context.save()
     return
   }
 
@@ -29,5 +28,5 @@ module.exports = async (args, message) => {
     }]
   })
 
-  repository.save(context.dividas)
+  context.save()
 }
