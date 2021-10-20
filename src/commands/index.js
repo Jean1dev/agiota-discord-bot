@@ -4,10 +4,15 @@ const {
   cobrarDividaHandler,
   pagarDividaHandler,
   registrarAcaoHandler,
-  listarCotacaoHandler
+  listarCotacaoHandler,
+  helpHandler
 } = require('../handlers')
 
 async function handleAgtCommand(args, message) {
+
+  if (args[0] === 'help') {
+    return helpHandler(message)
+  }
 
   if (args[0] === 'gritaria') {
     return gritariaHandler(message)

@@ -30,8 +30,14 @@ function playSong() {
   return entersState(player, AudioPlayerStatus.Playing, 5e3);
 }
 
+function avisarQueEstaOnline() {
+  const channel = client.channels.cache.find(channel => channel.name === 'geral')
+  channel.send('to online povo')
+}
+
 client.on('ready', async () => {
   console.log('Discord.js client is ready!');
+  avisarQueEstaOnline()
 
   try {
     await playSong();

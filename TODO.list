@@ -1,0 +1,3 @@
+[] - Fazer um comando help
+[] - Formatar a saida do json no comando $$ cotacao
+[] = refatorar commands/index.js
