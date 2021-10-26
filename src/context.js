@@ -11,9 +11,9 @@ class Context {
     this.tryLoadData()
   }
 
-  tryLoadData() {
+  async tryLoadData() {
     try {
-      const data = repository.getData()
+      const data = await repository.getData()
       this.dividas = data?.dividas
       this.acoes = data?.acoes
     } catch (error) {

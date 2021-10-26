@@ -1,10 +1,12 @@
 const { MessageEmbed } = require("discord.js")
+const { comandos } = require('../../commands/lista-comandos')
 
 module.exports = message => {
-  let embed = new MessageEmbed()
-    .setTitle("Command List")
-    .setDescription("!help, !roll, !kick, !ban")
-    .setColor("RANDOM")
-
-    message.channel.send({ embeds: [embed] })
+  const embeds = comandos.map(cmd => {
+    return new MessageEmbed()
+      .setTitle(cmd.comando)
+      .setDescription(cmd.descricao)
+      .setColor("RANDOM")
+  })
+  message.channel.send({ embeds: embeds })
 }

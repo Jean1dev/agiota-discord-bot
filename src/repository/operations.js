@@ -1,11 +1,11 @@
-const fs = require('fs')
+const { getDataFromMongo, save: saveOnMongo } = require('./mongodb')
 
 function save(content) {
-  fs.writeFileSync('data.json', JSON.stringify(content))
+  saveOnMongo(content)
 }
 
-function getData() {
-  return JSON.parse(fs.readFileSync('data.json'))
+async function getData() {
+  return getDataFromMongo()
 }
 
 const Repository = function () { }
