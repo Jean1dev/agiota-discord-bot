@@ -31,6 +31,9 @@ module.exports = async message => {
       const connection = await connectToChannel(channel)
       connection.subscribe(context.player)
       message.reply('OLHA O MAMACO!!!!')
+      setTimeout(() => {
+        connection.disconnect()
+      }, 60000)
     } catch (error) {
       console.error(error)
     }
