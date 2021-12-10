@@ -32,7 +32,11 @@ function playSong() {
 
 function avisarQueEstaOnline() {
   const channel = client.channels.cache.find(channel => channel.name === 'geral')
-  channel.send('to online povo')
+  if (channel && channel.send) {
+    channel.send('to online povo')
+  } else {
+    console.log('nao consegui enviar mensagem ::',  channel)
+  }
 }
 
 client.on('ready', async () => {
