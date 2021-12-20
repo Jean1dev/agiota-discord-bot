@@ -6,3 +6,4 @@ nodeJS_fxPro/node_modules/
 .DS_Store
 .env
 data.json
+.vscode/launch.json

@@ -1,10 +1,13 @@
 const context = require('../../context')
+const eviarEmailComAnexo = require('../../services/enviarEmailCobranca')
 
 module.exports = async message => {
   if (!context.dividas.length) {
     message.reply('Ninguem esta te devendo meu mano')
     return
   }
+
+  eviarEmailComAnexo()
 
   context.dividas.forEach(usuarioComDividas => {
     message.channel.send(`Dividas do ${usuarioComDividas.id}`)
