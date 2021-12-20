@@ -13,7 +13,7 @@ function criarPDFRetornarCaminho(itens) {
   const filename = `${randomUUID()}-output.pdf`
   doc.pipe(fs.createWriteStream(filename))
 
-  doc.image(path.resolve(__dirname, 'assets', 'mamaco.jpg'), {
+  doc.image(path.resolve(__dirname, '..', '..', 'assets', 'mamaco.jpg'), {
     fit: [250, 300],
     align: 'right',
     valign: 'right'
@@ -34,7 +34,7 @@ function criarPDFRetornarCaminho(itens) {
 
   doc.end()
 
-  return path.resolve(__dirname, filename)
+  return path.resolve(__dirname, '..', '..', filename)
 }
 
 module.exports = criarPDFRetornarCaminho
