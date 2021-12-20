@@ -8,7 +8,7 @@ const axios = require('axios')
 
 const data = [{
   nome: 'Fabio',
-  email: 'fabiuhp2@gmail.com',
+  email: 'fabiuhp@msn.com',
   dividas: [{
     descricao: 'Passagem aeria',
     valor: 853
@@ -31,12 +31,6 @@ const data = [{
   }, {
     descricao: 'Hospedagem',
     valor: 785
-  }, {
-    descricao: 'gasolina',
-    valor: 38.71
-  }, {
-    descricao: 'almoço na praia',
-    valor: 59
   }]
 }, {
   nome: 'Arthur',
