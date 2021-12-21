@@ -31,7 +31,7 @@ function playSong() {
 }
 
 function avisarQueEstaOnline() {
-  const channel = client.channels.cache.find(channel => channel.name === 'geral')
+  const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
   if (channel && channel.send) {
     channel.send('to online povo')
   } else {
