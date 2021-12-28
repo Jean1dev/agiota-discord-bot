@@ -18,9 +18,6 @@ const data = [{
   }, {
     descricao: 'gasolina',
     valor: 38.71
-  }, {
-    descricao: 'cinema',
-    valor: 17
   }]
 }, {
   nome: 'Gean',
