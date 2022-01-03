@@ -15,9 +15,6 @@ const data = [{
   }, {
     descricao: 'Hospedagem',
     valor: 785
-  }, {
-    descricao: 'gasolina',
-    valor: 38.71
   }]
 }, {
   nome: 'Gean',
@@ -28,6 +25,12 @@ const data = [{
   }, {
     descricao: 'Hospedagem',
     valor: 785
+  }, {
+    descricao: 'Almoço floripa',
+    valor: 59
+  }, {
+    descricao: 'Gas floripa',
+    valor: 38.71
   }]
 }, {
   nome: 'Arthur',
