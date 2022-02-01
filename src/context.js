@@ -4,11 +4,16 @@ class Context {
   player
   dividas
   acoes
+  client
 
   constructor() {
     this.dividas = []
     this.acoes = []
     this.tryLoadData()
+  }
+
+  setClient(client) {
+    this.client = client
   }
 
   async tryLoadData() {

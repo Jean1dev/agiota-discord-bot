@@ -5,7 +5,8 @@ const {
   pagarDividaHandler,
   registrarAcaoHandler,
   listarCotacaoHandler,
-  helpHandler
+  helpHandler,
+  reocordHandler
 } = require('../handlers')
 const { registrarComando, comandos } = require('./lista-comandos')
 
@@ -16,6 +17,7 @@ registrarComando('cobrar', cobrarDividaHandler, 'Lista os usuarios que possuem d
 registrarComando('pagar', pagarDividaHandler, 'Paga a divida :: args @valorPago', true)
 registrarComando('acao', registrarAcaoHandler, 'Adiciona uma acao na lista das monitoradas :: args @nomePapel', true)
 registrarComando('cotacao', listarCotacaoHandler, 'Lista a cotacao das acoes')
+registrarComando('record', reocordHandler, 'grava audio por X tempo :: args @tempo', true)
 
 async function handleAgtCommand(args, message) {
   const command = args[0]

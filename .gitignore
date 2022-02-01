@@ -7,3 +7,5 @@ nodeJS_fxPro/node_modules/
 .env
 data.json
 .vscode/launch.json
+*.ogg
+*.mp3
