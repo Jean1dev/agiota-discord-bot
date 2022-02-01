@@ -9,3 +9,5 @@ data.json
 .vscode/launch.json
 *.ogg
 *.mp3
+credentials.json
+token.json

@@ -28,23 +28,26 @@ function concatAudios() {
   files.forEach(f => songs.push(f))
   files.clear()
 
+  const filenameOutput = path.resolve(__dirname, `${Date.now()}-all.ogg`)
+  context.gravacoes.push(filenameOutput)
+
   audioconcat(songs)
-    .concat(path.resolve(__dirname, 'all.ogg'))
+    .concat(filenameOutput)
     .on('start', function (command) {
       console.log('ffmpeg process started:', command)
     })
-    .on('error', function (err, stdout, stderr) {
+    .on('error', function (err, _stdout, stderr) {
       console.error('Error:', err)
       console.error('ffmpeg stderr:', stderr)
     })
     .on('end', function (output) {
-      console.error('Audio created in:', output)
+      console.error('Audio created in:', filenameOutput)
     })
 }
 
 module.exports = async (args, message) => {
   const channel = message.member?.voice.channel
-  const timeoutMillis = args[1] || 60000
+  const timeoutMillis = (args[1] || 6) * 1000
   const client = context.client
   recordable.add(message.author.id)
 
