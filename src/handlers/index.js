@@ -5,6 +5,8 @@ const pagarDividaHandler = require('./agiotagem/pagar-divida')
 const registrarAcaoHandler = require('./b3/registrar-acao')
 const listarCotacaoHandler = require('./b3/listar-cotacoes')
 const helpHandler = require('./help/help')
+const recordHandler = require('./record/record-audio')
+const uploadRecords = require('./record/upload-records')
 
 module.exports = {
   gritariaHandler,
@@ -13,5 +15,7 @@ module.exports = {
   pagarDividaHandler,
   registrarAcaoHandler,
   listarCotacaoHandler,
-  helpHandler
+  helpHandler,
+  recordHandler,
+  uploadRecords
 }

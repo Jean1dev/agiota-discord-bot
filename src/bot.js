@@ -31,6 +31,9 @@ function playSong() {
 }
 
 function avisarQueEstaOnline() {
+  if (process.env.NODE_ENV === 'dev')
+    return
+
   const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
   if (channel && channel.send) {
     channel.send('to online povo')
@@ -42,6 +45,7 @@ function avisarQueEstaOnline() {
 client.on('ready', async () => {
   console.log('Discord.js client is ready!');
   avisarQueEstaOnline()
+  context.setClient(client)
 
   try {
     await playSong();
