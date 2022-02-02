@@ -11,6 +11,7 @@ const { Client, Intents } = require('discord.js')
 const commands = require('./commands')
 const context = require('./context')
 const { handleMessageWithIa } = require('./ia')
+const handleDM = require('./handlers/dm')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -68,6 +69,10 @@ client.on('ready', async () => {
 client.on("messageCreate", async function (message) {
   if (message.author.bot)
     return
+
+  if (message.channel.type === 'DM') {
+    return handleDM(message, client)
+  }
 
   if (context.isIAEnabled && !message.content.startsWith(prefix)) {
     return handleMessageWithIa(message)
