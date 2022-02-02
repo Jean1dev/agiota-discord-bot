@@ -7,6 +7,7 @@ const listarCotacaoHandler = require('./b3/listar-cotacoes')
 const helpHandler = require('./help/help')
 const recordHandler = require('./record/record-audio')
 const uploadRecords = require('./record/upload-records')
+const changeIaMode = require('./ia/turn-ia-mode')
 
 module.exports = {
   gritariaHandler,
@@ -17,5 +18,6 @@ module.exports = {
   listarCotacaoHandler,
   helpHandler,
   recordHandler,
-  uploadRecords
+  uploadRecords,
+  changeIaMode
 }

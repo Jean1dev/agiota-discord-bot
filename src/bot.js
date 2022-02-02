@@ -7,9 +7,10 @@ const {
   StreamType,
   AudioPlayerStatus,
 } = require('@discordjs/voice')
-const { Client, Intents } = require('discord.js');
+const { Client, Intents } = require('discord.js')
 const commands = require('./commands')
 const context = require('./context')
+const { handleMessageWithIa } = require('./ia')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -26,7 +27,7 @@ client.login(config.BOT_TOKEN)
 
 const prefix = '$'
 
-const player = createAudioPlayer();
+const player = createAudioPlayer()
 context.player = player
 
 function playSong() {
@@ -34,9 +35,9 @@ function playSong() {
     inputType: StreamType.Arbitrary,
   });
 
-  player.play(resource);
+  player.play(resource)
 
-  return entersState(player, AudioPlayerStatus.Playing, 5e3);
+  return entersState(player, AudioPlayerStatus.Playing, 5e3)
 }
 
 function avisarQueEstaOnline() {
@@ -52,15 +53,15 @@ function avisarQueEstaOnline() {
 }
 
 client.on('ready', async () => {
-  console.log('Discord.js client is ready!');
+  console.log('Discord.js client is ready!')
   avisarQueEstaOnline()
   context.setClient(client)
 
   try {
-    await playSong();
-    console.log('Song is ready to play!');
+    await playSong()
+    console.log('Song is ready to play!')
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
 });
 
@@ -68,12 +69,15 @@ client.on("messageCreate", async function (message) {
   if (message.author.bot)
     return
 
+  if (context.isIAEnabled && !message.content.startsWith(prefix)) {
+    return handleMessageWithIa(message)
+  }
+
   if (!message.content.startsWith(prefix))
     return
 
-
-  const commandBody = message.content.slice(prefix.length);
-  const args = commandBody.split(' ');
-  const command = args.shift().toLowerCase();
+  const commandBody = message.content.slice(prefix.length)
+  const args = commandBody.split(' ')
+  const command = args.shift().toLowerCase()
   return commands(command, args, message)
-});
+})
