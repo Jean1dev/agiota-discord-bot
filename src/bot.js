@@ -11,7 +11,16 @@ const { Client, Intents } = require('discord.js');
 const commands = require('./commands')
 const context = require('./context')
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES] });
+const client = new Client({
+  partials: ["CHANNEL"],
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_VOICE_STATES,
+    Intents.FLAGS.DIRECT_MESSAGES,
+    Intents.FLAGS.DIRECT_MESSAGE_TYPING
+  ]
+})
 
 client.login(config.BOT_TOKEN)
 
@@ -38,7 +47,7 @@ function avisarQueEstaOnline() {
   if (channel && channel.send) {
     channel.send('to online povo')
   } else {
-    console.log('nao consegui enviar mensagem ::',  channel)
+    console.log('nao consegui enviar mensagem ::', channel)
   }
 }
 
