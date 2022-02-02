@@ -6,6 +6,7 @@ class Context {
   acoes
   client
   gravacoes
+  isIAEnabled = false
 
   constructor() {
     this.dividas = []
