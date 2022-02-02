@@ -10,35 +10,20 @@ const data = [{
   nome: 'Fabio',
   email: 'fabiuhp@msn.com',
   dividas: [{
-    descricao: 'Passagem aeria',
-    valor: 853
-  }, {
-    descricao: 'Hospedagem',
-    valor: 785
+    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 1 paga',
+    valor: 1553
   }]
 }, {
   nome: 'Gean',
   email: 'geanhomem@hotmail.com',
   dividas: [{
-    descricao: 'Passagem aeria',
-    valor: 853
-  }, {
-    descricao: 'Hospedagem',
-    valor: 785
-  }, {
-    descricao: 'Almoço floripa',
-    valor: 59
-  }, {
-    descricao: 'Gas floripa',
-    valor: 38.71
+    descricao: 'Passagem aeria e hospedagem  -- pagando 163,88 por mes -- 1 paga',
+    valor: 1475
   }]
 }, {
   nome: 'Arthur',
   email: 'souki.arthur@gmail.com',
-  dividas: [{
-    descricao: 'cinema',
-    valor: 17
-  }]
+  dividas: []
 }]
 
 function eviarEmailComAnexo() {
