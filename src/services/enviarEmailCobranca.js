@@ -10,16 +10,28 @@ const data = [{
   nome: 'Fabio',
   email: 'fabiuhp@msn.com',
   dividas: [{
-    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 1 paga',
-    valor: 1553
-  }]
+    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 2 paga',
+    valor: 1380.45
+  }, {
+    descricao: 'uber',
+    valor: 7.60
+  }, {
+    descricao: 'gasolina',
+    valor: 46.33
+   }]
 }, {
   nome: 'Gean',
   email: 'geanhomem@hotmail.com',
   dividas: [{
     descricao: 'Passagem aeria e hospedagem  -- pagando 163,88 por mes -- 1 paga',
     valor: 1475
-  }]
+  }, {
+    descricao: 'uber',
+    valor: 7.60
+  }, {
+    descricao: 'gasolina',
+    valor: 46.33
+   }]
 }, {
   nome: 'Arthur',
   email: 'souki.arthur@gmail.com',
