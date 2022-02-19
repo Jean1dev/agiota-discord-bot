@@ -11,14 +11,19 @@ async function getDataFromMongo() {
     if (!data.length) {
       return {
         dividas: [],
-        acoes: []
+        acoes: [],
+        jogoAberto: false,
+        jogo: null
       }
     }
 
     return {
       dividas: data[0]['dividas'],
-      acoes: data[0]['acoes']
+      acoes: data[0]['acoes'],
+      jogoAberto: data[0]['jogoAberto'],
+      jogo: data[0]['jogo']
     }
+
   } finally {
     await client.close();
   }
@@ -37,5 +42,7 @@ function save(object) {
 
 module.exports = {
   getDataFromMongo,
-  save
+  save,
+  client,
+  DATABASE
 }
