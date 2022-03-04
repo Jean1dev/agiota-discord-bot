@@ -10,7 +10,7 @@ const data = [{
   nome: 'Fabio',
   email: 'fabiuhp@msn.com',
   dividas: [{
-    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 2 paga',
+    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 3 paga',
     valor: 1380.45
   }, {
     descricao: 'uber',
