@@ -8,6 +8,7 @@ const helpHandler = require('./help/help')
 const recordHandler = require('./record/record-audio')
 const uploadRecords = require('./record/upload-records')
 const changeIaMode = require('./ia/turn-ia-mode')
+const jogoBixoHandler = require('./jogo-bixo/command-handler')
 
 module.exports = {
   gritariaHandler,
@@ -19,5 +20,6 @@ module.exports = {
   helpHandler,
   recordHandler,
   uploadRecords,
-  changeIaMode
+  changeIaMode,
+  jogoBixoHandler
 }

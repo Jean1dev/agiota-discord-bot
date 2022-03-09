@@ -7,6 +7,8 @@ class Context {
   client
   gravacoes
   isIAEnabled = false
+  jogoAberto = false
+  jogo
 
   constructor() {
     this.dividas = []
@@ -24,6 +26,12 @@ class Context {
       const data = await repository.getData()
       this.dividas = data?.dividas
       this.acoes = data?.acoes
+      this.jogoAberto = data?.jogoAberto
+      this.jogo = data?.jogo
+      //temporario
+      setTimeout(() => {
+        updateStateAfterDataLoad()
+      }, 3000)
     } catch (error) {
       console.log(error)
     }
@@ -32,9 +40,13 @@ class Context {
   save() {
     repository.save({
       dividas: this.dividas,
-      acoes: this.acoes
+      acoes: this.acoes,
+      jogoAberto: this.jogoAberto,
+      jogo: this.jogo
     })
   }
 }
 
 module.exports = new Context()
+
+const { updateStateAfterDataLoad } = require('./handlers/jogo-bixo/game-functions')
