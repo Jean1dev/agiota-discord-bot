@@ -3,15 +3,18 @@ const { randomUUID } = require('crypto')
 class Jogo {
   id
   data
-  dataInicioMiliseconds
+  dataInicioDetalhes
   apostas
   resultado
-  duracao = 28800000 // https://convertlive.com/pt/u/converter/horas/em/milissegundos#8
+  duracao = 8
 
   constructor () {
     this.id = randomUUID()
     this.data = new Date()
-    this.dataInicioMiliseconds = new Date().getMilliseconds()
+    this.dataInicioDetalhes = {
+      hourUTC: new Date().getUTCHours(),
+      day: new Date().getDay()
+    }
     this.apostas = []
   }
 
