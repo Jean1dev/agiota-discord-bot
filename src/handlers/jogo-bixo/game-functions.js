@@ -90,15 +90,18 @@ function calcularVencedores(apostas) {
 
   if (!apostadorVencedor) {
     mandarMensagemNoChatGeral(`não houve ganhadores, o bixo sorteado foi ${bichoVencedor.emoj}`)
+    mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
     return
   }
 
   if (apostadorVencedor.numero === numeroVencedor) {
     mandarMensagemNoChatGeral(`Parabens @${apostadorVencedor.autor} voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
+    mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
     return
   }
 
   mandarMensagemNoChatGeral(`Parabens @${apostadorVencedor.autor} voce acertou no bixo ${bichoVencedor.emoj}`)
+  mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
 }
 
 function finalizarJogo(message) {
