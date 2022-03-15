@@ -1,12 +1,5 @@
 require('dotenv').config()
 const config = require('./config')
-const {
-  createAudioPlayer,
-  createAudioResource,
-  entersState,
-  StreamType,
-  AudioPlayerStatus,
-} = require('@discordjs/voice')
 const { Client, Intents } = require('discord.js')
 const commands = require('./commands')
 const context = require('./context')
@@ -28,26 +21,6 @@ client.login(config.BOT_TOKEN)
 
 const prefix = '$'
 
-const player = createAudioPlayer()
-context.player = player
-
-function playSong() {
-  const audios = [
-    'https://www.myinstants.com/media/sounds/vem-monstro.mp3',
-    'https://www.myinstants.com/media/sounds/eu-vou-comer-teu-cu-kid-bengala.mp3',
-    'https://www.myinstants.com/media/sounds/nossa-lobo-mauuuuu.mp3',
-    'https://www.myinstants.com/media/sounds/rojao-estourado.mp3',
-    'https://protettordelinks.com/wp-content/baixar/macaco_doido_www.toquesengracadosmp3.com.mp3'
-  ]
-  const resource = createAudioResource(audios[1], {
-    inputType: StreamType.Arbitrary,
-  })
-
-  player.play(resource)
-
-  return entersState(player, AudioPlayerStatus.Playing, 5e3)
-}
-
 function avisarQueEstaOnline() {
   if (process.env.NODE_ENV === 'dev')
     return
@@ -64,13 +37,6 @@ client.on('ready', async () => {
   console.log('Discord.js client is ready!')
   avisarQueEstaOnline()
   context.setClient(client)
-
-  try {
-    await playSong()
-    console.log('Song is ready to play!')
-  } catch (error) {
-    console.error(error)
-  }
 })
 
 client.on("messageCreate", async function (message) {
