@@ -32,9 +32,16 @@ const player = createAudioPlayer()
 context.player = player
 
 function playSong() {
-  const resource = createAudioResource('https://protettordelinks.com/wp-content/baixar/macaco_doido_www.toquesengracadosmp3.com.mp3', {
+  const audios = [
+    'https://www.myinstants.com/media/sounds/vem-monstro.mp3',
+    'https://www.myinstants.com/media/sounds/eu-vou-comer-teu-cu-kid-bengala.mp3',
+    'https://www.myinstants.com/media/sounds/nossa-lobo-mauuuuu.mp3',
+    'https://www.myinstants.com/media/sounds/rojao-estourado.mp3',
+    'https://protettordelinks.com/wp-content/baixar/macaco_doido_www.toquesengracadosmp3.com.mp3'
+  ]
+  const resource = createAudioResource(audios[1], {
     inputType: StreamType.Arbitrary,
-  });
+  })
 
   player.play(resource)
 
@@ -64,7 +71,7 @@ client.on('ready', async () => {
   } catch (error) {
     console.error(error)
   }
-});
+})
 
 client.on("messageCreate", async function (message) {
   if (message.author.bot)

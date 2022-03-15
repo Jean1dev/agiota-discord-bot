@@ -32,3 +32,9 @@ agiota-discord-bot interact with the
 npm install
 ```
 
+## Features
+  * Agiotagem: registra e faz cobranças, enviando mensagens por email e por chat
+  * B3: registra e exibe cotações de ações, fundos imobiliarios e ETF's registrados na B3
+  * IA: Integração com a inteligencia artifical da IBM Watson
+  * Jogo do bixo: jogo do bixo completo
+  * Gravação: grava audios e envia para o google drive

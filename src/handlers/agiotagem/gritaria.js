@@ -1,7 +1,6 @@
 const connectToChannel = require('../../adapters/connect-user-channel')
 const context = require('../../context')
 
-
 module.exports = async message => {
   const channel = message.member?.voice.channel
 
