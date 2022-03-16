@@ -14,7 +14,7 @@ const {
 const { registrarComando, comandos } = require('./lista-comandos')
 
 registrarComando('help', helpHandler, 'lista os comandos disponiveis')
-registrarComando('gritaria', gritariaHandler, 'mamaco entra na sala e começa a gritar')
+registrarComando('audio', gritariaHandler, 'mamaco entra na sala e lança um audio')
 registrarComando('add-divida', addDividaHandler, 'Adicionar uma divida para um usuario :: args @valor @usuario @descricao', true)
 registrarComando('cobrar', cobrarDividaHandler, 'Lista os usuarios que possuem debitos')
 registrarComando('pagar', pagarDividaHandler, 'Paga a divida :: args @valorPago', true)
