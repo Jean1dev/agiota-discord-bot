@@ -5,9 +5,9 @@ const client = new MongoClient(URI, { useNewUrlParser: true, useUnifiedTopology:
 
 async function getDataFromMongo() {
   try {
-    await client.connect();
-    const data = await client.db(DATABASE).collection('data').find().toArray();
-    console.log("Carregou os dados do bd");
+    await client.connect()
+    const data = await client.db(DATABASE).collection('data').find().toArray()
+    console.log("Carregou os dados do bd")
     if (!data.length) {
       return {
         dividas: [],
@@ -25,7 +25,7 @@ async function getDataFromMongo() {
     }
 
   } finally {
-    await client.close();
+    await client.close()
   }
 }
 

@@ -1,24 +1,19 @@
 const { BASIC_MAILGUN_KEY } = require('../config')
-// const http = require("https")
 const fs = require('fs')
 const gerarPDF = require('./GerarPDF')
 const FormData = require("form-data")
 const axios = require('axios')
-//const auth = 'Basic ' + Buffer.from('api' + ':' + MAILGUN_API_KEY).toString('base64')
 
 const data = [{
   nome: 'Fabio',
   email: 'fabiuhp@msn.com',
   dividas: [{
     descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 3 paga',
-    valor: 1380.45
+    valor: 1207.90
   }, {
     descricao: 'uber',
     valor: 7.60
-  }, {
-    descricao: 'gasolina',
-    valor: 46.33
-   }]
+  }]
 }, {
   nome: 'Gean',
   email: 'geanhomem@hotmail.com',
@@ -28,10 +23,7 @@ const data = [{
   }, {
     descricao: 'uber',
     valor: 7.60
-  }, {
-    descricao: 'gasolina',
-    valor: 46.33
-   }]
+  }]
 }, {
   nome: 'Arthur',
   email: 'souki.arthur@gmail.com',
@@ -39,18 +31,6 @@ const data = [{
 }]
 
 function eviarEmailComAnexo() {
-  // const options = {
-  //   method: "POST",
-  //   hostname: "api.mailgun.net",
-  //   port: null,
-  //   path: "/v3/central.binnoapp.com/messages",
-  //   headers: {
-  //     'Content-Type': "multipart/form-data; boundary=---011000010111000001101001",
-  //     accept: "*/*",
-  //     'Content-Length': "0",
-  //     Authorization: `Basic ${BASIC_MAILGUN_KEY}`
-  //   }
-  // }
 
   data.forEach(devedor => {
     listaDebitos = devedor.dividas.map(item => {
@@ -66,16 +46,6 @@ function eviarEmailComAnexo() {
     form.append('text', 'voce foi cobrado')
     form.append('attachment', fs.createReadStream(filename))
 
-    // options.formData = {
-    //   from: 'Binno apps <equipe@central.binnoapp.com>',
-    //   to: devedor.email,
-    //   subject: 'cobrança do mamaco',
-    //   text: 'voce foi cobrado',
-    //   attachment: fs.createReadStream(filename)
-    // }
-
-    // options.formData = form
-
     axios({
       method: 'post',
       url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
@@ -88,24 +58,6 @@ function eviarEmailComAnexo() {
       console.log(error.message)
       fs.rmSync(filename, { force: true })
     })
-
-    // const req = http.request(options, function (res) {
-    //   const chunks = []
-
-    //   res.on("data", function (chunk) {
-    //     chunks.push(chunk)
-    //   })
-
-    //   res.on("end", function () {
-    //     const body = Buffer.concat(chunks)
-    //     console.log(body.toString())
-    //     fs.rmSync(filename, { force: true })
-    //   })
-    // })
-
-    // req.write(form)
-    //req.write(`-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"from\"\r\n\r\nBinno apps <equipe@central.binnoapp.com>\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"to\"\r\n\r\ ${devedor.email} \r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"subject\"\r\n\r\nRelatorio de dividas\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"text\"\r\n\r\nteste envio\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"attachment[1]\"; filename=\"${filename}\"\r\nContent-Type: application/pdf\r\n\r\n\r\n-----011000010111000001101001--\r\n`);
-    // req.end()
   })
 
 }
