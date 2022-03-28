@@ -17,6 +17,8 @@ module.exports = (args, message) => {
   message.reply(retorno.message)
 
   if(retorno.message === 'Não existe um jogo aberto') {
+    message.reply('não se preocupe, irei criar um jogo pra vc e registrarei sua aposta')
     setTimeout(() => criarNovoJogo(), 10000)
+    setTimeout(() => registrarAposta(aposta), 15000)
   }
 }

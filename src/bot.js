@@ -19,7 +19,7 @@ const client = new Client({
 
 client.login(config.BOT_TOKEN)
 
-const prefix = '$'
+const prefix = process.env.NODE_ENV === 'dev' ? '!' : '$'
 
 function avisarQueEstaOnline() {
   if (process.env.NODE_ENV === 'dev')
