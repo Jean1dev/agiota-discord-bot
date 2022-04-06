@@ -8,8 +8,8 @@ const data = [{
   nome: 'Fabio',
   email: 'fabiuhp@msn.com',
   dividas: [{
-    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 3 paga',
-    valor: 1207.90
+    descricao: 'Passagem aeria e hospedagem -- pagando 172,55 por mes -- 4 paga',
+    valor: 1035.35
   }, {
     descricao: 'uber',
     valor: 7.60
