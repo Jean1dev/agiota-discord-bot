@@ -91,17 +91,18 @@ function calcularVencedores(apostas) {
   if (!apostadorVencedor) {
     mandarMensagemNoChatGeral(`não houve ganhadores, o bixo sorteado foi ${bichoVencedor.emoj}`)
     mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
-    return
+    return { bichoVencedor, apostadorVencedor }
   }
 
   if (apostadorVencedor.numero === numeroVencedor) {
     mandarMensagemNoChatGeral(`Parabens @${apostadorVencedor.autor} voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
     mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
-    return
+    return { bichoVencedor, apostadorVencedor }
   }
 
   mandarMensagemNoChatGeral(`Parabens @${apostadorVencedor.autor} voce acertou no bixo ${bichoVencedor.emoj}`)
   mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
+  return { bichoVencedor, apostadorVencedor }
 }
 
 function finalizarJogo(message) {
@@ -110,9 +111,10 @@ function finalizarJogo(message) {
   }
 
   mandarMensagemNoChatGeral(message)
-  calcularVencedores(context.jogo.apostas)
+  const vencedor = calcularVencedores(context.jogo.apostas)
+
   MongoClient.connect().then(client => {
-    client.db(DATABASE).collection('jogo_bixo_registros').insertOne(context.jogo).then(() => {
+    client.db(DATABASE).collection('jogo_bixo_registros').insertOne({ vencedor, ...context.jogo }).then(() => {
       console.log('jogo salvo')
       context.jogoAberto = false
       context.jogo = null
