@@ -28,10 +28,8 @@ class Context {
       this.acoes = data?.acoes
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
-      //temporario
-      setTimeout(() => {
-        updateStateAfterDataLoad()
-      }, 3000)
+      appEvents.emit('update-state-jogo-bixo', null)
+
     } catch (error) {
       console.log(error)
     }
@@ -49,4 +47,4 @@ class Context {
 
 module.exports = new Context()
 
-const { updateStateAfterDataLoad } = require('./handlers/jogo-bixo/game-functions')
+const appEvents = require('./app-events')

@@ -18,6 +18,7 @@ const client = new Client({
 })
 
 client.login(config.BOT_TOKEN)
+console.log(process.env.NODE_ENV)
 
 const prefix = process.env.NODE_ENV === 'dev' ? '!' : '$'
 
