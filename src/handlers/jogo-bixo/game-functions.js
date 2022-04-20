@@ -84,25 +84,36 @@ function calcularVencedores(apostas) {
     return bicho.valores.includes(numeroVencedor)
   })
 
-  const apostadorVencedor = apostas.find(apostador => {
-    return bichoVencedor.valores.includes(Number(apostador.numero))
+  const apostadoresVencedores = apostas.filter(apostador => {
+    const match = bichoVencedor.valores.includes(Number(apostador.numero))
+    if (match)
+      return true
+
+    if (apostador.segundoNumero)
+      return bichoVencedor.valores.includes(Number(apostador.segundoNumero))
+    else
+      return false
   })
 
-  if (!apostadorVencedor) {
+  if (!apostadoresVencedores.length) {
     mandarMensagemNoChatGeral(`não houve ganhadores, o bixo sorteado foi ${bichoVencedor.emoj}`)
     mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
-    return { bichoVencedor, apostadorVencedor }
+    return { bichoVencedor }
   }
 
-  if (apostadorVencedor.numero === numeroVencedor) {
-    mandarMensagemNoChatGeral(`Parabens @${apostadorVencedor.autor} voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
+  apostadoresVencedores.forEach(vencedor => {
+    if (vencedor.numero === numeroVencedor) {
+      mandarMensagemNoChatGeral(`Parabens @${vencedor.autor} voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
+      mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
+      return
+    }
+
+    mandarMensagemNoChatGeral(`Parabens @${vencedor.autor} voce acertou no bixo ${bichoVencedor.emoj}`)
     mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
-    return { bichoVencedor, apostadorVencedor }
-  }
+  })
 
-  mandarMensagemNoChatGeral(`Parabens @${apostadorVencedor.autor} voce acertou no bixo ${bichoVencedor.emoj}`)
-  mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
-  return { bichoVencedor, apostadorVencedor }
+
+  return { bichoVencedor, apostadoresVencedores }
 }
 
 function finalizarJogo(message) {
