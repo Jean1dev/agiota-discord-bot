@@ -32,7 +32,7 @@ jobs:
     
   heroku:
     needs: [build]
-    runs-on: ruby-latest
+    runs-on: ubuntu-latest
     
     steps:
       - name: Apt Get Update
