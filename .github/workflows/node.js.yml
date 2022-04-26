@@ -39,8 +39,8 @@ jobs:
     - name: Deploy to Heroku
       uses: AkhileshNS/heroku-deploy@v3.12.12
       with:
-        heroku_api_key: ${{ secrets.FABIOHP_HEROKU_KEY }}
+        heroku_api_key: ${{secrets.FABIOHP_HEROKU_KEY}}
         heroku_email: "fabiuhp@msn.com"
-        heroku_app_name: "agiota-bot"
+        heroku_app_name: "agiota-bot-2"
 
   
