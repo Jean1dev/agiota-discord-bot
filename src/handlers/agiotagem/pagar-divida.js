@@ -5,7 +5,7 @@ module.exports = async (args, message) => {
   const autor = message.author.id
 
   context.dividas
-    .filter(usuariosComDividas => usuariosComDividas.id === `<@!${autor}>`)
+    .filter(usuariosComDividas => usuariosComDividas.id === `<@${autor}>`)
     .forEach(usuariosComDividas => {
       usuariosComDividas.pagamentos.push({
         valorPago,
