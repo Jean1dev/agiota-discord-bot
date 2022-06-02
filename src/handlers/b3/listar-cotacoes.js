@@ -1,6 +1,7 @@
 const context = require('../../context')
 const { B3_API_KEY } = require('../../config')
 const http = require('https')
+const captureException = require('../../observability/Sentry')
 
 function removerPapel(nomePapel) {
   context.acoes = context.acoes.filter(({ papel }) => papel !== nomePapel)
@@ -13,7 +14,12 @@ module.exports = async message => {
     hostname: "www.alphavantage.co",
     port: null,
     path: '',
-  };
+  };  
+
+  if (!context.acoes.length) {
+    message.channel.send(`Nenhum papel salvo`)
+    return
+  }
 
   message.channel.send(`pesquisando a ultima cotacao dos papeis`)
 
@@ -36,6 +42,8 @@ module.exports = async message => {
         } catch (error) {
           message.channel.send(`houve um problema para pegar os dados de ${papel}`)
           removerPapel(papel)
+          
+          captureException(error)
         }
       })
     })
