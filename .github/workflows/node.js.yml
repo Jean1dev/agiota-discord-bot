@@ -32,7 +32,7 @@ jobs:
   heroku:
     needs: [build]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/heroku'
     
     steps:
     - uses: actions/checkout@v2
