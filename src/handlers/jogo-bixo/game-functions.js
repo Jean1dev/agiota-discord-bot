@@ -103,12 +103,12 @@ function calcularVencedores(apostas) {
 
   apostadoresVencedores.forEach(vencedor => {
     if (vencedor.numero === numeroVencedor) {
-      mandarMensagemNoChatGeral(`Parabens @${vencedor.autor} voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
+      mandarMensagemNoChatGeral(`Parabens <@${vencedor.autor}> voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
       mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
       return
     }
 
-    mandarMensagemNoChatGeral(`Parabens @${vencedor.autor} voce acertou no bixo ${bichoVencedor.emoj}`)
+    mandarMensagemNoChatGeral(`Parabens <@${vencedor.autor}> voce acertou no bixo ${bichoVencedor.emoj}`)
     mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
   })
 
