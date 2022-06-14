@@ -7,11 +7,6 @@ const {
   AudioPlayerStatus,
 } = require('@discordjs/voice')
 
-const state = {
-  player: createAudioPlayer(),
-  audioNumero: 0
-}
-
 const audios = [
   'https://www.myinstants.com/media/sounds/rojao-estourado.mp3',
   'https://www.myinstants.com/media/sounds/nossa-lobo-mauuuuu.mp3',
@@ -24,13 +19,22 @@ const audios = [
   'https://protettordelinks.com/wp-content/baixar/macaco_doido_www.toquesengracadosmp3.com.mp3'
 ]
 
+const ramdomAudioNumber = () => {
+  return Math.floor(Math.random() * audios.length)
+}
+
+const state = {
+  player: createAudioPlayer(),
+  audioNumero: ramdomAudioNumber()
+}
+
 function playSong() {
   const resource = createAudioResource(audios[state.audioNumero], {
     inputType: StreamType.Arbitrary,
   })
 
   state.player.play(resource)
-  state.audioNumero++
+  state.audioNumero = ramdomAudioNumber()
   return entersState(state.player, AudioPlayerStatus.Playing, 5e3)
 }
 

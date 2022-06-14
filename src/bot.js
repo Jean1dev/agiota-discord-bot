@@ -1,11 +1,15 @@
 require('dotenv').config()
-const config = require('./config')
+
 const { Client, Intents } = require('discord.js')
+
+const config = require('./config')
+
 const commands = require('./commands')
 const context = require('./context')
 const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
+const listarAsUltimasFeatures = require('./services/githubOperations')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -31,6 +35,7 @@ function avisarQueEstaOnline() {
 
   if (channel && channel.send) {
     channel.send('to online povo')
+    listarAsUltimasFeatures(channel)
   } else {
     console.log('nao consegui enviar mensagem ::', channel)
   }
