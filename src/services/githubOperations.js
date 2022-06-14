@@ -5,7 +5,7 @@ const { Octokit } = require("@octokit/core")
 const captureException = require('../observability/Sentry')
 
 function listarAsUltimasFeatures(discordChannel) {
-    const octokit = new Octokit({ auth: `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` })
+    const octokit = new Octokit({ auth: `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` })
 
     octokit.request('GET /repos/Jean1dev/agiota-discord-bot/commits', {
         owner: 'OWNER',
@@ -16,9 +16,8 @@ function listarAsUltimasFeatures(discordChannel) {
         }))
 
         discordChannel.send('Ultimas alterações')
-        for (let index = 0; index < 1; index++) {
-            discordChannel.send(items[index])
-        }
+        const message = [items[0].message, items[1].message].join('\n')
+        discordChannel.send(message)
         
     }).catch(captureException)
 }

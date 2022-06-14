@@ -34,7 +34,7 @@ function avisarQueEstaOnline() {
   const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
 
   if (channel && channel.send) {
-    channel.send('to online povo')
+    //channel.send('to online povo')
     listarAsUltimasFeatures(channel)
   } else {
     console.log('nao consegui enviar mensagem ::', channel)
