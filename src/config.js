@@ -7,5 +7,6 @@ module.exports = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   ASSISTANT_ID: process.env.ASSISTANT_ID,
   ASSISTANT_IAM_APIKEY: process.env.ASSISTANT_IAM_APIKEY,
-  SENTRY_DNS: process.env.SENTRY_DNS
+  SENTRY_DNS: process.env.SENTRY_DNS,
+  GITHUB_API_TOKEN: process.env.GITHUB_API_TOKEN
 }

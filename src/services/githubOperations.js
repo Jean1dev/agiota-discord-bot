@@ -3,9 +3,10 @@
  */
 const { Octokit } = require("@octokit/core")
 const captureException = require('../observability/Sentry')
+const { GITHUB_API_TOKEN } = require('../config')
 
 function listarAsUltimasFeatures(discordChannel) {
-    const octokit = new Octokit({ auth: `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` })
+    const octokit = new Octokit({ auth: GITHUB_API_TOKEN })
 
     octokit.request('GET /repos/Jean1dev/agiota-discord-bot/commits', {
         owner: 'OWNER',
