@@ -5,6 +5,7 @@ const commands = require('./commands')
 const context = require('./context')
 const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
+const registerJobs = require('./register-jobs')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -27,6 +28,7 @@ function avisarQueEstaOnline() {
     return
 
   const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
+
   if (channel && channel.send) {
     channel.send('to online povo')
   } else {
@@ -38,6 +40,7 @@ client.on('ready', async () => {
   console.log('Discord.js client is ready!')
   avisarQueEstaOnline()
   context.setClient(client)
+  registerJobs()
 })
 
 client.on("messageCreate", async function (message) {
