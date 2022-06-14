@@ -15,6 +15,7 @@ function listarAsUltimasFeatures(discordChannel) {
             message: item.commit.message
         }))
 
+        discordChannel.send('Ultimas alterações')
         for (let index = 0; index < 1; index++) {
             discordChannel.send(items[index])
         }
