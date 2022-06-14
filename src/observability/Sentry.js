@@ -11,6 +11,8 @@ if (SENTRY_DNS) {
 function captureException(ex) {
     if (SENTRY_DNS)
         Sentry.captureException(ex)
+
+    console.error(ex.message)
 }
 
 module.exports = captureException
