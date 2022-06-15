@@ -10,6 +10,7 @@ const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
 const listarAsUltimasFeatures = require('./services/githubOperations')
+const { registrarEntradaTexto } = require('./services/analiseDadosUsuarios')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -52,6 +53,7 @@ client.on("messageCreate", async function (message) {
   if (message.author.bot)
     return
 
+  registrarEntradaTexto(message)
   if (message.channel.type === 'DM') {
     return handleDM(message, client)
   }
