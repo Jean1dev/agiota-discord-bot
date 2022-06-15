@@ -1,6 +1,11 @@
+/**
+ * https://crontab.guru/
+ */
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context')
 const captureException = require('./observability/Sentry')
+const { getRegistros, clearRegistros } = require('./services/analiseDadosUsuarios')
+const { client: MongoClient, DATABASE } = require('./repository/mongodb')
 
 function registerJobs() {
 
@@ -11,6 +16,23 @@ function registerJobs() {
         channel.bulkDelete(50)
             .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
             .catch(captureException)
+    })
+
+    schedule('0 * * * *', () => {
+        console.info('salvar analise dados job')
+        const registros = getRegistros()
+        if (!registros.length)
+            return
+
+        MongoClient.connect().then(client => {
+            client.db(DATABASE)
+                .collection('analise_dados_usuarios')
+                .insertMany(registros)
+                .finally(() => {
+                    client.close()
+                    clearRegistros()
+                })
+        })
     })
 }
 
