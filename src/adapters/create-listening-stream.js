@@ -8,7 +8,7 @@ function getDisplayName(userId, user) {
 	return user ? `${user.username}_${user.discriminator}` : userId
 }
 
-function createListeningStream(receiver, userId, user, callback = () => {}) {
+function createListeningStream(receiver, userId, user, callback = () => { }) {
 	const opusStream = receiver.subscribe(userId, {
 		end: {
 			behavior: EndBehaviorType.AfterSilence,
@@ -26,7 +26,7 @@ function createListeningStream(receiver, userId, user, callback = () => {}) {
 		},
 	})
 
-	const filename =  path.resolve(__dirname, `audio-${Date.now()}-${getDisplayName(userId, user)}.ogg`)
+	const filename = path.resolve(__dirname, `audio-${Date.now()}-${getDisplayName(userId, user)}.ogg`)
 
 	const out = createWriteStream(filename)
 
@@ -37,7 +37,7 @@ function createListeningStream(receiver, userId, user, callback = () => {}) {
 			console.warn(`❌ Error recording file ${filename} - ${err.message}`)
 		} else {
 			console.log(`✅ Recorded ${filename}`)
-      callback(filename)
+			callback(filename)
 		}
 	})
 }

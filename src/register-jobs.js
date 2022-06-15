@@ -13,7 +13,7 @@ function registerJobs() {
         let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
         channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot')
         channel = context.client.channels.cache.find(channel => channel.name === '🤖-testes-bot')
-        channel.bulkDelete(50)
+        channel.bulkDelete(30)
             .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
             .catch(captureException)
     })

@@ -9,8 +9,7 @@ const context = require('./context')
 const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
-const listarAsUltimasFeatures = require('./services/githubOperations')
-const { registrarEntradaTexto } = require('./services/analiseDadosUsuarios')
+const { registrarEntradaTexto, listarAsUltimasFeatures } = require('./services')
 
 const client = new Client({
   partials: ["CHANNEL"],
