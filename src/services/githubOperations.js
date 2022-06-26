@@ -18,7 +18,7 @@ function listarAsUltimasFeatures(discordChannel) {
 
         discordChannel.send('Ultimas alterações')
         const message = [items[0].message, items[1].message].join('\n')
-        discordChannel.send(message)
+        discordChannel.send(message).then(msg => msg.delete({ timeout: 20000 }))
         
     }).catch(captureException)
 }

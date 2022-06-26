@@ -9,9 +9,11 @@ const { client: MongoClient, DATABASE } = require('./repository/mongodb')
 
 function registerJobs() {
 
-    schedule('0 8 * * *', () => {
+    schedule('0 10 * * *', () => {
         let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
-        channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot')
+        channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
+            msg.delete({ timeout: 20000 })
+        })
         channel = context.client.channels.cache.find(channel => channel.name === '🤖-testes-bot')
         channel.bulkDelete(30)
             .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
