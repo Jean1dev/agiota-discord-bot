@@ -9,8 +9,10 @@ const state = {
   monitoramentoFimDeJogoRef: null
 }
 
+const JOGO_BIXO_CHANNEL = '🐒-jogo-do-bixo'
+
 function mandarMensagemNoChatGeral(message) {
-  const channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
+  const channel = context.client.channels.cache.find(channel => channel.name === JOGO_BIXO_CHANNEL)
   if (channel) {
     channel.send(message)
   }
