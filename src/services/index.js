@@ -1,7 +1,8 @@
 const {
     registrarEntradaTexto,
     getRegistros,
-    clearRegistros
+    clearRegistros,
+    rankearUso
 } = require('./analiseDadosUsuarios')
 const listarAsUltimasFeatures = require('./githubOperations')
 const criarPDFRetornarCaminho = require('./GerarPDF')
@@ -13,5 +14,6 @@ module.exports = {
     eviarEmailComAnexo,
     registrarEntradaTexto,
     getRegistros,
-    clearRegistros
+    clearRegistros,
+    rankearUso
 }
