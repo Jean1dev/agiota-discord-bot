@@ -4,7 +4,7 @@
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context')
 const captureException = require('./observability/Sentry')
-const { getRegistros, clearRegistros, rankearUso } = require('./services')
+const { getRegistros, clearRegistros, rankearUso, exibirRankingNoChat } = require('./services')
 const { client: MongoClient, DATABASE } = require('./repository/mongodb')
 
 function registerJobs() {
@@ -37,7 +37,9 @@ function registerJobs() {
         })
     })
 
-    schedule('0 23 * * 0', rankearUso)
+    schedule('0 20 * * 0', rankearUso)
+
+    schedule('0 23 * * 0', exibirRankingNoChat)
 }
 
 module.exports = registerJobs
