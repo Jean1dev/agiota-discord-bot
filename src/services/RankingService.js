@@ -26,6 +26,13 @@ class RankingService {
         await client.db(DATABASE).collection(COLLECTION_NAME).updateOne({ _id: new ObjectID(entity._id) }, { $set: { pontuacao: entity.pontuacao } })
         await client.close()
     }
+
+    async listagem() {
+        const client = await MongoClient.connect()
+        const data = await client.db(DATABASE).collection(COLLECTION_NAME).find({}).toArray()
+        await client.close()
+        return data
+    }
 }
 
 module.exports = new RankingService()

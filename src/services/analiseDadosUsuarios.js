@@ -87,9 +87,31 @@ function rankearUso() {
     })
 }
 
+function exibirRankingNoChat() {
+    rankingService.listagem().then(data => {
+        const chatGeral = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
+        data.sort((valor1, valor2) => {
+            if (valor1.pontuacao > valor2.pontuacao) {
+                return 1
+            }
+
+            if (valor1.pontuacao < valor2.pontuacao) {
+                return -1
+            }
+
+            return 0
+        })
+            .reverse()
+            .forEach(item => {
+                chatGeral.send(`<@${item.userId}> voce tem um total de ${item.pontuacao}`)
+            })
+    })
+}
+
 module.exports = {
     registrarEntradaTexto,
     getRegistros,
     clearRegistros,
-    rankearUso
+    rankearUso,
+    exibirRankingNoChat
 }

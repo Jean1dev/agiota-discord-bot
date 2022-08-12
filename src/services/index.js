@@ -2,7 +2,8 @@ const {
     registrarEntradaTexto,
     getRegistros,
     clearRegistros,
-    rankearUso
+    rankearUso,
+    exibirRankingNoChat
 } = require('./analiseDadosUsuarios')
 const listarAsUltimasFeatures = require('./githubOperations')
 const criarPDFRetornarCaminho = require('./GerarPDF')
@@ -15,5 +16,6 @@ module.exports = {
     registrarEntradaTexto,
     getRegistros,
     clearRegistros,
-    rankearUso
+    rankearUso,
+    exibirRankingNoChat
 }
