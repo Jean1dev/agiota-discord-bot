@@ -30,13 +30,12 @@ console.log('rodando no ambiente ', process.env.NODE_ENV)
 console.log('prefix do comando é ', prefix)
 
 function avisarQueEstaOnline() {
-  if (process.env.NODE_ENV === 'dev')
-    return
+  // if (process.env.NODE_ENV === 'dev')
+  //   return
 
   const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
 
   if (channel && channel.send) {
-    //channel.send('to online povo')
     listarAsUltimasFeatures(channel)
   } else {
     console.log('nao consegui enviar mensagem ::', channel)
