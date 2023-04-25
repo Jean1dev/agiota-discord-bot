@@ -10,7 +10,8 @@ const {
   uploadRecords,
   changeIaMode,
   jogoBixoHandler,
-  estatisticasJogoBixoHandler
+  estatisticasJogoBixoHandler,
+  gestaoCaixinhaHandler
 } = require('../handlers')
 const { registrarComando, comandos } = require('./lista-comandos')
 
@@ -26,6 +27,7 @@ registrarComando('uprec', uploadRecords, 'faz upload das gravações para o goog
 registrarComando('ia', changeIaMode, 'liga ou desliga a inteligencia artifical')
 registrarComando('bixo', jogoBixoHandler, 'aposta em um bixo no jogo do bixo :: args @numero', true)
 registrarComando('bixo-data', estatisticasJogoBixoHandler, 'gera as estatisticas do bixo')
+registrarComando('caixinha', gestaoCaixinhaHandler, 'gestão da caixinha')
 
 async function handleAgtCommand(args, message) {
   const command = args[0]
