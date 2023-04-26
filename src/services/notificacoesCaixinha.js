@@ -24,26 +24,27 @@ async function startSearching() {
 
         if (data.length) {
             const channel = context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
-            data.forEach(element => {
+            for (const element of data) {
                 const embed = new MessageEmbed()
                     .setTitle(`'Solicitação de emprestimo' do ${element.memberName}`)
-                    .setThumbnail('https://avatars.githubusercontent.com/u/17297009?v=4')
+                    .setThumbnail('https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U')
                     .setDescription(`
-                valor R$${element.valor} \n
-                o juros pago sera de ${element.juros}% \n
-                a quantidade de parcelas sera ${element.parcela} \n
-                no total de de 4544 \n
-                ${element.motivo} \n
-            `)
-                    .setColor("RANDOM")
+                                valor R$${element.valor} \n
+                                o juros pago sera de ${element.juros}% \n
+                                a quantidade de parcelas sera ${element.parcela} \n
+                                no total de de R$${element.total} \n
+                                ${element.motivo} \n
+                    `).setColor("RANDOM")
 
                 channel.send({ embeds: [embed] })
-                state.mongoClient.db(DATABASE).collection('SolicitacaoEmprestimo').updateOne(
+                await state.mongoClient.db(DATABASE).collection('SolicitacaoEmprestimo').updateOne(
                     { _id: new ObjectID(element._id) },
                     { $set: { discordVerify: true } }
                 )
+            }
 
-
+            closeConnection().finally(() => {
+                clearInterval(state.intervalSchedulerRef)
             })
 
         }
