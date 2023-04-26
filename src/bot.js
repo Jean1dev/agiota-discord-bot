@@ -27,7 +27,7 @@ client.login(config.BOT_TOKEN)
 const prefix = process.env.NODE_ENV === 'dev' ? '!' : '$'
 
 console.log('rodando no ambiente ', process.env.NODE_ENV)
-console.log('prefix do comando é ', prefix)
+console.log('comando funcional é  ', prefix, '$ comando')
 
 function avisarQueEstaOnline() {
   if (process.env.NODE_ENV === 'dev')
@@ -36,7 +36,6 @@ function avisarQueEstaOnline() {
   const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
 
   if (channel && channel.send) {
-    //channel.send('to online povo')
     listarAsUltimasFeatures(channel)
   } else {
     console.log('nao consegui enviar mensagem ::', channel)

@@ -5,6 +5,8 @@ const { Octokit } = require("@octokit/core")
 const captureException = require('../observability/Sentry')
 const { GITHUB_API_TOKEN } = require('../config')
 
+const TIMEOUT = 20000
+
 function listarAsUltimasFeatures(discordChannel) {
     const octokit = new Octokit({ auth: GITHUB_API_TOKEN })
 
@@ -18,7 +20,10 @@ function listarAsUltimasFeatures(discordChannel) {
 
         discordChannel.send('Ultimas alterações').then(msg => msg.delete({ timeout: 20000 }))
         const message = [items[0].message, items[1].message].join('\n')
-        discordChannel.send(message).then(msg => msg.delete({ timeout: 20000 }))
+
+        discordChannel.send(message).then(msg => {
+            setTimeout(() => msg.delete({ timeout: TIMEOUT }), TIMEOUT)
+        })
         
     }).catch(captureException)
 }

@@ -8,6 +8,9 @@ const {
 const listarAsUltimasFeatures = require('./githubOperations')
 const criarPDFRetornarCaminho = require('./GerarPDF')
 const eviarEmailComAnexo = require('./enviarEmailCobranca')
+const {
+    startSearching: searchingAndNotifyEmprestimos 
+} = require('./notificacoesCaixinha')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -17,5 +20,6 @@ module.exports = {
     getRegistros,
     clearRegistros,
     rankearUso,
-    exibirRankingNoChat
+    exibirRankingNoChat,
+    searchingAndNotifyEmprestimos
 }

@@ -14,7 +14,7 @@ function registerJobs() {
         channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
             msg.delete({ timeout: 20000 })
         })
-        channel = context.client.channels.cache.find(channel => channel.name === '🤖-testes-bot')
+        channel = context.client.channels.cache.find(channel => channel.name === 'lixo')
         channel.bulkDelete(30)
             .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
             .catch(captureException)
