@@ -59,7 +59,7 @@ function startNewEmprestimo() {
     state.originalMessage.author.send(`
         Acesse o link para fazer o emprestimo \n
         o link expira em 60 minutos \n
-        https://caixinha-gilt.vercel.app/?user=${state.originalMessage.author.username}&auth=${config.CAIXINHA_KEY}
+        https://caixinha-gilt.vercel.app/emprestimo?user=${state.originalMessage.author.username}&auth=${config.CAIXINHA_KEY}
     `)
 
     state.originalMessage.reply('enviei um link no seu privado, continue por la').then(m => messagesForClean.push(m))
