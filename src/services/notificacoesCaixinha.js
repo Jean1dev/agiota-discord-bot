@@ -1,7 +1,10 @@
-const { client: MongoClient, DATABASE } = require('../repository/mongodb')
+const { client: MongoClient } = require('../repository/mongodb')
 const context = require('../context')
 const { MessageEmbed } = require("discord.js")
 const { ObjectID } = require('mongodb')
+
+const DATABASE = 'caixinha'
+const collectionName = 'emprestimos'
 
 const state = {
     intervalSchedulerRef: null,
@@ -20,7 +23,7 @@ async function startSearching() {
     await connectDBAndKeepOpen()
     state.intervalSchedulerRef = setInterval(async () => {
         console.log('searching for new loans')
-        const data = await state.mongoClient.db(DATABASE).collection('SolicitacaoEmprestimo').find({ discordVerify: { $exists: false } }).toArray()
+        const data = await state.mongoClient.db(DATABASE).collection(collectionName).find({ discordVerify: { $exists: false } }).toArray()
 
         if (data.length) {
             const channel = context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
@@ -29,15 +32,15 @@ async function startSearching() {
                     .setTitle(`'Solicitação de emprestimo' do ${element.memberName}`)
                     .setThumbnail('https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U')
                     .setDescription(`
-                                valor R$${element.valor} \n
-                                o juros pago sera de ${element.juros}% \n
-                                a quantidade de parcelas sera ${element.parcela} \n
-                                no total de de R$${element.total} \n
-                                ${element.motivo} \n
+                                valor R$${element.valueRequested} \n
+                                o juros pago sera de ${element.interest}% \n
+                                a quantidade de parcelas sera ${0} \n
+                                no total de de R$${element.totalValue} \n
+                                ${element.description} \n
                     `).setColor("RANDOM")
 
                 channel.send({ embeds: [embed] })
-                await state.mongoClient.db(DATABASE).collection('SolicitacaoEmprestimo').updateOne(
+                await state.mongoClient.db(DATABASE).collection(collectionName).updateOne(
                     { _id: new ObjectID(element._id) },
                     { $set: { discordVerify: true } }
                 )
