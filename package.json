@@ -17,6 +17,7 @@
     "@octokit/core": "^3.6.0",
     "@sentry/node": "^6.19.7",
     "@sentry/tracing": "^6.19.7",
+    "amqplib": "^0.10.3",
     "audioconcat": "^0.1.4",
     "axios": "^0.24.0",
     "discord.js": "^13.2.0",

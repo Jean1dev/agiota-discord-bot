@@ -1,28 +1,25 @@
-const googleOAuthState = require('../../adapters/google-Oauth')
-const { google } = require('googleapis')
-
 const config = require('../../config')
-const appEvents = require('../../app-events')
 
-function askForToken(callback) {
-    message.reply('Estou sem o token, autoriza lá e me manda aqui')
+//const googleOAuthState = require('../../adapters/google-Oauth')
+// function askForToken(callback) {
+//     message.reply('Estou sem o token, autoriza lá e me manda aqui')
 
-    message.reply(`Authorize this app by visiting this url: ${googleOAuthState.authUrl}`, { fetchReply: true })
-        .then(() => {
-            message.channel.awaitMessages({ max: 1, time: 60000, errors: ['time'] })
-                .then(collected => {
-                    const code = collected.first().content
-                    googleOAuthState.setAuthToken(code).then(callback)
+//     message.reply(`Authorize this app by visiting this url: ${googleOAuthState.authUrl}`, { fetchReply: true })
+//         .then(() => {
+//             message.channel.awaitMessages({ max: 1, time: 60000, errors: ['time'] })
+//                 .then(collected => {
+//                     const code = collected.first().content
+//                     googleOAuthState.setAuthToken(code).then(callback)
 
-                })
-                .catch(() => {
-                    message.author.send("Request Denied because you did not responded with a registerd email ID. You can request again!");
-                })
-        })
+//                 })
+//                 .catch(() => {
+//                     message.author.send("Request Denied because you did not responded with a registerd email ID. You can request again!");
+//                 })
+//         })
 
-    return
+//     return
 
-}
+// }
 
 const state = {
     originalMessage: null,
@@ -64,7 +61,6 @@ function startNewEmprestimo() {
 
     state.originalMessage.reply('enviei um link no seu privado, continue por la').then(m => messagesForClean.push(m))
     cleanMessageList()
-    appEvents.emit('notification-emprestimo')
 }
 
 function selecionarOperacao(opcao) {

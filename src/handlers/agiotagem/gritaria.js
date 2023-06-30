@@ -24,7 +24,7 @@ const ramdomAudioNumber = () => {
 }
 
 const state = {
-  player: createAudioPlayer(),
+  player: null,
   audioNumero: ramdomAudioNumber()
 }
 
@@ -33,6 +33,7 @@ function playSong() {
     inputType: StreamType.Arbitrary,
   })
 
+  state.player = createAudioPlayer()
   state.player.play(resource)
   state.audioNumero = ramdomAudioNumber()
   return entersState(state.player, AudioPlayerStatus.Playing, 5e3)

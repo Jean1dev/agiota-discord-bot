@@ -12,12 +12,15 @@ function registerJobs() {
     schedule('0 10 * * *', () => {
         let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
         channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
-            msg.delete({ timeout: 20000 })
+            msg.delete({ timeout: 40000 })
         })
-        channel = context.client.channels.cache.find(channel => channel.name === 'lixo')
-        channel.bulkDelete(30)
-            .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
-            .catch(captureException)
+        
+        ['lixo', '💰-caixinha'].forEach(channelName => {
+            channel = context.client.channels.cache.find(channel => channel.name === channelName)
+            channel.bulkDelete(30)
+                .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
+                .catch(captureException)
+        });
     })
 
     schedule('0 * * * *', () => {

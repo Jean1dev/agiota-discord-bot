@@ -5,3 +5,15 @@ services:
     ports:
       - "27017:27017"
     container_name: mongodb_bot_local
+
+  rabbit:
+    container_name: amqp_bot
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=SWQOKODSQALRPCLNMEQG
+      - RABBITMQ_DEFAULT_USER=adm
+      - RABBITMQ_DEFAULT_PASS=123456
+      - RABBITMQ_DEFAULT_VHOST=virtualhost
+    ports:
+      - 15672:15672
+      - 5672:5672

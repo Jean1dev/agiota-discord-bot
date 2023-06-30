@@ -9,5 +9,6 @@ module.exports = {
   ASSISTANT_IAM_APIKEY: process.env.ASSISTANT_IAM_APIKEY,
   SENTRY_DNS: process.env.SENTRY_DNS,
   GITHUB_API_TOKEN: process.env.GITHUB_API_TOKEN,
-  CAIXINHA_KEY: process.env.CAIXINHA_KEY
+  CAIXINHA_KEY: process.env.CAIXINHA_KEY,
+  AMQP_CONNECTION: process.env.AMQP_CONNECTION
 }

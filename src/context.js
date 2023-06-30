@@ -28,6 +28,7 @@ class Context {
       this.acoes = data?.acoes
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
+      //TODO:: refatorar o inicio disso no futuro
       appEvents.emit('update-state-jogo-bixo', null)
 
     } catch (error) {
