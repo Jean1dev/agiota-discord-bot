@@ -1,6 +1,30 @@
 const context = require('../context')
 const { MessageEmbed, MessageButton, MessageActionRow } = require("discord.js")
 const captureException = require('../observability/Sentry')
+const axios = require('axios')
+const { CAIXINHA_SERVER_URL, BASIC_MAILGUN_KEY } = require('../config')
+const FormData = require("form-data")
+
+function enviarAprovacao(caixinhaId, emprestimoUid) {
+    axios.default.post(CAIXINHA_SERVER_URL, {
+        caixinhaId,
+        emprestimoUid
+    }).then(() => {
+        const form = new FormData()
+        form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
+        form.append('to', 'jeanlucafp@gmail.com')
+        form.append('subject', 'Enviado aprovação de emprestimo via discord')
+        form.append('text', `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`)
+        
+        axios({
+            method: 'post',
+            url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
+            data: form,
+            headers: { Authorization: `Basic ${BASIC_MAILGUN_KEY}`, ...form.getHeaders() }
+        }).catch(captureException)
+
+    }).catch(captureException)
+}
 
 function getChannelCaixinha() {
     return context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
@@ -43,17 +67,25 @@ function notifyEmprestimo(emprestimo) {
     const actionRow = new MessageActionRow()
         .addComponents(aceitarButton, rejeitarButton);
 
+    const caixinhaId = emprestimo._id
+    const emprestimoUid = emprestimo.uid
+
+    function onInteraction(sentMessage, caixinhaId, emprestimoUid) {
+        const collector = sentMessage.createMessageComponentCollector();
+
+        collector.on('collect', (interaction) => {
+            if (interaction.customId === 'aprovar') {
+                interaction.reply(`Você aceitou ${interaction.member.nickname} `);
+                enviarAprovacao(caixinhaId, emprestimoUid)
+            } else if (interaction.customId === 'rejeitar') {
+                interaction.reply(`Você rejeitou ${interaction.member.nickname}`);
+            }
+        });
+    }
+
     channel.send({ embeds: [embed], components: [actionRow] })
         .then(sentMessage => {
-            const collector = sentMessage.createMessageComponentCollector();
-
-            collector.on('collect', (interaction) => {
-                if (interaction.customId === 'aprovar') {
-                    interaction.reply(`Você aceitou ${interaction.member.nickname} `);
-                } else if (interaction.customId === 'rejeitar') {
-                    interaction.reply(`Você rejeitou ${interaction.member.nickname}`);
-                }
-            });
+            onInteraction(sentMessage, caixinhaId, emprestimoUid)
         })
 }
 
