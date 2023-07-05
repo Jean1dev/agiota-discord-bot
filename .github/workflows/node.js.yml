@@ -28,19 +28,5 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test --if-present
-    
-  heroku:
-    needs: [build]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/heroku'
-    
-    steps:
-    - uses: actions/checkout@v2
-    - name: Deploy to Heroku
-      uses: CDNievas/heroku-action@v1.0
-      with:
-        heroku_api_key: ${{secrets.FABIOHP_HEROKU_KEY}}
-        heroku_email: "fabiuhp@msn.com"
-        heroku_app_name: "agiota-bot-2"
 
   
