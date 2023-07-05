@@ -69,21 +69,20 @@ function rankearUso() {
         }, {})
     }
 
-    MongoClient.connect().then(client => {
-        client.db(DATABASE)
+    MongoClient.connect().then(async client => {
+        const elements = await client.db(DATABASE)
             .collection('analise_dados_usuarios')
             .find({})
             .toArray()
-            .then(async elements => {
-                const dadosUsuarioAcumulados = groupBy(elements, 'userId')
 
-                for (const iterator of Object.entries(dadosUsuarioAcumulados)) {
-                    await exibirDadosUsuarioERankear(iterator)
-                }
+        const dadosUsuarioAcumulados = groupBy(elements, 'userId')
 
-                await client.db(DATABASE).collection('analise_dados_usuarios').deleteMany()
-                await client.close()
-            })
+        for (const iterator of Object.entries(dadosUsuarioAcumulados)) {
+            await exibirDadosUsuarioERankear(iterator)
+        }
+
+        await client.db(DATABASE).collection('analise_dados_usuarios').deleteMany()
+        await client.close()
     })
 }
 

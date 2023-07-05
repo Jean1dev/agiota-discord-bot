@@ -89,6 +89,16 @@ function notifyEmprestimo(emprestimo) {
         })
 }
 
+function notifyRendimento(message) {
+    const channel = getChannelCaixinha()
+    const embed = new MessageEmbed()
+        .setTitle(`Atenção`)
+        .setThumbnail('https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U')
+        .setDescription(message).setColor("RANDOM")
+
+    channel.send({ embeds: [embed] })
+}
+
 function notificar(message) {
     try {
         const jsonMessage = JSON.parse(message)
@@ -99,6 +109,10 @@ function notificar(message) {
 
             case 'EMPRESTIMO':
                 notifyEmprestimo(jsonMessage.data)
+                break;
+
+            case 'RENDIMENTO':
+                notifyRendimento(jsonMessage.data)
                 break;
 
             default:
