@@ -7,21 +7,23 @@ const captureException = require('./observability/Sentry')
 const { getRegistros, clearRegistros, rankearUso, exibirRankingNoChat } = require('./services')
 const { client: MongoClient, DATABASE } = require('./repository/mongodb')
 
-function registerJobs() {
-
-    schedule('0 10 * * *', () => {
-        let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
-        channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
-            msg.delete({ timeout: 40000 })
-        })
-        
-        ['lixo', '💰-caixinha'].forEach(channelName => {
-            channel = context.client.channels.cache.find(channel => channel.name === channelName)
-            channel.bulkDelete(30)
-                .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
-                .catch(captureException)
-        });
+function limparCanais() {
+    let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
+    channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
+        msg.delete({ timeout: 40000 })
     })
+
+    const listChannel = ['lixo', '💰-caixinha']
+    for (const channelName of listChannel) {
+        channel = context.client.channels.cache.find(channel => channel.name === channelName)
+        channel.bulkDelete(30)
+            .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
+            .catch(captureException)
+    }
+}
+
+function registerJobs() {
+    schedule('0 10 * * *', () => limparCanais)
 
     schedule('0 * * * *', () => {
         console.info('salvar analise dados job')
