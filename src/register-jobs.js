@@ -22,25 +22,27 @@ function limparCanais() {
     }
 }
 
-function registerJobs() {
-    schedule('0 10 * * *', () => limparCanais)
+function salvarDadosAnalise() {
+    console.info('salvar analise dados job')
+    const registros = getRegistros()
+    if (!registros.length)
+        return
 
-    schedule('0 * * * *', () => {
-        console.info('salvar analise dados job')
-        const registros = getRegistros()
-        if (!registros.length)
-            return
-
-        MongoClient.connect().then(client => {
-            client.db(DATABASE)
-                .collection('analise_dados_usuarios')
-                .insertMany(registros)
-                .finally(() => {
-                    client.close()
-                    clearRegistros()
-                })
-        })
+    MongoClient.connect().then(client => {
+        client.db(DATABASE)
+            .collection('analise_dados_usuarios')
+            .insertMany(registros)
+            .finally(() => {
+                client.close()
+                clearRegistros()
+            })
     })
+}
+
+function registerJobs() {
+    //schedule('0 * * * *', salvarDadosAnalise)
+
+    schedule('0 10 * * *', limparCanais)
 
     schedule('0 20 * * 0', rankearUso)
 

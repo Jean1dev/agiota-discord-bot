@@ -15,7 +15,7 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
         form.append('to', 'jeanlucafp@gmail.com')
         form.append('subject', 'Enviado aprovação de emprestimo via discord')
         form.append('text', `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`)
-        
+
         axios({
             method: 'post',
             url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
@@ -43,16 +43,45 @@ function notifyDeposito(deposito) {
 }
 
 function notifyEmprestimo(emprestimo) {
+    function getDataFormatada(dataString) {
+        const data = new Date(dataString);
+
+        const dia = String(data.getDate()).padStart(2, '0');
+        const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês começa do zero
+        const ano = data.getFullYear();
+
+        const dataFormatada = `${dia}/${mes}/${ano}`;
+        return dataFormatada
+    }
+
+    function getDescription() {
+        if (emprestimo.installments > 0) {
+            return `
+            valor solicitado R$${emprestimo.valueRequested.value} \n
+            com um juros de ${emprestimo.interest.value}% \n
+            valor total da soliticação R$${emprestimo.totalValue.value}
+            ${emprestimo.description} \n
+            esse é um emprestimo parcelado em ${emprestimo.installments}x \n
+            data da primeira parcela é ${getDataFormatada(emprestimo.billingDates[0])}
+            `
+        } else {
+            return `
+            valor solicitado R$${emprestimo.valueRequested.value} \n
+            com um juros de ${emprestimo.interest.value}% \n
+            valor total da soliticação R$${emprestimo.totalValue.value}
+            ${emprestimo.description} \n
+            data limite de pagamento é ${getDataFormatada(emprestimo.billingDates[0])}
+            `
+        }
+    }
+
+
     const channel = getChannelCaixinha()
     const embed = new MessageEmbed()
         .setTitle(`nova solicitação de emprestimo do ${emprestimo.memberName}`)
         .setThumbnail('https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U')
-        .setDescription(`
-                        valor solicitado R$${emprestimo.valueRequested.value} \n
-                        com um juros de ${emprestimo.interest.value}% \n
-                        valor total da soliticação R$${emprestimo.totalValue.value}
-                        ${emprestimo.description} \n
-            `).setColor("RANDOM")
+        .setDescription(getDescription())
+        .setColor("RANDOM")
 
     const aceitarButton = new MessageButton()
         .setCustomId('aprovar')
@@ -99,6 +128,26 @@ function notifyRendimento(message) {
     channel.send({ embeds: [embed] })
 }
 
+function notifyEmail({ message, remetentes }) {
+
+    remetentes.forEach(email => {
+        const form = new FormData()
+        form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
+        form.append('to', email)
+        form.append('subject', 'Notificação Caixinha')
+        form.append('text', message)
+
+        axios({
+            method: 'post',
+            url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
+            data: form,
+            headers: { Authorization: `Basic ${BASIC_MAILGUN_KEY}`, ...form.getHeaders() }
+        }).catch(captureException)
+        
+    })
+
+}
+
 function notificar(message) {
     try {
         const jsonMessage = JSON.parse(message)
@@ -113,6 +162,10 @@ function notificar(message) {
 
             case 'RENDIMENTO':
                 notifyRendimento(jsonMessage.data)
+                break;
+
+            case 'EMAIL':
+                notifyEmail(jsonMessage.data)
                 break;
 
             default:
