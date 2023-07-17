@@ -164,6 +164,10 @@ function notificar(message) {
                 notifyRendimento(jsonMessage.data)
                 break;
 
+            case 'NOTIFICACAO':
+                notifyRendimento(jsonMessage.data.message)
+                break;
+
             case 'EMAIL':
                 notifyEmail(jsonMessage.data)
                 break;
