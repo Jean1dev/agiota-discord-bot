@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js")
-const { comandos } = require('../../commands/lista-comandos')
+const comandos = require('../../commands/lista-comandos')
 const LIMITE_EMBEDS_DISCORD = 10
 
 module.exports = message => {
@@ -16,7 +16,7 @@ module.exports = message => {
     embeds.forEach(embed => {
       counter++
       if (counter === LIMITE_EMBEDS_DISCORD) {
-        message.channel.send({ embeds: remapEmbeds })
+        message.author.send({ embeds: remapEmbeds })
         remapEmbeds = []
         counter = 0
       }
@@ -25,11 +25,11 @@ module.exports = message => {
     })
 
     if (remapEmbeds.length) {
-      message.channel.send({ embeds: remapEmbeds })
+      message.author.send({ embeds: remapEmbeds })
     }
 
     return
   }
 
-  message.channel.send({ embeds: embeds })
+  message.author.send({ embeds: embeds })
 }

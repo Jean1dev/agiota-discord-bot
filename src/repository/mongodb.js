@@ -7,7 +7,7 @@ async function getDataFromMongo() {
   try {
     await client.connect()
     const data = await client.db(DATABASE).collection('data').find().toArray()
-    console.log("Carregou os dados do bd")
+
     if (!data.length) {
       return {
         dividas: [],

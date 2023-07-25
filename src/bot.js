@@ -26,8 +26,7 @@ client.login(config.BOT_TOKEN)
 
 const prefix = process.env.NODE_ENV === 'dev' ? '!' : '$'
 
-console.log('rodando no ambiente ', process.env.NODE_ENV)
-console.log('comando funcional é  ', prefix, '$ comando')
+console.log('BOT COMMAND>>>   ', prefix, '$ comando')
 
 function avisarQueEstaOnline() {
   if (process.env.NODE_ENV === 'dev')
@@ -43,7 +42,6 @@ function avisarQueEstaOnline() {
 }
 
 client.on('ready', async () => {
-  console.log('Discord.js client is ready!')
   avisarQueEstaOnline()
   context.setClient(client)
   registerJobs()

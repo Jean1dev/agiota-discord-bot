@@ -10,7 +10,6 @@ class AppEvents extends EventEmitter { }
 const appEvents = new AppEvents()
 
 appEvents.on('update-state-jogo-bixo', () => {
-    console.info('event::', 'update-state-jogo-bixo')
     updateStateAfterDataLoad()
 })
 
