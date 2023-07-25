@@ -12,9 +12,9 @@ function umaDivida(valorDivida, descricao, quemEmprestouDinheiro) {
 module.exports = async (args, message) => {
   message.reply('blz, vou adicionar a divida')
   
-  const valorDivida = args[1]
-  const userId = args[2]
-  const descricao = args.splice(3, args.length).join(' ')
+  const valorDivida = args[0]
+  const userId = args[1]
+  const descricao = args.splice(2, args.length).join(' ')
   const quemEmprestouDinheiro = message.author.username
   const usuario = context.dividas.find(user => user.id === userId)
 

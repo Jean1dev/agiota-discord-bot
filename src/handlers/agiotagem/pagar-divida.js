@@ -1,7 +1,7 @@
 const context = require('../../context')
 
 module.exports = async (args, message) => {
-  const valorPago = args[1]
+  const valorPago = args[0]
   const autor = message.author.id
 
   context.dividas

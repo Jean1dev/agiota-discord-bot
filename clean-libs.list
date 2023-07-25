@@ -1,0 +1,4 @@
+@discordjs/opus
+tweetnacl
+libsodium-wrappers
+node-crc

@@ -26,7 +26,7 @@ client.login(config.BOT_TOKEN)
 
 const prefix = process.env.NODE_ENV === 'dev' ? '!' : '$'
 
-console.log('BOT COMMAND>>>   ', prefix, '$ comando')
+console.log('Comando do bot ', prefix)
 
 function avisarQueEstaOnline() {
   if (process.env.NODE_ENV === 'dev')
@@ -63,8 +63,8 @@ client.on("messageCreate", async function (message) {
   if (!message.content.startsWith(prefix))
     return
 
-  const commandBody = message.content.slice(prefix.length)
-  const args = commandBody.split(' ')
-  const command = args.shift().toLowerCase()
-  return commands(command, args, message)
+  const commandBody = message.content.slice(prefix.length).trim()
+  const parameters = commandBody.split(' ')
+  const command = parameters.shift().toLowerCase()
+  return commands(command, parameters, message)
 })

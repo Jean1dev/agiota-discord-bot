@@ -9,6 +9,7 @@ const uploadRecords = require('./record/upload-records')
 const changeIaMode = require('./ia/turn-ia-mode')
 const jogoBixoHandler = require('./jogo-bixo/command-handler')
 const estatisticasJogoBixoHandler = require('./jogo-bixo/estatisticas')
+const musicPlayerHanlder = require('./music')
 
 module.exports = {
   addDividaHandler,
@@ -21,5 +22,6 @@ module.exports = {
   uploadRecords,
   changeIaMode,
   jogoBixoHandler,
-  estatisticasJogoBixoHandler
+  estatisticasJogoBixoHandler,
+  musicPlayerHanlder
 }

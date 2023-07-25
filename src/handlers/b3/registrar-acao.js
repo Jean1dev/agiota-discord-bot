@@ -13,7 +13,7 @@ function deleteMessageAfterTime(message) {
 }
 
 module.exports = async (args, message) => {
-  const papel = args[1]
+  const papel = args[0]
   message.reply('momentinho ja vou adicionar').then(deleteMessageAfterTime)
 
   try {

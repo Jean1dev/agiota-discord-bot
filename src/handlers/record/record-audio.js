@@ -47,7 +47,7 @@ function concatAudios() {
 
 module.exports = async (args, message) => {
   const channel = message.member?.voice.channel
-  const timeoutMillis = (args[1] || 6) * 1000
+  const timeoutMillis = (args[0] || 6) * 1000
   const client = context.client
   recordable.add(message.author.id)
 

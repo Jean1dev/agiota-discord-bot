@@ -12,7 +12,8 @@ const {
   uploadRecords,
   changeIaMode,
   jogoBixoHandler,
-  estatisticasJogoBixoHandler
+  estatisticasJogoBixoHandler,
+  musicPlayerHanlder
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -35,4 +36,5 @@ registrarComando('uprec', uploadRecords, 'faz upload das gravações para o goog
 registrarComando('ia', changeIaMode, 'liga ou desliga a inteligencia artifical')
 registrarComando('bixo', jogoBixoHandler, 'aposta em um bixo no jogo do bixo :: args @numero', true)
 registrarComando('bixo-data', estatisticasJogoBixoHandler, 'gera as estatisticas do bixo')
+registrarComando('p', musicPlayerHanlder, 'toca uma musica do youtube ::@args url da musica', true)
 

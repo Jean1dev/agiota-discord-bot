@@ -1,7 +1,6 @@
 const comandos = require('./lista-comandos')
 
-async function handleAgtCommand(args, message) {
-  const command = args[0]
+async function handleAgtCommand(command, args, message) {
   const funcaoHandlerData = comandos.find(item => item.comando === command)
   if (!funcaoHandlerData) {
     return
@@ -16,7 +15,5 @@ async function handleAgtCommand(args, message) {
 }
 
 module.exports = async (command, args, message) => {
-  if (command === '$') {
-    return handleAgtCommand(args, message)
-  }
+  return handleAgtCommand(command, args, message)
 }

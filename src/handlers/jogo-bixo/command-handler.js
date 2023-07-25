@@ -1,8 +1,8 @@
 const { registrarAposta, criarNovoJogo } = require('./game-functions')
 
 module.exports = (args, message) => {
-  const numero = Number(args[1])
-  const segundoNumero = Number(args[2])
+  const numero = Number(args[0])
+  const segundoNumero = Number(args[1])
   const autor = message.author.id
   const aposta = {
     numero,
