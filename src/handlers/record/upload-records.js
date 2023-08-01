@@ -3,6 +3,7 @@ const googleOAuthState = require('../../adapters/google-Oauth')
 const { google } = require('googleapis')
 const fs = require('fs')
 
+const TOKEN_PATH = 'token.json'
 
 module.exports = message => {
   if (!context.gravacoes.length) {
