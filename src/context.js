@@ -3,7 +3,6 @@ const repository = require('./repository/operations')
 class Context {
   player
   dividas
-  acoes
   client
   gravacoes
   isIAEnabled = false
@@ -12,7 +11,6 @@ class Context {
 
   constructor() {
     this.dividas = []
-    this.acoes = []
     this.gravacoes = []
     this.tryLoadData()
   }
@@ -25,7 +23,6 @@ class Context {
     try {
       const data = await repository.getData()
       this.dividas = data?.dividas
-      this.acoes = data?.acoes
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
       //TODO:: refatorar o inicio disso no futuro
@@ -39,7 +36,6 @@ class Context {
   save() {
     repository.save({
       dividas: this.dividas,
-      acoes: this.acoes,
       jogoAberto: this.jogoAberto,
       jogo: this.jogo
     })

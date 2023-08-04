@@ -11,7 +11,6 @@ async function getDataFromMongo() {
     if (!data.length) {
       return {
         dividas: [],
-        acoes: [],
         jogoAberto: false,
         jogo: null
       }
@@ -19,7 +18,6 @@ async function getDataFromMongo() {
 
     return {
       dividas: data[0]['dividas'],
-      acoes: data[0]['acoes'],
       jogoAberto: data[0]['jogoAberto'],
       jogo: data[0]['jogo']
     }
