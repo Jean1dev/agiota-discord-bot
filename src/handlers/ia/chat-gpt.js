@@ -2,12 +2,9 @@ const axios = require('axios');
 const context = require('../../context')
 const { KEY_OPEN_AI } = require('../../config')
 
-module.exports = message => {
-
-    let userMessage = removePrefix(message.content)
-    console.log('userMessage: ', userMessage)
-    
+module.exports = async (args, message) => {
     if (context.isChatGPTEnabled) {
+        let userMessage = args.join(" ")
         const openaiAxios = axios.create({
             baseURL: 'https://api.openai.com/v1',
             headers: {
@@ -48,18 +45,10 @@ module.exports = message => {
                 message.reply(chatGPTResponse);
             })
             .catch(error => {
-                message.send('Error ao buscar resposta 🥵')
+                message.reply('Error ao buscar resposta 🥵')
                 console.error('Erro ao obter conclusão:', error);
             });
     } else {
-        message.send('Chat Gpt desativado  👩‍💻 🥵')
-    }
-
-    function removePrefix(message) {
-        const prefix = "!chat";
-        if (message.startsWith(prefix)) {
-            return message.slice(prefix.length).trim();
-        }
-        return message;
+        message.reply('Chat Gpt desativado  👩‍💻 🥵')
     }
 }
