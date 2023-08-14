@@ -6,6 +6,7 @@ class Context {
   client
   gravacoes
   isIAEnabled = false
+  isChatGPTEnabled = true
   jogoAberto = false
   jogo
 

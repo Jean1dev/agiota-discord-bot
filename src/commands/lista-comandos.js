@@ -12,7 +12,8 @@ const {
   jogoBixoHandler,
   estatisticasJogoBixoHandler,
   musicPlayerHanlder,
-  atualizarCotacaoHandler
+  atualizarCotacaoHandler,
+  chatGpt
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -35,4 +36,4 @@ registrarComando('bixo', jogoBixoHandler, 'aposta em um bixo no jogo do bixo :: 
 registrarComando('bixo-data', estatisticasJogoBixoHandler, 'gera as estatisticas do bixo')
 registrarComando('p', musicPlayerHanlder, 'toca uma musica do youtube ::@args url da musica', true)
 registrarComando('acao', atualizarCotacaoHandler, 'atualizar cotacoes no app da carteira')
-
+registrarComando('chat', chatGpt, 'Tire suas dúvidas com o chatgpt')
