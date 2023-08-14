@@ -8,6 +8,9 @@ async function handleAgtCommand(command, args, message) {
 
   const fnc = funcaoHandlerData.handler
   if (funcaoHandlerData.needArgs) {
+    if (!args.length){
+      return message.reply('Informe os argumentos do comando seu cabaço')
+    }
     return fnc(args, message)
   }
 
