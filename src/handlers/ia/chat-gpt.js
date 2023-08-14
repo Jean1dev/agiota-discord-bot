@@ -1,6 +1,7 @@
 const axios = require('axios');
 const context = require('../../context')
 const { KEY_OPEN_AI } = require('../../config')
+const MAX_LENGTH = 2000;
 
 module.exports = async (args, message) => {
     if (context.isChatGPTEnabled) {
@@ -40,10 +41,15 @@ module.exports = async (args, message) => {
             }
         }
         getCompletion()
-            .then(data => {
-                const chatGPTResponse = data.choices[0].message.content.trim();
-                message.reply(chatGPTResponse);
-            })
+        .then(data => {
+            const chatGPTResponse = data.choices[0].message.content.trim();
+            if (chatGPTResponse.length > MAX_LENGTH) {
+              const chunks = divideMessage(chatGPTResponse, MAX_LENGTH);
+              chunks.forEach(chunk => message.reply(chunk));
+            } else {
+              message.reply(chatGPTResponse);
+            }
+          })
             .catch(error => {
                 message.reply('Error ao buscar resposta 🥵')
                 console.error('Erro ao obter conclusão:', error);
@@ -51,4 +57,14 @@ module.exports = async (args, message) => {
     } else {
         message.reply('Chat Gpt desativado  👩‍💻 🥵')
     }
+
+    function divideMessage(message, maxLength) {
+        const chunks = [];
+        while (message.length > maxLength) {
+          chunks.push(message.substring(0, maxLength));
+          message = message.substring(maxLength);
+        }
+        chunks.push(message);
+        return chunks;
+      }
 }
