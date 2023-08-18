@@ -10,6 +10,7 @@ const estatisticasJogoBixoHandler = require('./jogo-bixo/estatisticas')
 const musicPlayerHanlder = require('./music')
 const atualizarCotacaoHandler = require('./b3/atualizar-cotacao-carteira')
 const chatGpt = require('./ia/chat-gpt')
+const imgur = require("./imgur")
 
 module.exports = {
   addDividaHandler,
@@ -23,5 +24,6 @@ module.exports = {
   estatisticasJogoBixoHandler,
   musicPlayerHanlder,
   atualizarCotacaoHandler,
-  chatGpt
+  chatGpt,
+  imgur
 }
