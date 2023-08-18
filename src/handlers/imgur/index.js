@@ -34,7 +34,7 @@ module.exports = async message => {
     const isValid = await validar_link(link);
     if (isValid) {
       links_aleatorios.push(link);
-      message.reply(link);
     }
   }
+  message.reply(links_aleatorios.join(" "));
 }
