@@ -35,7 +35,7 @@ registrarComando('uprec', uploadRecords, 'faz upload das gravações para o goog
 registrarComando('ia', changeIaMode, 'liga ou desliga a inteligencia artifical')
 registrarComando('bixo', jogoBixoHandler, 'aposta em um bixo no jogo do bixo :: args @numero', true)
 registrarComando('bixo-data', estatisticasJogoBixoHandler, 'gera as estatisticas do bixo')
-registrarComando('p', musicPlayerHanlder, 'toca uma musica do youtube ::@args url da musica', true)
+registrarComando('p', musicPlayerHanlder, 'Liga o player de musica')
 registrarComando('acao', atualizarCotacaoHandler, 'atualizar cotacoes no app da carteira')
 registrarComando('gpt', chatGpt, 'Tire suas dúvidas com o chatgpt', true)
 registrarComando('imgur', imgur, 'Busca 5 imagens aleatorias do imgur')

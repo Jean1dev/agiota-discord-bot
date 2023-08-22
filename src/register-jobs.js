@@ -13,7 +13,7 @@ function limparCanais() {
         msg.delete({ timeout: 40000 })
     })
 
-    const listChannel = ['lixo', '💰-caixinha']
+    const listChannel = ['lixo']
     for (const channelName of listChannel) {
         channel = context.client.channels.cache.find(channel => channel.name === channelName)
         channel.bulkDelete(30)

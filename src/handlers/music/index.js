@@ -1,48 +1,54 @@
+const { GuildMember } = require('discord.js')
 const Track = require('./track')
 const MusicSubscription = require('./subcription')
 const Context = require('../../context')
-const { joinVoiceChannel, entersState, VoiceConnectionStatus } = require('@discordjs/voice')
+const { 
+    joinVoiceChannel, 
+    entersState, 
+    VoiceConnectionStatus,
+    AudioPlayerStatus
+} = require('@discordjs/voice')
 
-async function myImpl(args, message) {
-    const url = args[0]
-    const channel = message.member?.voice.channel
-    try {
-        const subscription = new MusicSubscription(
-            joinVoiceChannel({
-                channelId: channel.id,
-                guildId: channel.guild.id,
-                adapterCreator: channel.guild.voiceAdapterCreator,
-            }),
-        );
+const subscriptions = new Map();
 
-        await entersState(subscription.voiceConnection, VoiceConnectionStatus.Ready, 20e3);
+// async function myImpl(args, message) {
+//     const url = args[0]
+//     const channel = message.member?.voice.channel
+//     try {
+//         const subscription = new MusicSubscription(
+//             joinVoiceChannel({
+//                 channelId: channel.id,
+//                 guildId: channel.guild.id,
+//                 adapterCreator: channel.guild.voiceAdapterCreator,
+//             }),
+//         );
 
-        // Attempt to create a Track from the user's video URL
-        const track = await Track.from(url, {
-            onStart() {
-                message.channel.send('Now playing!')
-            },
-            onFinish() {
-                message.channel.send('Now finished!')
-            },
-            onError(error) {
-                console.warn(error);
-                message.channel.send(`Error: ${error.message}`)
-            },
-        });
-        // Enqueue the track and reply a success message to the user
-        subscription.enqueue(track);
-    } catch (error) {
-        console.warn(error);
+//         await entersState(subscription.voiceConnection, VoiceConnectionStatus.Ready, 20e3);
 
-        return;
-    }
-}
+//         // Attempt to create a Track from the user's video URL
+//         const track = await Track.from(url, {
+//             onStart() {
+//                 message.channel.send('Now playing!')
+//             },
+//             onFinish() {
+//                 message.channel.send('Now finished!')
+//             },
+//             onError(error) {
+//                 console.warn(error);
+//                 message.channel.send(`Error: ${error.message}`)
+//             },
+//         });
+//         // Enqueue the track and reply a success message to the user
+//         subscription.enqueue(track);
+//     } catch (error) {
+//         console.warn(error);
 
-module.exports = async (args, message) => {
+//         return;
+//     }
+// }
+
+module.exports = async (message) => {
     if (!message.guild) return;
-
-    return myImpl(args, message)
 
     await message.guild.commands.set([
         {
@@ -79,14 +85,14 @@ module.exports = async (args, message) => {
         },
     ]);
 
-    await message.reply('Deployed!');
+    await message.reply('Player de musica ligado!, use / para visualizar todas as opcoes');
 
     Context.client.on('interactionCreate', async (interaction) => {
         if (!interaction.isCommand() || !interaction.guildId) return;
         let subscription = subscriptions.get(interaction.guildId);
 
         if (interaction.commandName === 'play') {
-            await interaction.defer();
+            await interaction.deferReply();
             // Extract the video URL from the command
             const url = interaction.options.get('song').value;
 
@@ -196,4 +202,7 @@ module.exports = async (args, message) => {
             await interaction.reply('Unknown command');
         }
     });
+
+    //return myImpl(args, message)
+
 }

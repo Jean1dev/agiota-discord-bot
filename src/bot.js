@@ -18,7 +18,7 @@ const client = new Client({
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_VOICE_STATES,
     Intents.FLAGS.DIRECT_MESSAGES,
-    Intents.FLAGS.DIRECT_MESSAGE_TYPING
+    Intents.FLAGS.DIRECT_MESSAGE_TYPING,
   ]
 })
 
