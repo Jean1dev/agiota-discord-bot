@@ -11,6 +11,8 @@ function deleteMessageAfterTime(message) {
 module.exports = async message => {
     message.reply('momentinho vou verificar').then(deleteMessageAfterTime)
 
+    await axios.default.post(`${baseUrl}`)
+
     const { data: listaAtivos } = await axios.default.get(`${baseUrl}/ativos-sem-image`)
     if (listaAtivos.length == 0) {
         message.reply('nenhum ativo para monitorar').then(deleteMessageAfterTime)
