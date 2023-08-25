@@ -1,4 +1,4 @@
-const { GuildMember } = require('discord.js')
+const { GuildMember, MessageEmbed } = require('discord.js')
 const Track = require('./track')
 const MusicSubscription = require('./subcription')
 const Context = require('../../context')
@@ -10,6 +10,8 @@ const {
 } = require('@discordjs/voice')
 
 const subscriptions = new Map();
+
+const gifDj = 'https://i.imgur.com/z7R8T.gif';
 
 // async function myImpl(args, message) {
 //     const url = args[0]
@@ -85,7 +87,14 @@ module.exports = async (message) => {
         },
     ]);
 
-    await message.reply('Player de musica ligado!, use / para visualizar todas as opcoes');
+    // Criar um objeto de incorporação
+    const embed = new MessageEmbed()
+        .setTitle('Player de música ligado!')
+        .setDescription('Use / para visualizar todas as opções')
+        .setImage(gifDj);
+
+    // Envia a incorporação como mensagem
+    message.channel.send({ embeds: [embed] });
 
     Context.client.on('interactionCreate', async (interaction) => {
         if (!interaction.isCommand() || !interaction.guildId) return;
