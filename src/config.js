@@ -10,5 +10,6 @@ module.exports = {
   CAIXINHA_KEY: process.env.CAIXINHA_KEY,
   AMQP_CONNECTION: process.env.AMQP_CONNECTION,
   CAIXINHA_SERVER_URL: process.env.CAIXINHA_SERVER_URL,
-  KEY_OPEN_AI: process.env.KEY_OPEN_AI
+  KEY_OPEN_AI: process.env.KEY_OPEN_AI,
+  FINANCE_API_AUTH: process.env.FINANCE_API_AUTH
 }

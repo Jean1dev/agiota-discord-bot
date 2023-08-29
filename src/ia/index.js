@@ -2,6 +2,7 @@ const AssistantV2 = require('ibm-watson/assistant/v2')
 const { IamAuthenticator } = require('ibm-watson/auth')
 const { ASSISTANT_IAM_APIKEY, ASSISTANT_ID } = require('../config')
 const buildMessageElements = require('./watson-utils')
+const { chatGpt } = require('../handlers')
 
 const assistant = new AssistantV2({
   version: '2019-02-28',
@@ -44,14 +45,13 @@ const sendMessage = message => {
       const data = buildMessageElements(response.result)
       console.log(data)
       if (!data.length) {
-        message.reply('ainda nao sei lidar com isso')
-        return
+        return chatGpt(message.content, message)
       }
 
       data.forEach(recognizer => {
         if (recognizer.type === 'suggestion') {
-          message.reply('recebi uma sugestão de coisas, mas ainda não fui implementado para lidar com elas')
-          return
+          console.log(`suggestion received`)
+          return chatGpt(message.content, message)
         }
 
         message.channel.send(recognizer.text)

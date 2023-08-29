@@ -4,9 +4,11 @@ const captureException = require('../observability/Sentry')
 const axios = require('axios')
 const { CAIXINHA_SERVER_URL, BASIC_MAILGUN_KEY } = require('../config')
 const FormData = require("form-data")
+const financeServices = require('./FinanceServices')
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
-    axios.default.post(CAIXINHA_SERVER_URL, {
+    const url = `${CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=i-x47HUNDu2D5ovECdpSpjFxyXPhm49JmDcIlRdUoFN_AzFu40M8tQ==`
+    axios.default.post(url, {
         caixinhaId,
         emprestimoUid
     }).then(() => {
@@ -34,7 +36,7 @@ function notifyDeposito(deposito) {
     const channel = getChannelCaixinha()
     const embed = new MessageEmbed()
         .setTitle(`Novo deposito do ${deposito.memberName}`)
-        .setThumbnail('https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U')
+        .setThumbnail('https://img.freepik.com/vetores-premium/icone-plano-de-deposito-elemento-simples-de-cor-da-colecao-fintech-icone-de-deposito-criativo-para-infograficos-de-modelos-de-web-design-e-muito-mais_676904-971.jpg?w=2000')
         .setDescription(`
                         valor R$${deposito.value.value} \n
             `).setColor("RANDOM")
@@ -74,7 +76,6 @@ function notifyEmprestimo(emprestimo) {
             `
         }
     }
-
 
     const channel = getChannelCaixinha()
     const embed = new MessageEmbed()
@@ -122,14 +123,13 @@ function notifyRendimento(message) {
     const channel = getChannelCaixinha()
     const embed = new MessageEmbed()
         .setTitle(`Atenção`)
-        .setThumbnail('https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U')
+        .setThumbnail('https://cdn.icon-icons.com/icons2/3253/PNG/512/income_money_dollar_upward_green_arrow_gain_appreciation_icon_205133.png')
         .setDescription(message).setColor("RANDOM")
 
     channel.send({ embeds: [embed] })
 }
 
 function notifyEmail({ message, remetentes }) {
-
     remetentes.forEach(email => {
         const form = new FormData()
         form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
@@ -145,7 +145,44 @@ function notifyEmail({ message, remetentes }) {
         }).catch(captureException)
         
     })
+}
 
+function emprestimoAprovado(payload) {
+    const channel = getChannelCaixinha()
+    channel.send(`Emprestimo aprovado para ${payload.memberName}`)
+    const url = `${CAIXINHA_SERVER_URL}/solicitar-envio-emprestimo`
+ 
+    axios.default.post(url, {
+        caixinhaId: payload.caixinhaid,
+        emprestimoUid: payload.emprestimoId
+    }).then(() => {
+        const form = new FormData()
+        form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
+        form.append('to', 'jeanlucafp@gmail.com')
+        form.append('subject', `Emprestimo do ${payload.memberName} foi aprovado`)
+        form.append('text', `caixinhaId: ${payload.caixinhaid}  emprestimoUid:${payload.emprestimoId}`)
+
+        axios({
+            method: 'post',
+            url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
+            data: form,
+            headers: { Authorization: `Basic ${BASIC_MAILGUN_KEY}`, ...form.getHeaders() }
+        }).catch(captureException)
+
+    }).catch(e => {
+        if (e.isAxiosError) {
+            const message = e.response.data.body
+
+            if (message == 'Usuario não tem um perfil criado' || message == 'Usuario não tem chave pix cadastrada') {
+                channel.send(`${payload.memberName} tem informacoes incompletas para o envio do PIX`)
+                channel.send('Acesse https://caixinha-gilt.vercel.app/perfil e preencha os campos de chave pix e telefone')
+            } else {
+                channel.send(message)
+            }
+        }
+
+        captureException(e)
+    })
 }
 
 function notificar(message) {
@@ -170,6 +207,14 @@ function notificar(message) {
 
             case 'EMAIL':
                 notifyEmail(jsonMessage.data)
+                break;
+            
+            case 'FINANCE':
+                financeServices(jsonMessage)
+                break;
+
+            case 'EMPRESTIMO_APROVADO':
+                emprestimoAprovado(jsonMessage.data)
                 break;
 
             default:
