@@ -9,6 +9,7 @@ const listarAsUltimasFeatures = require('./githubOperations')
 const criarPDFRetornarCaminho = require('./GerarPDF')
 const eviarEmailComAnexo = require('./enviarEmailCobranca')
 const { notificar: notificacaoCaixinha } = require('./CaixinhaService')
+const financeServices = require('./FinanceServices')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -19,5 +20,6 @@ module.exports = {
     clearRegistros,
     rankearUso,
     exibirRankingNoChat,
-    notificacaoCaixinha
+    notificacaoCaixinha,
+    financeServices
 }
