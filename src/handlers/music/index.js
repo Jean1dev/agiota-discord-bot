@@ -133,8 +133,8 @@ module.exports = async (message) => {
                 await entersState(subscription.voiceConnection, VoiceConnectionStatus.Ready, 20e3);
             } catch (error) {
                 console.warn(error);
-                await interaction.followUp('Failed to join voice channel within 20 seconds, please try again later!');
-                return;
+                await interaction.followUp('Failed to join voice channel within 20 seconds, reiniciando processo');
+                process.exit(0);
             }
 
             try {
