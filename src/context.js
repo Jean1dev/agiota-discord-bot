@@ -14,6 +14,7 @@ class Context {
     this.dividas = []
     this.gravacoes = []
     this.tryLoadData()
+    this.conversationHistory = []
   }
 
   setClient(client) {

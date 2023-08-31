@@ -10,6 +10,7 @@ const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
 const { registrarEntradaTexto, listarAsUltimasFeatures } = require('./services')
+const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -52,6 +53,8 @@ client.on("messageCreate", async function (message) {
     return
 
   registrarEntradaTexto(message)
+  ConversationHistoryGpt(message)
+  
   if (message.channel.type === 'DM') {
     return handleDM(message, client)
   }

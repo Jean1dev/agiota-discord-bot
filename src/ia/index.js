@@ -45,13 +45,17 @@ const sendMessage = message => {
       const data = buildMessageElements(response.result)
       console.log(data)
       if (!data.length) {
-        return chatGpt(message.content, message)
+        return chatGpt([message.content], message)
       }
 
       data.forEach(recognizer => {
         if (recognizer.type === 'suggestion') {
           console.log(`suggestion received`)
-          return chatGpt(message.content, message)
+          return chatGpt([message.content], message)
+        }
+
+        if (recognizer.text == 'Eu não entendi. Você pode tentar reformular a frase.') {
+          return chatGpt([message.content], message)
         }
 
         message.channel.send(recognizer.text)
