@@ -36,5 +36,8 @@ module.exports = async message => {
       links_aleatorios.push(link);
     }
   }
-  message.reply(links_aleatorios.join(" "));
+
+  links_aleatorios.forEach((link, index) => {
+    setTimeout(() => message.channel.send(link), index * 100)
+  })
 }
