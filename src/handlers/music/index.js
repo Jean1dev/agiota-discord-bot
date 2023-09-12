@@ -10,6 +10,7 @@ const {
 } = require('@discordjs/voice')
 
 const subscriptions = new Map();
+let playerLigado = false
 
 const gifDj = 'https://i.imgur.com/z7R8T.gif';
 
@@ -51,6 +52,13 @@ const gifDj = 'https://i.imgur.com/z7R8T.gif';
 
 module.exports = async (message) => {
     if (!message.guild) return;
+
+    if (playerLigado) {
+        message.reply('O player ja esta ligado, utilize o /play musica para tocar um som')
+        return
+    }
+
+    playerLigado = true
 
     await message.guild.commands.set([
         {
