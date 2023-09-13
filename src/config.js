@@ -1,6 +1,5 @@
 module.exports = {
   BOT_TOKEN: process.env.BOT_TOKEN,
-  BASIC_MAILGUN_KEY: process.env.BASIC_MAILGUN_KEY,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   ASSISTANT_ID: process.env.ASSISTANT_ID,

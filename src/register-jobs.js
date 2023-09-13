@@ -3,9 +3,7 @@
  */
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context')
-const captureException = require('./observability/Sentry')
 const { getRegistros, clearRegistros, rankearUso, exibirRankingNoChat } = require('./services')
-const { client: MongoClient, DATABASE } = require('./repository/mongodb')
 
 function limparCanais() {
     let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
@@ -13,34 +11,26 @@ function limparCanais() {
         msg.delete({ timeout: 40000 })
     })
 
-    const listChannel = ['lixo']
+    const listChannel = ['lixo', 'musica']
     for (const channelName of listChannel) {
         channel = context.client.channels.cache.find(channel => channel.name === channelName)
         channel.bulkDelete(30)
             .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
-            .catch(captureException)
+            .catch((reason) => console.log(reason))
     }
 }
 
 function salvarDadosAnalise() {
-    console.info('salvar analise dados job')
     const registros = getRegistros()
     if (!registros.length)
         return
 
-    MongoClient.connect().then(client => {
-        client.db(DATABASE)
-            .collection('analise_dados_usuarios')
-            .insertMany(registros)
-            .finally(() => {
-                client.close()
-                clearRegistros()
-            })
-    })
+    console.log('quantidade de registros', registros.length)
+    clearRegistros()
 }
 
 function registerJobs() {
-    //schedule('0 * * * *', salvarDadosAnalise)
+    schedule('0 * * * *', salvarDadosAnalise)
 
     schedule('0 10 * * *', limparCanais)
 
