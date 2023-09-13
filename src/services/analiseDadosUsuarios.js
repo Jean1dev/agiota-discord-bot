@@ -15,7 +15,6 @@ function registrarEntradaTexto(discordMessage) {
         anexos: discordMessage.attachments
     }
 
-    console.table(data)
     state.registros.push(data)
 }
 

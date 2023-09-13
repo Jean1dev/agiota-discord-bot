@@ -2,9 +2,9 @@ const context = require('../context')
 const { MessageEmbed, MessageButton, MessageActionRow } = require("discord.js")
 const captureException = require('../observability/Sentry')
 const axios = require('axios')
-const { CAIXINHA_SERVER_URL, BASIC_MAILGUN_KEY } = require('../config')
-const FormData = require("form-data")
+const { CAIXINHA_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
+const sendEmail = require('./EmailService')
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
     const url = `${CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=i-x47HUNDu2D5ovECdpSpjFxyXPhm49JmDcIlRdUoFN_AzFu40M8tQ==`
@@ -12,18 +12,12 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
         caixinhaId,
         emprestimoUid
     }).then(() => {
-        const form = new FormData()
-        form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
-        form.append('to', 'jeanlucafp@gmail.com')
-        form.append('subject', 'Enviado aprovação de emprestimo via discord')
-        form.append('text', `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`)
-
-        axios({
-            method: 'post',
-            url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
-            data: form,
-            headers: { Authorization: `Basic ${BASIC_MAILGUN_KEY}`, ...form.getHeaders() }
-        }).catch(captureException)
+        const data = {
+            to: 'jeanlucafp@gmail.com',
+            subject: 'Enviado aprovação de emprestimo via discord',
+            message: `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`
+        }
+        sendEmail(data)
 
     }).catch(captureException)
 }
@@ -131,19 +125,12 @@ function notifyRendimento(message) {
 
 function notifyEmail({ message, remetentes }) {
     remetentes.forEach(email => {
-        const form = new FormData()
-        form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
-        form.append('to', email)
-        form.append('subject', 'Notificação Caixinha')
-        form.append('text', message)
-
-        axios({
-            method: 'post',
-            url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
-            data: form,
-            headers: { Authorization: `Basic ${BASIC_MAILGUN_KEY}`, ...form.getHeaders() }
-        }).catch(captureException)
-        
+        const data = {
+            to: email,
+            subject: 'Notificação Caixinha',
+            message
+        }
+        sendEmail(data)
     })
 }
 
@@ -151,23 +138,18 @@ function emprestimoAprovado(payload) {
     const channel = getChannelCaixinha()
     channel.send(`Emprestimo aprovado para ${payload.memberName}`)
     const url = `${CAIXINHA_SERVER_URL}/solicitar-envio-emprestimo`
- 
+
     axios.default.post(url, {
         caixinhaId: payload.caixinhaid,
         emprestimoUid: payload.emprestimoId
     }).then(() => {
-        const form = new FormData()
-        form.append('from', 'Binno apps <equipe@central.binnoapp.com>')
-        form.append('to', 'jeanlucafp@gmail.com')
-        form.append('subject', `Emprestimo do ${payload.memberName} foi aprovado`)
-        form.append('text', `caixinhaId: ${payload.caixinhaid}  emprestimoUid:${payload.emprestimoId}`)
 
-        axios({
-            method: 'post',
-            url: 'https://api.mailgun.net/v3/central.binnoapp.com/messages',
-            data: form,
-            headers: { Authorization: `Basic ${BASIC_MAILGUN_KEY}`, ...form.getHeaders() }
-        }).catch(captureException)
+        const data = {
+            to: 'jeanlucafp@gmail.com',
+            subject: `Emprestimo do ${payload.memberName} foi aprovado`,
+            message: `caixinhaId: ${payload.caixinhaid}  emprestimoUid:${payload.emprestimoId}`
+        }
+        sendEmail(data)
 
     }).catch(e => {
         if (e.isAxiosError) {
@@ -208,7 +190,7 @@ function notificar(message) {
             case 'EMAIL':
                 notifyEmail(jsonMessage.data)
                 break;
-            
+
             case 'FINANCE':
                 financeServices(jsonMessage)
                 break;
