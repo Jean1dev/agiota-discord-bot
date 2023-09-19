@@ -34,7 +34,7 @@ module.exports = async message => {
                 imagem: results[0]['url']
             })
         } catch (e) {
-            captureException(e)
+            console.log(e.message)
             message.channel.send(`Nao consegui adicionar esse papel ${papel}`).then(deleteMessageAfterTime)
         }
     }
