@@ -14,7 +14,8 @@ const {
   musicPlayerHanlder,
   atualizarCotacaoHandler,
   chatGpt,
-  imgur
+  imgur,
+  rouletteGame
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -39,3 +40,4 @@ registrarComando('p', musicPlayerHanlder, 'Liga o player de musica')
 registrarComando('acao', atualizarCotacaoHandler, 'atualizar cotacoes no app da carteira')
 registrarComando('gpt', chatGpt, 'Tire suas dúvidas com o chatgpt', true)
 registrarComando('imgur', imgur, 'Busca 5 imagens aleatorias do imgur')
+registrarComando('roulette', rouletteGame, "Iniciar roulette game")

@@ -11,6 +11,7 @@ const musicPlayerHanlder = require('./music')
 const atualizarCotacaoHandler = require('./b3/atualizar-cotacao-carteira')
 const { handleCommand: chatGpt } = require('./ia/chat-gpt')
 const imgur = require("./imgur")
+const rouletteGame = require("./roulette")
 
 module.exports = {
   addDividaHandler,
@@ -25,5 +26,6 @@ module.exports = {
   musicPlayerHanlder,
   atualizarCotacaoHandler,
   chatGpt,
-  imgur
+  imgur,
+  rouletteGame
 }
