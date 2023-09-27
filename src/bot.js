@@ -54,7 +54,7 @@ client.on("messageCreate", async function (message) {
 
   registrarEntradaTexto(message)
   ConversationHistoryGpt(message)
-  
+
   if (message.channel.type === 'DM') {
     return handleDM(message, client)
   }
@@ -71,3 +71,14 @@ client.on("messageCreate", async function (message) {
   const command = parameters.shift().toLowerCase()
   return commands(command, parameters, message)
 })
+
+client.on("interactionCreate", async menuInteraction => {
+  if (menuInteraction.isSelectMenu()) {
+    // Mencione o autor da interação usando user.tag
+    const authorMention = menuInteraction.user.username;
+
+    // Enviar uma resposta mencionando o autor
+    menuInteraction.reply(`Aposta do tipo ${menuInteraction.customId} enviada com os valores ${menuInteraction.values}, por @${authorMention}`);
+  }
+});
+
