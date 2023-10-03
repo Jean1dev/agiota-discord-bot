@@ -11,6 +11,7 @@ const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
 const { registrarEntradaTexto, listarAsUltimasFeatures } = require('./services')
 const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
+const handleApostaRouletteGame = require('./handlers/roulette/handleApostaRouletteGame');
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -72,13 +73,5 @@ client.on("messageCreate", async function (message) {
   return commands(command, parameters, message)
 })
 
-client.on("interactionCreate", async menuInteraction => {
-  if (menuInteraction.isSelectMenu()) {
-    // Mencione o autor da interação usando user.tag
-    const authorMention = menuInteraction.user.username;
-
-    // Enviar uma resposta mencionando o autor
-    menuInteraction.reply(`Aposta do tipo ${menuInteraction.customId} enviada com os valores ${menuInteraction.values}, por @${authorMention}`);
-  }
-});
+client.on("interactionCreate", handleApostaRouletteGame);
 

@@ -12,14 +12,18 @@ async function getDataFromMongo() {
       return {
         dividas: [],
         jogoAberto: false,
-        jogo: null
+        jogo: null,
+        apostasRouletteAbertas: false,
+        apostasRoulette : {}
       }
     }
 
     return {
       dividas: data[0]['dividas'],
       jogoAberto: data[0]['jogoAberto'],
-      jogo: data[0]['jogo']
+      jogo: data[0]['jogo'],
+      apostasRouletteAbertas: data[0]['apostasRouletteAbertas'],
+      apostasRoulette: data[0]['apostasRoulette']
     }
 
   } finally {

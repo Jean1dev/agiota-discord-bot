@@ -9,10 +9,14 @@ class Context {
   isChatGPTEnabled = true
   jogoAberto = false
   jogo
+  apostasRouletteAbertas
+  apostasRoulette
 
   constructor() {
     this.dividas = []
     this.gravacoes = []
+    this.apostasRouletteAbertas = false;
+    this.apostasRoulette = {}
     this.tryLoadData()
     this.conversationHistory = []
   }
@@ -27,6 +31,8 @@ class Context {
       this.dividas = data?.dividas
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
+      this.apostasRouletteAbertas = data?.apostasRouletteAbertas
+      this.apostasRoulette = data?.apostasRoulette
       //TODO:: refatorar o inicio disso no futuro
       appEvents.emit('update-state-jogo-bixo', null)
 
@@ -39,7 +45,9 @@ class Context {
     repository.save({
       dividas: this.dividas,
       jogoAberto: this.jogoAberto,
-      jogo: this.jogo
+      jogo: this.jogo,
+      apostasRouletteAbertas: this.apostasRouletteAbertas,
+      apostasRoulette: this.apostasRoulette
     })
   }
 }
