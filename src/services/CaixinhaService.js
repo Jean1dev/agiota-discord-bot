@@ -35,6 +35,10 @@ function notifyDeposito(deposito) {
                         valor R$${deposito.value.value} \n
             `).setColor("RANDOM")
 
+    if (deposito.image) {
+        embed.setImage(deposito.image)
+    }
+
     channel.send({ embeds: [embed] })
 }
 
