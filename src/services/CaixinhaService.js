@@ -7,6 +7,7 @@ const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
+    console.log(`(caixinhaId: ${caixinhaId}, emprestimoUid: ${emprestimoUid})`)
     const url = `${CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=i-x47HUNDu2D5ovECdpSpjFxyXPhm49JmDcIlRdUoFN_AzFu40M8tQ==`
     axios.default.post(url, {
         caixinhaId,
@@ -23,6 +24,10 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
 }
 
 function getChannelCaixinha() {
+    if (process.env.NODE_ENV === 'dev') {
+        return context.client.channels.cache.find(channel => channel.name === 'lixo')    
+    }
+
     return context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
 }
 
@@ -95,7 +100,7 @@ function notifyEmprestimo(emprestimo) {
     const actionRow = new MessageActionRow()
         .addComponents(aceitarButton, rejeitarButton);
 
-    const caixinhaId = emprestimo._id
+    const caixinhaId = emprestimo.boxId
     const emprestimoUid = emprestimo.uid
 
     function onInteraction(sentMessage, caixinhaId, emprestimoUid) {
@@ -157,12 +162,12 @@ function emprestimoAprovado(payload) {
 
     }).catch(e => {
         if (e.isAxiosError) {
-            const message = e.response.data.body
+            const message = e.response.data.message
 
             if (message == 'Usuario não tem um perfil criado' || message == 'Usuario não tem chave pix cadastrada') {
                 channel.send(`${payload.memberName} tem informacoes incompletas para o envio do PIX`)
                 channel.send('Acesse https://caixinha-gilt.vercel.app/perfil e preencha os campos de chave pix e telefone')
-            } else {
+            } else if (message) {
                 channel.send(message)
             }
         }

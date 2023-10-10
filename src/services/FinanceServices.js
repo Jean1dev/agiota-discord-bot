@@ -56,7 +56,7 @@ function sendPix(contract) {
     apiCall.post('pix', {
         chaveFavorecido: 'efipay@sejaefi.com.br',
         chavePagador: 'ec7ef5dc-7f1a-4690-a8e8-88da9184fe49',
-        valor: contract.valor
+        valor: contract.valor.toFixed(2)
     }).then(({ data }) => {
         const key = data.key
         getChannelCaixinha().send(`Pix R$${contract.valor} Enviando para ${contract.favorecido} - chave ${contract.pix}`)
@@ -70,7 +70,7 @@ function cobrancaImediata(contract) {
         chavePix: "ec7ef5dc-7f1a-4690-a8e8-88da9184fe49",
         devedorNome: contract.nome,
         descricaoSolicitacao: "cobranca imediata",
-        valor: contract.valor
+        valor: contract.valor.toFixed(2)
     }).then(({ data }) => {
         const { qrCode, txId } = data
         const channel = getChannelCaixinha()
