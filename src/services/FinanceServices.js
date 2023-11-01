@@ -6,7 +6,7 @@ const axios = require('axios')
 
 const apiCall = axios.create({
     baseURL: 'https://caixinha-financeira-9a2031b303cc.herokuapp.com',
-    timeout: 30000,
+    timeout: 40000,
     headers: {
         'X-API-KEY': FINANCE_API_AUTH,
         'client-info': 'discord-bot'
@@ -14,7 +14,7 @@ const apiCall = axios.create({
 })
 
 function getChannelCaixinha() {
-    return context.client.channels.cache.find(channel => channel.name === 'lixo')
+    return context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
 }
 
 function handleAxiosException(e) {
@@ -65,6 +65,24 @@ function sendPix(contract) {
 }
 
 function cobrancaImediata(contract) {
+    const channel = getChannelCaixinha()
+
+    apiCall.post('/cob', {
+        descricaoItem: `Pagamento emprestimo ${contract.nome}`,
+        valorItem: contract.valor.toFixed(2),
+        mensagem: "cobranca imediata"
+    }).then(({ data }) => {
+        const { paymentUrl } = data
+        const embed = new MessageEmbed()
+            .setTitle(`Cobranca imedieta para ${contract.nome} - ${contract.cpf}`)
+            .setThumbnail('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjUjtI3p1UZWNBBJHMDd9nqDjPIKQemaFDGg&usqp=CAU')
+            .setDescription(`
+                    pague atraves do link ${paymentUrl}
+                `).setColor("RANDOM")
+
+        channel.send({ embeds: [embed] })
+    }).catch(handleAxiosException)
+
     apiCall.post('pix/criar-cobranca', {
         devedorCPF: contract.cpf,
         chavePix: "ec7ef5dc-7f1a-4690-a8e8-88da9184fe49",
@@ -73,7 +91,6 @@ function cobrancaImediata(contract) {
         valor: contract.valor.toFixed(2)
     }).then(({ data }) => {
         const { qrCode, txId } = data
-        const channel = getChannelCaixinha()
         const urlQrCode = 'https://' + qrCode.replace('\"', '')
         const embed = new MessageEmbed()
             .setTitle(`Cobranca imedieta para ${contract.nome} - ${contract.cpf}`)
@@ -89,9 +106,9 @@ function cobrancaImediata(contract) {
 }
 
 module.exports = message => {
-    switch(message.subtype) {
+    switch (message.subtype) {
         case 'sendPix':
-            sendPix(message.data) 
+            sendPix(message.data)
             break;
         case 'cobrancaImediata':
             cobrancaImediata(message.data)
