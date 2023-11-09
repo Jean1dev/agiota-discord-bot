@@ -1,7 +1,6 @@
 const repository = require('./repository/operations')
 
 class Context {
-  player
   dividas
   client
   gravacoes

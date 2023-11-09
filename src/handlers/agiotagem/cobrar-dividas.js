@@ -1,7 +1,27 @@
 const context = require('../../context')
 const eviarEmailComAnexo = require('../../services/enviarEmailCobranca')
+const { CAIXINHA_SERVER_URL } = require('../../config')
+const axios = require('axios')
+const captureException = require('../../observability/Sentry')
+
+function buscarDividasNaCaixinha(message) {
+  const url = `${CAIXINHA_SERVER_URL}/report-dividas-pendentes?code=Q47dylJAkJc3xSGB2RNiBkLzLms-lhvWFbyRE4qrlCriAzFuN_CxsA==&clientId=default`
+  axios.default.get(url)
+    .then(({ data }) => {
+      data.forEach(item => {
+        item.report.forEach(dividas => {
+          const name = dividas.member.name
+          const value = dividas.valuePending.value
+          message.channel.send(`${name} esta devendo R$${value.toFixed(2)} para a caixinha, pague a conta veiaco`)
+        })
+      })
+
+    }).catch(captureException)
+}
 
 module.exports = async message => {
+  buscarDividasNaCaixinha(message)
+
   if (!context.dividas.length) {
     message.reply('Ninguem esta te devendo meu mano')
     return
@@ -10,7 +30,7 @@ module.exports = async message => {
   eviarEmailComAnexo()
 
   context.dividas.forEach(usuarioComDividas => {
-    
+
     const dividas = usuarioComDividas.pendencias
       .map(divida => `${divida.descricao} : R$${divida.valor}, 00 - deve para ${divida?.quemEmprestouDinheiro}`)
       .join(', ')

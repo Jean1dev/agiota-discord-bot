@@ -3,29 +3,16 @@ const path = require('path')
 const createListeningStream = require('../../adapters/create-listening-stream')
 const context = require('../../context')
 const audioconcat = require('audioconcat')
-//const ffmpeg = require('ffmpeg')
 
 const recordable = new Set()
 const files = new Set()
 
-function convertAudioToMp3(filename) {
-  // const process = new ffmpeg(filename)
-  // process.then((audio) => {
-  //   audio.fnExtractSoundToMP3(path.resolve(__dirname, 'file.mp3'), (error, file) => {
-  //     if (!error) {
-  //       console.log('Audio File ' + file)
-  //     } else {
-  //       console.log('Error on fnExtractSoundToMP3', error.message)
-  //     }
-
-  //   })
-  // })
+function addFile(filename) {
   files.add(filename)
 }
 
 function concatAudios() {
-  const songs = []
-  files.forEach(f => songs.push(f))
+  const songs = files.map(f => f)
   files.clear()
 
   const filenameOutput = path.resolve(__dirname, `${Date.now()}-all.ogg`)
@@ -58,9 +45,9 @@ module.exports = async (args, message) => {
 
       receiver.speaking.on('start', (userId) => {
         if (recordable.has(userId)) {
-          createListeningStream(receiver, userId, client.users.cache.get(userId), convertAudioToMp3)
+          createListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
         } else {
-          createListeningStream(receiver, userId, client.users.cache.get(userId), convertAudioToMp3)
+          createListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
         }
       })
 

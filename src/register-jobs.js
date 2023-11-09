@@ -34,9 +34,9 @@ function registerJobs() {
 
     schedule('0 10 * * *', limparCanais)
 
-    schedule('0 20 * * 0', rankearUso)
+    //schedule('0 20 * * 0', rankearUso)
 
-    schedule('0 23 * * 0', exibirRankingNoChat)
+    //schedule('0 23 * * 0', exibirRankingNoChat)
 }
 
 module.exports = registerJobs
