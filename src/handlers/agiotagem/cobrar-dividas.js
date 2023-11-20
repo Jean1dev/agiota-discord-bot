@@ -1,5 +1,4 @@
 const context = require('../../context')
-const eviarEmailComAnexo = require('../../services/enviarEmailCobranca')
 const { CAIXINHA_SERVER_URL } = require('../../config')
 const axios = require('axios')
 const captureException = require('../../observability/Sentry')
@@ -26,9 +25,6 @@ module.exports = async message => {
     message.reply('Ninguem esta te devendo meu mano')
     return
   }
-
-  eviarEmailComAnexo()
-
   context.dividas.forEach(usuarioComDividas => {
 
     const dividas = usuarioComDividas.pendencias
