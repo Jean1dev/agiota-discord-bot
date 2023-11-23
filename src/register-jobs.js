@@ -3,7 +3,7 @@
  */
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context')
-const { getRegistros, clearRegistros, rankearUso, exibirRankingNoChat } = require('./services')
+const { getRegistros, clearRegistros, myDailyBudgetService } = require('./services')
 
 function limparCanais() {
     let channel = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
@@ -11,7 +11,7 @@ function limparCanais() {
         msg.delete({ timeout: 40000 })
     })
 
-    const listChannel = ['lixo', 'musica']
+    const listChannel = ['lixo2', 'musica']
     for (const channelName of listChannel) {
         channel = context.client.channels.cache.find(channel => channel.name === channelName)
         channel.bulkDelete(30)
@@ -34,9 +34,7 @@ function registerJobs() {
 
     schedule('0 10 * * *', limparCanais)
 
-    //schedule('0 20 * * 0', rankearUso)
-
-    //schedule('0 23 * * 0', exibirRankingNoChat)
+    schedule('0 18 * * *', myDailyBudgetService.addBudget)
 }
 
 module.exports = registerJobs
