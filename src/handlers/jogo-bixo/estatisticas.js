@@ -41,12 +41,21 @@ function gerarEstatisticas(callback = () => { }) {
         client.db(DATABASE).collection('jogo_bixo_registros').find({}).toArray()
             .then(documents => {
                 const totalElements = documents.length
-                const workCollection = documents.map(item => ({
-                    bichoNome: item.vencedor.bichoVencedor.nome,
-                    bichoVencedor: item.vencedor.bichoVencedor,
-                    vencedor: item.vencedor.apostadorVencedor,
-                    apostas: item.apostas
-                }))
+                const workCollection = documents
+                    .filter(item => {
+                        if (item.vencedor && item.vencedor.bichoVencedor) {
+                            return true
+                        }
+
+                        console.log('item invalido id:', item._id)
+                        return false
+                    })
+                    .map(item => ({
+                        bichoNome: item.vencedor.bichoVencedor.nome,
+                        bichoVencedor: item.vencedor.bichoVencedor,
+                        vencedor: item.vencedor.apostadorVencedor,
+                        apostas: item.apostas
+                    }))
 
                 const resultGrouped = groupBy(workCollection, 'bichoNome')
                 const top3 = findTop3(resultGrouped)
