@@ -12,7 +12,8 @@ function addFile(filename) {
 }
 
 function concatAudios() {
-  const songs = files.map(f => f)
+  const songs = []
+  files.forEach(f => songs.push(f))
   files.clear()
 
   const filenameOutput = path.resolve(__dirname, `${Date.now()}-all.ogg`)

@@ -1,3 +1,4 @@
+const captureException = require('../observability/Sentry')
 const { client, DATABASE } = require('../repository/mongodb')
 
 const state = {
@@ -10,6 +11,12 @@ const collectionTransactionName = 'transactions_per_day'
 const dailyBudgetGain = 50
 
 function addBudget() {
+    if (!state.budget) {
+        getMyDailyBudget()
+            .then(addBudget)
+
+        return
+    }
     const newBudget = state.budget + dailyBudgetGain
     client.connect().then(instance => {
         const db = instance.db(DATABASE)
@@ -17,9 +24,11 @@ function addBudget() {
             .collection(collectionName)
             .deleteMany({})
             .then(async () => {
-                await db.collection(collectionName).insertOne({ budget: newBudget })
+                await db.collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
                 state.budget = newBudget
-            }).finally(() => instance.close())
+            })
+            .catch(captureException)
+            .finally(() => instance.close())
     })
 }
 
@@ -41,7 +50,7 @@ function getMyDailyBudget() {
 
                 instance.close()
                 return state.budget
-            })
+            }).catch(captureException)
     })
 }
 
@@ -52,14 +61,14 @@ function addTransaction({ money, description, newBudget }) {
             .collection(collectionName)
             .deleteMany({})
             .then(async () => {
-                await db.collection(collectionName).insertOne({ budget: newBudget })
+                await db.collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
                 await db.collection(collectionTransactionName).insertOne({
                     date: new Date(),
                     money,
                     description
-                })
+                }).catch(captureException)
                 await instance.close()
-            })
+            }).catch(captureException)
     })
 }
 
