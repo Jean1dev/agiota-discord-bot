@@ -9,7 +9,7 @@ const context = require('./context')
 const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
-const { registrarEntradaTexto, listarAsUltimasFeatures } = require('./services')
+const { registrarEntradaTexto, listarAsUltimasFeatures, myDailyBudgetService } = require('./services')
 const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
 
 const client = new Client({
@@ -46,6 +46,7 @@ client.on('ready', async () => {
   avisarQueEstaOnline()
   context.setClient(client)
   registerJobs()
+  await myDailyBudgetService.fillDaylyBudgetState()
 })
 
 client.on("messageCreate", async function (message) {

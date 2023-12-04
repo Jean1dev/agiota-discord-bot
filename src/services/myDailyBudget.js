@@ -13,8 +13,10 @@ const dailyBudgetGain = 55
 async function fillState() {
     try {
         const db = await client.connect()
-        const data = db.db(DATABASE)
+        const coll = db.db(DATABASE)
             .collection(collectionName)
+
+        const data = await coll
             .find({})
             .toArray()
 
@@ -81,7 +83,6 @@ async function spentMoney({ money, description }) {
 module.exports = {
     spentMoney,
     getMyDailyBudget,
-    addBudget
+    addBudget,
+    fillDaylyBudgetState: fillState
 }
-
-fillState()
