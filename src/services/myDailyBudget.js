@@ -8,24 +8,28 @@ const state = {
 
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
-const dailyBudgetGain = 50
+const dailyBudgetGain = 55
 
 async function fillState() {
-    return client.connect().then(instance => {
-        return instance.db(DATABASE).collection(collectionName)
+    try {
+        const db = await client.connect()
+        const data = db.db(DATABASE)
+            .collection(collectionName)
             .find({})
             .toArray()
-            .then(arrayData => {
-                if (arrayData.length == 0) {
-                    state.budget = 50
-                } else {
-                    state.budget = arrayData[0].budget
-                }
 
-                instance.close()
-                return state.budget
-            }).catch(captureException)
-    })
+        if (data.length == 0) {
+            state.budget = 50
+        } else {
+            state.budget = data[0].budget
+        }
+
+        console.log(collectionName, 'filled')
+        await client.close()
+    } catch (error) {
+        captureException(error)
+        throw new Error('Cannot load daily budget')
+    }
 }
 
 function addBudget() {
