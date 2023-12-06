@@ -1,5 +1,5 @@
 const axios = require('axios');
-const context = require('../../context')
+const context = require('../../context').contextInstance
 const { KEY_OPEN_AI } = require('../../config')
 const MAX_LENGTH = 2000;
 
@@ -71,7 +71,7 @@ function continueConversation(conversationHistory, newMessage) {
 }
 
 async function handleCommand(args, message) {
-    if (context.isChatGPTEnabled) {
+    if (context().isChatGPTEnabled) {
         let userMessage = args.join(" ")
         const thread = await message.startThread({
             name: 'chat-gtp' + threadId,
@@ -82,7 +82,7 @@ async function handleCommand(args, message) {
         console.log(`Nova thread criada: ${thread.name}`);
         threadId++
 
-        context.conversationHistory.push({
+        context().conversationHistory.push({
             messages: [{
                 role: 'user',
                 content: userMessage
@@ -91,12 +91,12 @@ async function handleCommand(args, message) {
             threadRef: thread.id
         })
 
-        const position = context.conversationHistory.length -1
+        const position = context().conversationHistory.length -1
 
-        getCompletion(context.conversationHistory[position].messages)
+        getCompletion(context().conversationHistory[position].messages)
             .then((data) => {
                 const chatGPTResponse = data.choices[0].message.content.trim();
-                context.conversationHistory[position].messages.push({
+                context().conversationHistory[position].messages.push({
                     role: 'assistant',
                     content: chatGPTResponse
                 })

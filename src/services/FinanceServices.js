@@ -1,4 +1,4 @@
-const context = require('../context')
+const context = require('../context').contextInstance
 const { MessageEmbed } = require("discord.js")
 const { FINANCE_API_AUTH } = require('../config')
 const captureException = require('../observability/Sentry')
@@ -14,7 +14,7 @@ const apiCall = axios.create({
 })
 
 function getChannelCaixinha() {
-    return context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
+    return context().client.channels.cache.find(channel => channel.name === '💰-caixinha')
 }
 
 function handleAxiosException(e) {

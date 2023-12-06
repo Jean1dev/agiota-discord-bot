@@ -1,16 +1,13 @@
-require('dotenv').config()
-
 const { Client, Intents } = require('discord.js')
-
 const config = require('./config')
-
 const commands = require('./commands')
-const context = require('./context')
+const { createContext, contextInstance } = require('./context')
 const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')
 const { registrarEntradaTexto, listarAsUltimasFeatures, myDailyBudgetService } = require('./services')
 const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
+const { connect } = require('./repository/mongodb')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -43,8 +40,13 @@ function avisarQueEstaOnline() {
 }
 
 client.on('ready', async () => {
+  await connect()
   avisarQueEstaOnline()
+
+  const context = createContext()
   context.setClient(client)
+  await context.fillState()
+
   registerJobs()
   await myDailyBudgetService.fillDaylyBudgetState()
 })
@@ -60,7 +62,7 @@ client.on("messageCreate", async function (message) {
     return handleDM(message, client)
   }
 
-  if (context.isIAEnabled && !message.content.startsWith(prefix)) {
+  if (contextInstance().isIAEnabled && !message.content.startsWith(prefix)) {
     return handleMessageWithIa(message)
   }
 

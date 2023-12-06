@@ -1,5 +1,14 @@
 const repository = require('./repository/operations')
 
+const state = {
+  context: null
+}
+
+function createContext() {
+  state.context = new Context()
+  return state.context
+}
+
 class Context {
   dividas
   client
@@ -12,7 +21,6 @@ class Context {
   constructor() {
     this.dividas = []
     this.gravacoes = []
-    this.tryLoadData()
     this.conversationHistory = []
   }
 
@@ -20,7 +28,7 @@ class Context {
     this.client = client
   }
 
-  async tryLoadData() {
+  async fillState() {
     try {
       const data = await repository.getData()
       this.dividas = data?.dividas
@@ -43,6 +51,9 @@ class Context {
   }
 }
 
-module.exports = new Context()
+module.exports = {
+  contextInstance: () => { return state.context },
+  createContext
+}
 
 const appEvents = require('./app-events')

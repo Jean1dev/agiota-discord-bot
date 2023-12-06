@@ -11,5 +11,6 @@ module.exports = {
   CAIXINHA_SERVER_URL: process.env.CAIXINHA_SERVER_URL,
   KEY_OPEN_AI: process.env.KEY_OPEN_AI,
   FINANCE_API_AUTH: process.env.FINANCE_API_AUTH,
-  TELEGRAM_API_KEY: process.env.TELEGRAM_API_KEY
+  TELEGRAM_API_KEY: process.env.TELEGRAM_API_KEY,
+  MONGO_URL: process.env.MONGO_URL
 }

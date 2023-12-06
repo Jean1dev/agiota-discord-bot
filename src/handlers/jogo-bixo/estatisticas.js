@@ -1,4 +1,4 @@
-const { client: MongoClient, DATABASE } = require('../../repository/mongodb')
+const { DbInstance: MongoClient } = require('../../repository/mongodb')
 
 function groupBy(array, key) {
     return array.reduce((result, currentValue) => {
@@ -36,38 +36,30 @@ function findTop3(animaisVencedoresAgrupados) {
 }
 
 function gerarEstatisticas(callback = () => { }) {
-    MongoClient.connect().then(client => {
+    MongoClient().collection('jogo_bixo_registros').find({}).toArray()
+        .then(documents => {
+            const totalElements = documents.length
+            const workCollection = documents
+                .filter(item => {
+                    if (item.vencedor && item.vencedor.bichoVencedor) {
+                        return true
+                    }
 
-        client.db(DATABASE).collection('jogo_bixo_registros').find({}).toArray()
-            .then(documents => {
-                const totalElements = documents.length
-                const workCollection = documents
-                    .filter(item => {
-                        if (item.vencedor && item.vencedor.bichoVencedor) {
-                            return true
-                        }
-
-                        console.log('item invalido id:', item._id)
-                        return false
-                    })
-                    .map(item => ({
-                        bichoNome: item.vencedor.bichoVencedor.nome,
-                        bichoVencedor: item.vencedor.bichoVencedor,
-                        vencedor: item.vencedor.apostadorVencedor,
-                        apostas: item.apostas
-                    }))
-
-                const resultGrouped = groupBy(workCollection, 'bichoNome')
-                const top3 = findTop3(resultGrouped)
-
-                client.close().then(() => {
-                    callback(totalElements, top3)
+                    console.log('item invalido id:', item._id)
+                    return false
                 })
+                .map(item => ({
+                    bichoNome: item.vencedor.bichoVencedor.nome,
+                    bichoVencedor: item.vencedor.bichoVencedor,
+                    vencedor: item.vencedor.apostadorVencedor,
+                    apostas: item.apostas
+                }))
 
-            })
-            .catch(_reject => console.error('gerarEstatisticas::error', _reject.message))
-
-    }).catch(() => console.error('gerarEstatisticas::error'))
+            const resultGrouped = groupBy(workCollection, 'bichoNome')
+            const top3 = findTop3(resultGrouped)
+            callback(totalElements, top3)
+        })
+        .catch(_reject => console.error('gerarEstatisticas::error', _reject.message))
 }
 
 module.exports = (message) => {

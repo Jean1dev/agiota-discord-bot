@@ -1,4 +1,4 @@
-const context = require('../context')
+const context = require('../context').contextInstance
 const { MessageEmbed, MessageButton, MessageActionRow } = require("discord.js")
 const captureException = require('../observability/Sentry')
 const axios = require('axios')
@@ -25,10 +25,10 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
 
 function getChannelCaixinha() {
     if (process.env.NODE_ENV === 'dev') {
-        return context.client.channels.cache.find(channel => channel.name === 'lixo')    
+        return context().client.channels.cache.find(channel => channel.name === 'lixo')    
     }
 
-    return context.client.channels.cache.find(channel => channel.name === '💰-caixinha')
+    return context().client.channels.cache.find(channel => channel.name === '💰-caixinha')
 }
 
 function notifyDeposito(deposito) {

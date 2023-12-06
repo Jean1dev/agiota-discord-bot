@@ -1,6 +1,6 @@
-const { client: MongoClient, DATABASE } = require('../../repository/mongodb')
+const { DbInstance: MongoClient } = require('../../repository/mongodb')
 const Jogo = require('./jogo')
-const context = require('../../context')
+const context = require('../../context').contextInstance
 const bichos = require('./bicho')
 
 const state = {
@@ -12,7 +12,7 @@ const state = {
 const JOGO_BIXO_CHANNEL = '🐒-jogo-do-bixo'
 
 function mandarMensagemNoChatGeral(message) {
-  const channel = context.client.channels.cache.find(channel => channel.name === JOGO_BIXO_CHANNEL)
+  const channel = context().client.channels.cache.find(channel => channel.name === JOGO_BIXO_CHANNEL)
   if (channel) {
     channel.send(message)
   }
@@ -67,9 +67,9 @@ function criarNovoJogo() {
     return
   }
 
-  context.jogoAberto = true
-  context.jogo = new Jogo()
-  context.save()
+  context().jogoAberto = true
+  context().jogo = new Jogo()
+  context().save()
   updateState()
   monitorarFimDeJogo()
   mandarMensagemNoChatGeral('Salve salve RAPAZEADA ta rolando jogo do bixo, façam suas apostas')
@@ -124,20 +124,15 @@ function finalizarJogo(message) {
   }
 
   mandarMensagemNoChatGeral(message)
-  const vencedor = calcularVencedores(context.jogo.apostas)
+  const vencedor = calcularVencedores(context().jogo.apostas)
 
-  MongoClient.connect().then(client => {
-    client.db(DATABASE).collection('jogo_bixo_registros').insertOne({ vencedor, ...context.jogo }).then(() => {
-      console.log('jogo salvo')
-      context.jogoAberto = false
-      context.jogo = null
-      updateState()
-      client.close().then(() => {
-        console.log('conexao fechada')
-        context.save()
-      })
-    })
+  MongoClient().collection('jogo_bixo_registros').insertOne({ vencedor, ...context().jogo }).then(() => {
+    context().jogoAberto = false
+    context().jogo = null
+    updateState()
+    context().save()
   })
+  
 }
 
 function verificarSePodeContinuarAPosta(aposta) {
@@ -169,8 +164,8 @@ function registrarAposta(aposta) {
   }
 
   state.jogo.registrarAposta(aposta)
-  context.jogo = state.jogo
-  context.save()
+  context().jogo = state.jogo
+  context().save()
 
   return {
     status: true,
@@ -179,24 +174,24 @@ function registrarAposta(aposta) {
 }
 
 function updateState() {
-  if (context.jogo && !context.jogo.hasOwnProperty('registrarAposta')) {
+  if (context().jogo && !context().jogo.hasOwnProperty('registrarAposta')) {
     const jogo = new Jogo()
-    jogo.apostas = context.jogo.apostas
-    jogo.data = context.jogo.data
-    jogo.dataInicioDetalhes = context.jogo.dataInicioDetalhes
-    jogo.duracao = context.jogo.duracao
-    jogo.id = context.jogo.id
+    jogo.apostas = context().jogo.apostas
+    jogo.data = context().jogo.data
+    jogo.dataInicioDetalhes = context().jogo.dataInicioDetalhes
+    jogo.duracao = context().jogo.duracao
+    jogo.id = context().jogo.id
     state.jogoAberto = true
     state.jogo = jogo
     return
   }
 
-  state.jogoAberto = context.jogoAberto
-  state.jogo = context.jogo
+  state.jogoAberto = context().jogoAberto
+  state.jogo = context().jogo
 }
 
 function updateStateAfterDataLoad() {
-  if (context.jogoAberto) {
+  if (context().jogoAberto) {
     updateState()
     monitorarFimDeJogo()
   }

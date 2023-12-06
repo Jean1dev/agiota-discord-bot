@@ -1,4 +1,4 @@
-const context = require('../../context')
+const context = require('../../context').contextInstance
 const { CAIXINHA_SERVER_URL } = require('../../config')
 const axios = require('axios')
 const captureException = require('../../observability/Sentry')
@@ -21,11 +21,11 @@ function buscarDividasNaCaixinha(message) {
 module.exports = async message => {
   buscarDividasNaCaixinha(message)
 
-  if (!context.dividas.length) {
+  if (!context().dividas.length) {
     message.reply('Ninguem esta te devendo meu mano')
     return
   }
-  context.dividas.forEach(usuarioComDividas => {
+  context().dividas.forEach(usuarioComDividas => {
 
     const dividas = usuarioComDividas.pendencias
       .map(divida => `${divida.descricao} : R$${divida.valor}, 00 - deve para ${divida?.quemEmprestouDinheiro}`)

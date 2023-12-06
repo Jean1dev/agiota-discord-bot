@@ -1,7 +1,7 @@
 const connectToChannel = require('../../adapters/connect-user-channel')
 const path = require('path')
 const createListeningStream = require('../../adapters/create-listening-stream')
-const context = require('../../context')
+const { contextInstance: context } = require('../../context')
 const audioconcat = require('audioconcat')
 
 const recordable = new Set()
@@ -17,7 +17,7 @@ function concatAudios() {
   files.clear()
 
   const filenameOutput = path.resolve(__dirname, `${Date.now()}-all.ogg`)
-  context.gravacoes.push(filenameOutput)
+  context().gravacoes.push(filenameOutput)
 
   audioconcat(songs)
     .concat(filenameOutput)
@@ -36,7 +36,7 @@ function concatAudios() {
 module.exports = async (args, message) => {
   const channel = message.member?.voice.channel
   const timeoutMillis = (args[0] || 6) * 1000
-  const client = context.client
+  const client = context().client
   recordable.add(message.author.id)
 
   if (channel) {

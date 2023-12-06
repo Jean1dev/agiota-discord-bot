@@ -1,4 +1,4 @@
-const context = require('../../context')
+const context = require('../../context').contextInstance
 const googleOAuthState = require('../../adapters/google-Oauth')
 const { google } = require('googleapis')
 const fs = require('fs')
@@ -6,7 +6,7 @@ const fs = require('fs')
 const TOKEN_PATH = 'token.json'
 
 module.exports = message => {
-  if (!context.gravacoes.length) {
+  if (!context().gravacoes.length) {
     return
   }
 
@@ -48,7 +48,7 @@ module.exports = message => {
         fs.rm(TOKEN_PATH, () => { })
       } else {
         console.log('Folder Id: ', file.data.id);
-        context.gravacoes
+        context().gravacoes
           .map(item => item)
           .forEach(item => {
             var fileMetadata = {
@@ -75,7 +75,7 @@ module.exports = message => {
             })
           })
 
-        context.gravacoes = []
+        context().gravacoes = []
       }
     })
   }
