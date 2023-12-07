@@ -1,4 +1,4 @@
-const { client: MongoClient, DATABASE } = require('../repository/mongodb')
+const { DbInstance: MongoClient } = require('../repository/mongodb')
 const { ObjectID } = require('mongodb')
 
 const COLLECTION_NAME = 'ranking'
@@ -6,10 +6,9 @@ const COLLECTION_NAME = 'ranking'
 class RankingService {
 
     async criarOuAtualizarRanking(data) {
-        const client = await MongoClient.connect()
-        const entity = await client.db(DATABASE).collection(COLLECTION_NAME).findOne({ userId: data.userId })
+        const entity = await MongoClient().collection(COLLECTION_NAME).findOne({ userId: data.userId })
         if (!entity) {
-            await client.db(DATABASE).collection(COLLECTION_NAME).insertOne({
+            await MongoClient().collection(COLLECTION_NAME).insertOne({
                 userId: data.userId,
                 pontuacao: data.pontuacao
             })
@@ -23,14 +22,11 @@ class RankingService {
             entity.pontuacao = entity.pontuacao + data.pontuacao
         }
 
-        await client.db(DATABASE).collection(COLLECTION_NAME).updateOne({ _id: new ObjectID(entity._id) }, { $set: { pontuacao: entity.pontuacao } })
-        await client.close()
+        await MongoClient().collection(COLLECTION_NAME).updateOne({ _id: new ObjectID(entity._id) }, { $set: { pontuacao: entity.pontuacao } })
     }
 
     async listagem() {
-        const client = await MongoClient.connect()
-        const data = await client.db(DATABASE).collection(COLLECTION_NAME).find({}).toArray()
-        await client.close()
+        const data = await MongoClient().collection(COLLECTION_NAME).find({}).toArray()
         return data
     }
 }

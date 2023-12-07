@@ -1,6 +1,6 @@
-const { client: MongoClient, DATABASE } = require('../repository/mongodb')
+const { DbInstance: MongoClient } = require('../repository/mongodb')
 const rankingService = require('./RankingService')
-const context = require('../context')
+const context = require('../context').contextInstance
 
 const state = {
     registros: []
@@ -35,7 +35,7 @@ function executarRegraPontuacao(acumuladorDeCaracteres, acumuladorDeAnexos) {
 }
 
 async function exibirDadosUsuarioERankear(dadosUsuarioAcumulados) {
-    const chatGeral = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
+    const chatGeral = context().client.channels.cache.find(channel => channel.name === '🧵-geral')
     let acumuladorDeCaracteres = 0
     let acumuladorDeAnexos = 0
 
@@ -58,7 +58,7 @@ async function exibirDadosUsuarioERankear(dadosUsuarioAcumulados) {
     await chatGeral.send(`<@${dadosUsuarioAcumulados[0]}> nessa rodada vc conseguiu ${pontuacaoFinal} pontos`)
 }
 
-function rankearUso() {
+async function rankearUso() {
     function groupBy(array, key) {
         return array.reduce((result, currentValue) => {
             (result[currentValue[key]] = result[currentValue[key]] || []).push(
@@ -68,26 +68,25 @@ function rankearUso() {
         }, {})
     }
 
-    MongoClient.connect().then(async client => {
-        const elements = await client.db(DATABASE)
-            .collection('analise_dados_usuarios')
-            .find({})
-            .toArray()
 
-        const dadosUsuarioAcumulados = groupBy(elements, 'userId')
+    const elements = await MongoClient()
+        .collection('analise_dados_usuarios')
+        .find({})
+        .toArray()
 
-        for (const iterator of Object.entries(dadosUsuarioAcumulados)) {
-            await exibirDadosUsuarioERankear(iterator)
-        }
+    const dadosUsuarioAcumulados = groupBy(elements, 'userId')
 
-        await client.db(DATABASE).collection('analise_dados_usuarios').deleteMany()
-        await client.close()
-    })
+    for (const iterator of Object.entries(dadosUsuarioAcumulados)) {
+        await exibirDadosUsuarioERankear(iterator)
+    }
+
+    await MongoClient().collection('analise_dados_usuarios').deleteMany()
+
 }
 
 function exibirRankingNoChat() {
     rankingService.listagem().then(data => {
-        const chatGeral = context.client.channels.cache.find(channel => channel.name === '🧵-geral')
+        const chatGeral = context().client.channels.cache.find(channel => channel.name === '🧵-geral')
         data.sort((valor1, valor2) => {
             if (valor1.pontuacao > valor2.pontuacao) {
                 return 1

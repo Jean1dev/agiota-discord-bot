@@ -1,39 +1,44 @@
-const URI = process.env.MONGO_URL
+const captureException = require('../observability/Sentry')
+const { MONGO_URL } = require('../config')
 const DATABASE = 'agiobot'
 const MongoClient = require('mongodb').MongoClient
-const client = new MongoClient(URI, { useNewUrlParser: true, useUnifiedTopology: true })
+const client = new MongoClient(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
 
-async function getDataFromMongo() {
+let DbInstance = null
+
+async function connect() {
   try {
     await client.connect()
-    const data = await client.db(DATABASE).collection('data').find().toArray()
+    DbInstance = client.db(DATABASE)
+    console.log('mongo connected')
+  } catch (error) {
+    captureException(reject)
+    throw reject
+  }
+}
 
-    if (!data.length) {
-      return {
-        dividas: [],
-        jogoAberto: false,
-        jogo: null
-      }
-    }
+async function getDataFromMongo() {
+  const data = await DbInstance.collection('data').find().toArray()
 
+  if (!data.length) {
     return {
-      dividas: data[0]['dividas'],
-      jogoAberto: data[0]['jogoAberto'],
-      jogo: data[0]['jogo']
+      dividas: [],
+      jogoAberto: false,
+      jogo: null
     }
+  }
 
-  } finally {
-    await client.close()
+  return {
+    dividas: data[0]['dividas'],
+    jogoAberto: data[0]['jogoAberto'],
+    jogo: data[0]['jogo']
   }
 }
 
 function save(object) {
-  client.connect().then(client => {
-    client.db(DATABASE).collection('data').deleteMany().then(() => {
-      client.db(DATABASE).collection('data').insertOne(object).then(() => {
-        console.log('OK')
-        client.close().then(() => console.log('conexao fechada'))
-      })
+  DbInstance.collection('data').deleteMany().then(() => {
+    DbInstance.collection('data').insertOne(object).then(() => {
+      console.log('object data saved')
     })
   })
 }
@@ -41,6 +46,6 @@ function save(object) {
 module.exports = {
   getDataFromMongo,
   save,
-  client,
-  DATABASE
+  connect,
+  DbInstance: () => {return DbInstance}
 }

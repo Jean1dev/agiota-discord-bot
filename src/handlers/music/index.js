@@ -1,7 +1,7 @@
 const { GuildMember, MessageEmbed } = require('discord.js')
 const Track = require('./track')
 const MusicSubscription = require('./subcription')
-const Context = require('../../context')
+const Context = require('../../context').contextInstance()
 const { 
     joinVoiceChannel, 
     entersState, 
