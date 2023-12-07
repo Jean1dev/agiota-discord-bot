@@ -34,11 +34,11 @@ async function fillState() {
 
 function addBudget() {
     const newBudget = state.budget + dailyBudgetGain
-    DbInstance
+    DbInstance()
         .collection(collectionName)
         .deleteMany({})
         .then(async () => {
-            await DbInstance.collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
+            await DbInstance().collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
             state.budget = newBudget
         })
         .catch(captureException)
@@ -49,12 +49,12 @@ function getMyDailyBudget() {
 }
 
 function addTransaction({ money, description, newBudget }) {
-    DbInstance
+    DbInstance()
         .collection(collectionName)
         .deleteMany({})
         .then(async () => {
-            await db.collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
-            await db.collection(collectionTransactionName).insertOne({
+            await DbInstance().collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
+            await DbInstance().collection(collectionTransactionName).insertOne({
                 date: new Date(),
                 money,
                 description
