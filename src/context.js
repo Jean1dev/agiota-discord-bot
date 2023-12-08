@@ -17,11 +17,34 @@ class Context {
   isChatGPTEnabled = true
   jogoAberto = false
   jogo
+  telegramIds
 
   constructor() {
     this.dividas = []
     this.gravacoes = []
     this.conversationHistory = []
+  }
+
+  addTelegramId(id, callback) {
+    if (!this.telegramIds) {
+      this.telegramIds = []
+      this.telegramIds.push({
+        chatId: id,
+        callback
+      })
+      console.log('Adicionado telegram id no context ', id)
+      return
+    }
+
+    const find = this.telegramIds.find(it => it === id)
+    if (!find) {
+      this.telegramIds.push({
+        chatId: id,
+        callback
+      })
+      console.log('Adicionado telegram id no context ', id)
+    }
+
   }
 
   setClient(client) {

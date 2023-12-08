@@ -25,7 +25,6 @@ function salvarDadosAnalise() {
     if (!registros.length)
         return
 
-    console.log('quantidade de registros', registros.length)
     clearRegistros()
 }
 
@@ -34,7 +33,7 @@ function registerJobs() {
 
     schedule('0 10 * * *', limparCanais)
 
-    schedule('0 18 * * *', myDailyBudgetService.addBudget)
+    schedule('0 18 * * *', myDailyBudgetService.dailyHandles)
 }
 
 module.exports = registerJobs

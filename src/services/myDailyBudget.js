@@ -1,3 +1,4 @@
+const { contextInstance } = require('../context')
 const captureException = require('../observability/Sentry')
 const { DbInstance } = require('../repository/mongodb')
 
@@ -9,6 +10,7 @@ const state = {
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const dailyBudgetGain = 55
+const weekendBudgetGain = 150
 
 async function fillState() {
     try {
@@ -32,13 +34,80 @@ async function fillState() {
     }
 }
 
-function addBudget() {
-    const newBudget = state.budget + dailyBudgetGain
-    DbInstance()
+function hojeEhFimDeSemana() {
+    const dataAtual = new Date();
+    const diaDaSemana = dataAtual.getDay();
+
+    return diaDaSemana === 6 || diaDaSemana === 0;
+}
+
+function sendMessage(message) {
+    const context = contextInstance()
+
+    if (!context.telegramIds) {
+        return
+    }
+
+    const item1 = context.telegramIds[0]
+    item1.callback(item1.chatId, message)
+}
+
+function displayTransactionsToday() {
+    if (state.transactions.length > 0) {
+        const total = state.transactions
+            .map(it => it.money)
+            .reduce((sum, value) => sum + value, 0)
+
+        if (total > 0) {
+            const message = `Hoje voce gastou R$${total}`
+            sendMessage(message)
+        }
+    }
+}
+
+function dailyHandles() {
+    let newBudget
+    const db = DbInstance()
+    if (hojeEhFimDeSemana()) {
+        newBudget = state.budget + weekendBudgetGain
+    } else {
+        newBudget = state.budget + dailyBudgetGain
+    }
+
+    displayTransactionsToday()
+
+    db.collection(collectionTransactionName)
+        .find({})
+        .toArray()
+        .then(result => {
+            if (result.length === 0) {
+                return
+            }
+
+            console.log(`${collectionTransactionName} quantidade `, result.length)
+            const ultimoElemento = result[0]
+
+            function calcularDiasAteHoje(data) {
+                const dataAtual = new Date();
+                const diferencaEmMilissegundos = dataAtual - data;
+                const umDiaEmMilissegundos = 24 * 60 * 60 * 1000; // 1 dia em milissegundos
+
+                const diferencaEmDias = Math.floor(diferencaEmMilissegundos / umDiaEmMilissegundos);
+                return diferencaEmDias;
+            }
+
+            const diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
+            const totalDespesas = result.map(it => Number(it.money)).reduce((sum, value) => sum + value, 0)
+            const media = totalDespesas / diasAteHoje
+            const message = `Nos ultimos ${diasAteHoje} dias voce gastou em media R$${media.toFixed(2)} por dia`
+            sendMessage(message)
+        })
+
+    db
         .collection(collectionName)
         .deleteMany({})
         .then(async () => {
-            await DbInstance().collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
+            await db.collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
             state.budget = newBudget
         })
         .catch(captureException)
@@ -73,6 +142,6 @@ async function spentMoney({ money, description }) {
 module.exports = {
     spentMoney,
     getMyDailyBudget,
-    addBudget,
+    dailyHandles,
     fillDaylyBudgetState: fillState
 }
