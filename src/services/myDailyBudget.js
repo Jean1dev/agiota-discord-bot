@@ -59,10 +59,26 @@ function displayTransactionsToday() {
             .reduce((sum, value) => sum + value, 0)
 
         if (total > 0) {
-            const message = `Hoje voce gastou R$${total}`
+            const message = `Hoje voce gastou R$${total.toFixed(2)}`
             sendMessage(message)
         }
     }
+}
+
+function fecharCompetencia(ultimaData, dados, db) {
+    const transactions = dados.map(item => ({
+        date: item.date,
+        money: item.money,
+        description: item.description
+    }))
+
+    db.collection('fechamento_competencia').insertOne({
+        periodoInicial: ultimaData,
+        periodoFinal: new Date(),
+        transactions
+    }).then(() => {
+        db.collection(collectionTransactionName).deleteMany({})
+    })
 }
 
 function dailyHandles() {
@@ -101,6 +117,14 @@ function dailyHandles() {
             const media = totalDespesas / diasAteHoje
             const message = `Nos ultimos ${diasAteHoje} dias voce gastou em media R$${media.toFixed(2)} por dia`
             sendMessage(message)
+
+            if (diasAteHoje > 30) {
+                fecharCompetencia(
+                    ultimoElemento.date,
+                    result,
+                    db
+                )
+            }
         })
 
     db
@@ -145,3 +169,5 @@ module.exports = {
     dailyHandles,
     fillDaylyBudgetState: fillState
 }
+
+setTimeout(() => dailyHandles(), 5000)

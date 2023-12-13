@@ -36,7 +36,7 @@ class Context {
       return
     }
 
-    const find = this.telegramIds.find(it => it === id)
+    const find = this.telegramIds.find(it => it.chatId === id)
     if (!find) {
       this.telegramIds.push({
         chatId: id,

@@ -1,7 +1,7 @@
 const { GuildMember, MessageEmbed } = require('discord.js')
 const Track = require('./track')
 const MusicSubscription = require('./subcription')
-const Context = require('../../context').contextInstance()
+const { contextInstance } = require('../../context')
 const { 
     joinVoiceChannel, 
     entersState, 
@@ -104,7 +104,8 @@ module.exports = async (message) => {
     // Envia a incorporação como mensagem
     message.channel.send({ embeds: [embed] });
 
-    Context.client.on('interactionCreate', async (interaction) => {
+    const context = contextInstance()
+    context.client.on('interactionCreate', async (interaction) => {
         if (!interaction.isCommand() || !interaction.guildId) return;
         let subscription = subscriptions.get(interaction.guildId);
 
