@@ -6,8 +6,12 @@ const { CAIXINHA_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 
+const state = {
+    aprovacoes: 0,
+    quemAprovou: []
+}
+
 function enviarAprovacao(caixinhaId, emprestimoUid) {
-    console.log(`(caixinhaId: ${caixinhaId}, emprestimoUid: ${emprestimoUid})`)
     const url = `${CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=i-x47HUNDu2D5ovECdpSpjFxyXPhm49JmDcIlRdUoFN_AzFu40M8tQ==`
     axios.default.post(url, {
         caixinhaId,
@@ -21,6 +25,23 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
         sendEmail(data)
 
     }).catch(captureException)
+}
+
+function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
+    const nick = interaction.member.nickname
+    const find = state.quemAprovou.find(it => it.nick === nick)
+    if (find) {
+        interaction.reply(`${nick} voce ja aceitou`);
+        return
+    }
+
+    state.aprovacoes++
+    state.quemAprovou.push({ nick })
+    interaction.reply(`${nick} Aceitou esse emprestimo`);
+
+    if (state.aprovacoes >= 3) {
+        enviarAprovacao(caixinhaId, emprestimoUid)
+    }
 }
 
 function getChannelCaixinha() {
@@ -108,10 +129,10 @@ function notifyEmprestimo(emprestimo) {
 
         collector.on('collect', (interaction) => {
             if (interaction.customId === 'aprovar') {
-                interaction.reply(`Você aceitou ${interaction.member.nickname} `);
-                enviarAprovacao(caixinhaId, emprestimoUid)
+                adicionarAprovacao(interaction, caixinhaId, emprestimoUid)
+                
             } else if (interaction.customId === 'rejeitar') {
-                interaction.reply(`Você rejeitou ${interaction.member.nickname}`);
+                interaction.reply(`${interaction.member.nickname} rejeitou esse emprestimo`);
             }
         });
     }
