@@ -19,6 +19,8 @@ async function fillState() {
 
         const data = await coll
             .find({})
+            .limit(1)
+            .sort({ _id: -1 })
             .toArray()
 
         if (data.length == 0) {
@@ -27,11 +29,20 @@ async function fillState() {
             state.budget = data[0].budget
         }
 
-        console.log(collectionName, 'filled')
+        console.log(collectionName, 'filled', 'new balance:', state.budget.toFixed(2))
     } catch (error) {
         captureException(error)
         throw new Error('Cannot load daily budget')
     }
+}
+
+function addNewBalance(newBalance) {
+    const db = DbInstance()
+    db.collection(collectionName)
+        .insertOne({ budget: newBalance, date: new Date() })
+        .catch(captureException)
+
+    state.budget = newBalance
 }
 
 function hojeEhFimDeSemana() {
@@ -127,14 +138,7 @@ function dailyHandles() {
             }
         })
 
-    db
-        .collection(collectionName)
-        .deleteMany({})
-        .then(async () => {
-            await db.collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
-            state.budget = newBudget
-        })
-        .catch(captureException)
+    addNewBalance(newBudget)
 }
 
 function getMyDailyBudget() {
@@ -142,22 +146,17 @@ function getMyDailyBudget() {
 }
 
 function addTransaction({ money, description, newBudget }) {
-    DbInstance()
-        .collection(collectionName)
-        .deleteMany({})
-        .then(async () => {
-            await DbInstance().collection(collectionName).insertOne({ budget: newBudget }).catch(captureException)
-            await DbInstance().collection(collectionTransactionName).insertOne({
-                date: new Date(),
-                money,
-                description
-            }).catch(captureException)
+    addNewBalance(newBudget)
+    DbInstance().collection(collectionTransactionName)
+        .insertOne({
+            date: new Date(),
+            money,
+            description
         }).catch(captureException)
 }
 
 async function spentMoney({ money, description }) {
     const newBudget = state.budget - money
-    state.budget = newBudget
     state.transactions.push({ money, description })
     setTimeout(() => addTransaction({ money, description, newBudget }), 1000)
     return newBudget

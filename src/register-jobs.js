@@ -33,7 +33,7 @@ function registerJobs() {
 
     schedule('0 10 * * *', limparCanais)
 
-    schedule('0 20 * * *', () => myDailyBudgetService.dailyHandles())
+    schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
 }
 
 module.exports = registerJobs

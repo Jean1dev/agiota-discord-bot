@@ -46,9 +46,9 @@ client.on('ready', async () => {
   const context = createContext()
   context.setClient(client)
   await context.fillState()
+  await myDailyBudgetService.fillDaylyBudgetState()
 
   registerJobs()
-  await myDailyBudgetService.fillDaylyBudgetState()
 })
 
 client.on("messageCreate", async function (message) {
