@@ -9,8 +9,8 @@ const state = {
 
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
-const dailyBudgetGain = 55
-const weekendBudgetGain = 155
+const dailyBudgetGain = 100
+const weekendBudgetGain = 200
 
 async function fillState() {
     try {
@@ -36,10 +36,10 @@ async function fillState() {
     }
 }
 
-function addNewBalance(newBalance) {
+function addNewBalance(newBalance, justify = "") {
     const db = DbInstance()
     db.collection(collectionName)
-        .insertOne({ budget: newBalance, date: new Date() })
+        .insertOne({ budget: newBalance, date: new Date(), justify })
         .catch(captureException)
 
     state.budget = newBalance
@@ -162,9 +162,16 @@ async function spentMoney({ money, description }) {
     return newBudget
 }
 
+function addMoneyToDailyBudget(money) {
+    const newBudget = state.budget + money
+    addNewBalance(newBudget, "add by func addMoneyToDailyBudget")
+    return newBudget
+}
+
 module.exports = {
     spentMoney,
     getMyDailyBudget,
     dailyHandles,
-    fillDaylyBudgetState: fillState
+    fillDaylyBudgetState: fillState,
+    addMoneyToDailyBudget
 }
