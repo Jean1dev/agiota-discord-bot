@@ -10,6 +10,7 @@ const criarPDFRetornarCaminho = require('./GerarPDF')
 const { notificar: notificacaoCaixinha } = require('./CaixinhaService')
 const financeServices = require('./FinanceServices')
 const myDailyBudgetService = require('./myDailyBudget')
+const { addMusic, ramdomMusic } = require('./MusicManagerService')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -21,5 +22,7 @@ module.exports = {
     exibirRankingNoChat,
     notificacaoCaixinha,
     financeServices,
-    myDailyBudgetService
+    myDailyBudgetService,
+    addMusic,
+    ramdomMusic
 }

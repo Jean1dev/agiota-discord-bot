@@ -48,6 +48,7 @@ bot.on('text', async ctx => {
 
     const content = ctx.update.message.text.split(',')
     const budget = await myDailyBudgetService.spentMoney({ money: content[0], description: content[1] })
+    
     ctx.reply(`your new daily budget is R$ ${budget}`)
     awaitResponseSpentMoney = false
     contextInstance().addTelegramId(ctx.update.message.from.id, enviarMessageRef)
