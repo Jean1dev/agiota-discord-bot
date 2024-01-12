@@ -3,12 +3,18 @@
  */
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context').contextInstance
-const { getRegistros, clearRegistros, myDailyBudgetService } = require('./services')
+const { 
+    getRegistros, 
+    clearRegistros,
+    rankearUso,
+    exibirRankingNoChat,
+    myDailyBudgetService 
+} = require('./services')
 
 function limparCanais() {
     let channel = context().client.channels.cache.find(channel => channel.name === '🧵-geral')
     channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
-        msg.delete({ timeout: 40000 })
+        msg.delete({ timeout: 60000 })
     })
 
     const listChannel = ['lixo2', 'musica']
@@ -18,6 +24,11 @@ function limparCanais() {
             .then(messages => console.log(`Bulk deleted ${messages.size} messages ${new Date()}`))
             .catch((reason) => console.log(reason))
     }
+}
+
+function procedimentosDaMadruga() {
+    limparCanais()
+    rankearUso()
 }
 
 function salvarDadosAnalise() {
@@ -31,7 +42,9 @@ function salvarDadosAnalise() {
 function registerJobs() {
     schedule('0 * * * *', salvarDadosAnalise)
 
-    schedule('0 10 * * *', limparCanais)
+    schedule('0 10 * * *', procedimentosDaMadruga)
+
+    schedule('35 8 * * 1', exibirRankingNoChat)
 
     schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
 }

@@ -6,6 +6,8 @@ const state = {
     registros: []
 }
 
+const ANALISE_DADOS_COLLECTION = 'analise_dados_usuarios'
+
 function registrarEntradaTexto(discordMessage) {
     const data = {
         username: discordMessage.author.username,
@@ -23,7 +25,12 @@ function getRegistros() {
 }
 
 function clearRegistros() {
-    state.registros = []
+    MongoClient()
+        .collection(ANALISE_DADOS_COLLECTION)
+        .insertMany(state.registros)
+        .then(() => {
+            state.registros = []
+        })
 }
 
 function executarRegraPontuacao(acumuladorDeCaracteres, acumuladorDeAnexos) {
@@ -55,7 +62,9 @@ async function exibirDadosUsuarioERankear(dadosUsuarioAcumulados) {
         operacao: 'ADICIONAR'
     })
 
-    await chatGeral.send(`<@${dadosUsuarioAcumulados[0]}> nessa rodada vc conseguiu ${pontuacaoFinal} pontos`)
+    if (pontuacaoFinal > 100) {
+        await chatGeral.send(`<@${dadosUsuarioAcumulados[0]}> nessa rodada vc conseguiu ${pontuacaoFinal} pontos`)
+    }
 }
 
 async function rankearUso() {
@@ -70,7 +79,7 @@ async function rankearUso() {
 
 
     const elements = await MongoClient()
-        .collection('analise_dados_usuarios')
+        .collection(ANALISE_DADOS_COLLECTION)
         .find({})
         .toArray()
 
@@ -80,8 +89,7 @@ async function rankearUso() {
         await exibirDadosUsuarioERankear(iterator)
     }
 
-    await MongoClient().collection('analise_dados_usuarios').deleteMany()
-
+    await MongoClient().collection(ANALISE_DADOS_COLLECTION).deleteMany()
 }
 
 function exibirRankingNoChat() {

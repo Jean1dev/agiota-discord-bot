@@ -19,7 +19,15 @@ function getChannelCaixinha() {
 
 function handleAxiosException(e) {
     if (e.isAxiosError) {
-        getChannelCaixinha().send(JSON.stringify(e.toJSON()))
+        const _channel = getChannelCaixinha()
+        
+        if (e.response.status === 406) {
+            _channel.send(`Banco fora do horario de operacao`)
+            _channel.send(`Horario permitido seg~sex das 09am ~ 19pm`)
+            return
+        }
+
+        _channel.send(JSON.stringify(e.toJSON()))
     }
 
     captureException(e)
