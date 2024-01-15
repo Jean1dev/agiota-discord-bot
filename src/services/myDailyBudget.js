@@ -70,7 +70,7 @@ function displayTransactionsToday() {
             .reduce((sum, value) => sum + value, 0)
 
         if (total > 0) {
-            const message = `Hoje voce gastou R$${total.toFixed(2)}`
+            const message = `Hoje voce gastou R$${Number(total).toFixed(2)}`
             sendMessage(message)
         }
     }
@@ -175,3 +175,7 @@ module.exports = {
     fillDaylyBudgetState: fillState,
     addMoneyToDailyBudget
 }
+
+setTimeout(() => {
+    dailyHandles()
+}, 18000)
