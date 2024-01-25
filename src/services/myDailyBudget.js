@@ -9,7 +9,7 @@ const state = {
 
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
-const dailyBudgetGain = 100
+const dailyBudgetGain = 101
 const weekendBudgetGain = 200
 
 async function fillState() {
@@ -175,7 +175,3 @@ module.exports = {
     fillDaylyBudgetState: fillState,
     addMoneyToDailyBudget
 }
-
-setTimeout(() => {
-    dailyHandles()
-}, 18000)
