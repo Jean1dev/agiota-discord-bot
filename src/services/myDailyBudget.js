@@ -9,8 +9,47 @@ const state = {
 
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
+const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
 const dailyBudgetGain = 101
 const weekendBudgetGain = 200
+
+async function gerarRelatorioFechamentoCompentencia() {
+    const db = DbInstance()
+
+    const data = await db
+        .collection(FECHAMENTO_COMPETENCIA_COLLECTION)
+        .find({})
+        .toArray()
+
+    if (data.length == 0) {
+        return []
+    }
+
+    function getFormatedDateString(date) {
+        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+    }
+
+    let valueReturned = []
+    data.forEach(it => {
+        const transactions = it.transactions.map(transacation => Number(transacation.money))
+        const total = transactions.reduce((sum, value) => sum + value, 0)
+        const periodo = `de ${getFormatedDateString(it.periodoInicial)} ate ${getFormatedDateString(it.periodoFinal)}`
+        const totalTransactions = transactions.length
+        const maiorTransacation = it.transactions.map(transacation => ({
+            money: Number(transacation.money),
+            description: transacation.description,
+        })).sort((a, b) => b.money - a.money)[0]
+
+        valueReturned.push(`
+            Periodo: ${periodo}
+            Total de Transacoes: ${totalTransactions}
+            Total: R$${total}
+            Maior Transacao: R$${maiorTransacation.money} - ${maiorTransacation.description}
+        `)
+    })
+
+    return valueReturned
+}
 
 async function fillState() {
     try {
@@ -83,7 +122,7 @@ function fecharCompetencia(ultimaData, dados, db) {
         description: item.description
     }))
 
-    db.collection('fechamento_competencia').insertOne({
+    db.collection(FECHAMENTO_COMPETENCIA_COLLECTION).insertOne({
         periodoInicial: ultimaData,
         periodoFinal: new Date(),
         transactions
@@ -163,7 +202,7 @@ async function spentMoney({ money, description }) {
 }
 
 function addMoneyToDailyBudget(money) {
-    const newBudget = state.budget + money
+    const newBudget = state.budget + Number(money)
     addNewBalance(newBudget, "add by func addMoneyToDailyBudget")
     return newBudget
 }
@@ -173,5 +212,6 @@ module.exports = {
     getMyDailyBudget,
     dailyHandles,
     fillDaylyBudgetState: fillState,
-    addMoneyToDailyBudget
+    addMoneyToDailyBudget,
+    gerarRelatorioFechamentoCompentencia
 }

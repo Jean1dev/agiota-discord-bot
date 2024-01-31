@@ -1,6 +1,5 @@
 const axios = require('axios')
 const Scraper = require('images-scraper')
-const captureException = require('../../observability/Sentry')
 
 const baseUrl = 'https://carteira-14bc707a7fab.herokuapp.com/admin'
 

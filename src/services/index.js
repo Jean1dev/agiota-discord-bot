@@ -3,7 +3,8 @@ const {
     getRegistros,
     clearRegistros,
     rankearUso,
-    exibirRankingNoChat
+    exibirRankingNoChat,
+    gerarRelatorioFechamentoCompentencia
 } = require('./analiseDadosUsuarios')
 const listarAsUltimasFeatures = require('./githubOperations')
 const criarPDFRetornarCaminho = require('./GerarPDF')
@@ -24,5 +25,6 @@ module.exports = {
     financeServices,
     myDailyBudgetService,
     addMusic,
-    ramdomMusic
+    ramdomMusic,
+    gerarRelatorioFechamentoCompentencia
 }

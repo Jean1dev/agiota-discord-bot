@@ -15,7 +15,8 @@ const {
   atualizarCotacaoHandler,
   chatGpt,
   imgur,
-  addDailyBudgetHandler
+  addDailyBudgetHandler,
+  relatorioMensalDeGastosHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -41,3 +42,4 @@ registrarComando('acao', atualizarCotacaoHandler, 'atualizar cotacoes no app da 
 registrarComando('gpt', chatGpt, 'Tire suas dúvidas com o chatgpt', true)
 registrarComando('imgur', imgur, 'Busca 5 imagens aleatorias do imgur')
 registrarComando('budget', addDailyBudgetHandler, 'Adiciona um valor no orcamento diario de gastos', true)
+registrarComando('relatorio', relatorioMensalDeGastosHandler, 'Gera o relatorio mensal de gastos do Jean')
