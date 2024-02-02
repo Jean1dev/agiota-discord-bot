@@ -197,7 +197,7 @@ function addTransaction({ money, description, newBudget }) {
 async function spentMoney({ money, description }) {
     money = Number(money)
     console.log('spent money', money)
-    if (isNaN(money) || isFinite(money)) {
+    if (isNaN(money)) {
         return
     }
   
@@ -210,7 +210,7 @@ async function spentMoney({ money, description }) {
 function addMoneyToDailyBudget(money) {
     money = Number(money)
     console.log('add Money To Daily Budget', money)
-    if (isNaN(money) || isFinite(money)) {
+    if (isNaN(money)) {
         return
     }
 
