@@ -4,6 +4,8 @@ const { FINANCE_API_AUTH } = require('../config')
 const captureException = require('../observability/Sentry')
 const axios = require('axios')
 
+const MAX_RETRY_TENTATIVES = 10
+
 const apiCall = axios.create({
     baseURL: 'https://caixinha-financeira-9a2031b303cc.herokuapp.com',
     timeout: 40000,
@@ -33,18 +35,24 @@ function handleAxiosException(e) {
     captureException(e)
 }
 
-function verificarStatus(key) {
+function verificarStatus(key, tentative = 0) {
     apiCall.get(`pix/${key}`)
         .then(({ data }) => {
             const statusPix = data.statusPix
             if (statusPix === 'EM_PROCESSAMENTO') {
+                if (tentative >= MAX_RETRY_TENTATIVES) {
+                    getChannelCaixinha().send(`Nao foi possivel processar o pix ${key} excedeu numero maximo de tentativas`)
+                    return
+                }
+
+                tentative++
                 setTimeout(() => {
-                    verificarStatus(key)
+                    verificarStatus(key, tentative)
                 }, 15000)
 
                 return
             }
-
+            
             const channel = getChannelCaixinha()
             const embed = new MessageEmbed()
                 .setTitle(`Status do pix ${statusPix}`)
@@ -67,7 +75,7 @@ function sendPix(contract) {
         valor: contract.valor.toFixed(2)
     }).then(({ data }) => {
         const key = data.key
-        getChannelCaixinha().send(`Pix R$${contract.valor} Enviando para ${contract.favorecido} - chave ${contract.pix}`)
+        getChannelCaixinha().send(`Solicitando de Pix R$${contract.valor} para ${contract.favorecido} - chave ${contract.pix} `)
         verificarStatus(key)
     }).catch(handleAxiosException)
 }

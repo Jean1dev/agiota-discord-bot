@@ -195,6 +195,12 @@ function addTransaction({ money, description, newBudget }) {
 }
 
 async function spentMoney({ money, description }) {
+    money = Number(money)
+    console.log('spent money', money)
+    if (isNaN(money) || isFinite(money)) {
+        return
+    }
+  
     const newBudget = state.budget - money
     state.transactions.push({ money, description })
     setTimeout(() => addTransaction({ money, description, newBudget }), 1000)
@@ -202,7 +208,13 @@ async function spentMoney({ money, description }) {
 }
 
 function addMoneyToDailyBudget(money) {
-    const newBudget = state.budget + Number(money)
+    money = Number(money)
+    console.log('add Money To Daily Budget', money)
+    if (isNaN(money) || isFinite(money)) {
+        return
+    }
+
+    const newBudget = state.budget + money
     addNewBalance(newBudget, "add by func addMoneyToDailyBudget")
     return newBudget
 }
