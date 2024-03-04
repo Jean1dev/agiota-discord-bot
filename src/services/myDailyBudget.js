@@ -10,8 +10,8 @@ const state = {
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
-const dailyBudgetGain = 101
-const weekendBudgetGain = 200
+const dailyBudgetGain = 102
+const weekendBudgetGain = 300
 
 async function gerarRelatorioFechamentoCompentencia() {
     const db = DbInstance()
@@ -44,7 +44,7 @@ async function gerarRelatorioFechamentoCompentencia() {
             Periodo: ${periodo}
             Total de Transacoes: ${totalTransactions}
             Total: R$${total}
-            Maior Transacao: R$${maiorTransacation.money} - ${maiorTransacation.description}
+            Maior Transacao: R$${maiorTransacation.money.toFixed(2)} - ${maiorTransacation.description}
         `)
     })
 
@@ -162,7 +162,11 @@ function dailyHandles() {
                 return diferencaEmDias;
             }
 
-            const diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
+            let diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
+            if (diasAteHoje == 0)
+                diasAteHoje = 1
+        
+            
             const totalDespesas = result.map(it => Number(it.money)).reduce((sum, value) => sum + value, 0)
             const media = totalDespesas / diasAteHoje
             const message = `Nos ultimos ${diasAteHoje} dias voce gastou em media R$${media.toFixed(2)} por dia`

@@ -8,7 +8,8 @@ const sendEmail = require('./EmailService')
 
 const state = {
     aprovacoes: 0,
-    quemAprovou: []
+    quemAprovou: [],
+    reprovado: false
 }
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
@@ -27,12 +28,27 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
     }).catch(captureException)
 }
 
+function reprovarEmprestimo(interaction, emprestimoUid) {
+    const nick = interaction.member.nickname
+    const url = `https://caixinha-gilt.vercel.app/detalhes-emprestimo?uid=${emprestimoUid}`
+    interaction.reply(`${nick} para continuar a rejeicao \n
+        acesse o link ${url} \n
+        e informe o motivo`);
+
+    state.reprovado = true
+}
+
 function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
     const nick = interaction.member.nickname
     const find = state.quemAprovou.find(it => it.nick === nick)
     if (find) {
         interaction.reply(`${nick} voce ja aceitou`);
         return
+    }
+
+    if (state.reprovado) {
+        interaction.reply(`Esse emprestimo foi rejeitado`);
+        return    
     }
 
     state.aprovacoes++
@@ -132,7 +148,7 @@ function notifyEmprestimo(emprestimo) {
                 adicionarAprovacao(interaction, caixinhaId, emprestimoUid)
                 
             } else if (interaction.customId === 'rejeitar') {
-                interaction.reply(`${interaction.member.nickname} rejeitou esse emprestimo`);
+                reprovarEmprestimo(interaction, emprestimoUid)
             }
         });
     }
