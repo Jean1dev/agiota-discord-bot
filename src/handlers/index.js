@@ -13,6 +13,7 @@ const { handleCommand: chatGpt } = require('./ia/chat-gpt')
 const imgur = require("./imgur")
 const addDailyBudgetHandler = require('./agiotagem/add-daily-budget')
 const relatorioMensalDeGastosHandler = require('./agiotagem/relatorio-daily-budget')
+const buscarGastoNoDiaHandler = require('./agiotagem/pesquisar-gastos-do-dia')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -29,5 +30,6 @@ module.exports = {
   atualizarCotacaoHandler,
   chatGpt,
   imgur,
-  relatorioMensalDeGastosHandler
+  relatorioMensalDeGastosHandler,
+  buscarGastoNoDiaHandler
 }

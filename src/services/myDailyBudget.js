@@ -13,6 +13,28 @@ const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
 const dailyBudgetGain = 102
 const weekendBudgetGain = 300
 
+async function consultarTransacoesDoDia(dataProcurada) {
+    const db = DbInstance()
+
+    const data = await db
+        .collection(FECHAMENTO_COMPETENCIA_COLLECTION)
+        .find({
+            periodoInicial: { $lte: dataProcurada },
+            periodoFinal: { $gte: dataProcurada }
+        })
+        .toArray()
+
+    return data[0].transactions
+        .filter(it => {
+            const transactionDate = new Date(it.date);
+
+            return transactionDate.getDate() === dataProcurada.getDate() &&
+                transactionDate.getMonth() === dataProcurada.getMonth() &&
+                transactionDate.getFullYear() === dataProcurada.getFullYear()
+        })
+        .map(it => `R$ ${it.money} -- ${it.description}`)
+}
+
 async function gerarRelatorioFechamentoCompentencia() {
     const db = DbInstance()
 
@@ -165,8 +187,8 @@ function dailyHandles() {
             let diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
             if (diasAteHoje == 0)
                 diasAteHoje = 1
-        
-            
+
+
             const totalDespesas = result.map(it => Number(it.money)).reduce((sum, value) => sum + value, 0)
             const media = totalDespesas / diasAteHoje
             const message = `Nos ultimos ${diasAteHoje} dias voce gastou em media R$${media.toFixed(2)} por dia`
@@ -204,7 +226,7 @@ async function spentMoney({ money, description }) {
     if (isNaN(money)) {
         return
     }
-  
+
     const newBudget = state.budget - money
     state.transactions.push({ money, description })
     setTimeout(() => addTransaction({ money, description, newBudget }), 1000)
@@ -229,5 +251,6 @@ module.exports = {
     dailyHandles,
     fillDaylyBudgetState: fillState,
     addMoneyToDailyBudget,
-    gerarRelatorioFechamentoCompentencia
+    gerarRelatorioFechamentoCompentencia,
+    consultarTransacoesDoDia
 }
