@@ -1,4 +1,5 @@
-const { consultarTransacoesDoDia } = require("../../services/myDailyBudget")
+const { consultarTransacoesDoDia } = require("../../services/myDailyBudget");
+const { JEANLUCAFP_NICK } = require("../../utils/discord-nicks-default");
 
 function parseDate(dateString) {
     // Separar os componentes da data
@@ -34,6 +35,11 @@ function parseDate(dateString) {
 }
 
 module.exports = (args, message) => {
+    const myName = message.author.username
+    if (myName !== JEANLUCAFP_NICK) {
+        return
+    }
+
     const dataParaBusca = parseDate(args[0])
 
     consultarTransacoesDoDia(dataParaBusca)

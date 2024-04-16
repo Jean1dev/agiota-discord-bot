@@ -1,7 +1,13 @@
 const sendEmail = require("../../services/EmailService")
 const { gerarRelatorioFechamentoCompentencia } = require("../../services/myDailyBudget")
+const { JEANLUCAFP_NICK } = require("../../utils/discord-nicks-default")
 
 module.exports = async message => {
+    const myName = message.author.username
+    if (myName !== JEANLUCAFP_NICK) {
+        return
+    }
+
     gerarRelatorioFechamentoCompentencia()
         .then(result => {
             if (result && result.length > 0) {

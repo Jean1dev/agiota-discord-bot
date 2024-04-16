@@ -10,8 +10,8 @@ const state = {
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
-const dailyBudgetGain = 102
-const weekendBudgetGain = 300
+const dailyBudgetGain = 300
+const weekendBudgetGain = 500
 
 async function consultarTransacoesDoDia(dataProcurada) {
     const db = DbInstance()
