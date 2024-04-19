@@ -1,4 +1,4 @@
-const JEANLUCAFP_NICK = 'jeanlufp'
+const JEANLUCAFP_NICK = 'jeanlucafp'
 
 module.exports = {
     JEANLUCAFP_NICK
