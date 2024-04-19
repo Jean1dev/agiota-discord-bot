@@ -66,7 +66,7 @@ async function gerarRelatorioFechamentoCompentencia() {
             Periodo: ${periodo}
             Total de Transacoes: ${totalTransactions}
             Total: R$${total.toFixed(2)}
-            Media diaria: R$${(total / totalTransactions).toFixed(2)}
+            Media diaria: R$${(total / 30).toFixed(2)}
             Maior Transacao: R$${maiorTransacation.money.toFixed(2)} - ${maiorTransacation.description}
         `)
     })
