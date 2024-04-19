@@ -8,7 +8,7 @@ services:
 
   rabbit:
     container_name: amqp_bot
-    image: rabbitmq
+    image: rabbitmq:3.13.1-management-alpine
     environment:
       - RABBITMQ_ERLANG_COOKIE=SWQOKODSQALRPCLNMEQG
       - RABBITMQ_DEFAULT_USER=adm

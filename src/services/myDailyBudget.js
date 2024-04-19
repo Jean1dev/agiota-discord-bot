@@ -10,8 +10,8 @@ const state = {
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
-const dailyBudgetGain = 102
-const weekendBudgetGain = 300
+const dailyBudgetGain = 300
+const weekendBudgetGain = 500
 
 async function consultarTransacoesDoDia(dataProcurada) {
     const db = DbInstance()
@@ -65,7 +65,8 @@ async function gerarRelatorioFechamentoCompentencia() {
         valueReturned.push(`
             Periodo: ${periodo}
             Total de Transacoes: ${totalTransactions}
-            Total: R$${total}
+            Total: R$${total.toFixed(2)}
+            Media diaria: R$${(total / totalTransactions).toFixed(2)}
             Maior Transacao: R$${maiorTransacation.money.toFixed(2)} - ${maiorTransacation.description}
         `)
     })

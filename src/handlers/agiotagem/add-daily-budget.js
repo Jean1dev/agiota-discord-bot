@@ -1,8 +1,9 @@
 const { myDailyBudgetService } = require('../../services')
+const { JEANLUCAFP_NICK } = require('../../utils/discord-nicks-default')
 
 module.exports = async (args, message) => {
     const myName = message.author.username
-    if (myName !== 'jeanlucafp') {
+    if (myName !== JEANLUCAFP_NICK) {
         return
     }
 
