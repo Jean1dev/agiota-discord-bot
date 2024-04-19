@@ -11,13 +11,14 @@ module.exports = async message => {
     gerarRelatorioFechamentoCompentencia()
         .then(result => {
             if (result && result.length > 0) {
-                const conteudo = result.join("\n")
-                message.reply(conteudo)
+                result.forEach((element, index) => {
+                    message.reply(element)
 
-                sendEmail({
-                    subject: "Relatorio Mensal de gastos",
-                    message: conteudo,
-                    to: 'jeanlucafp@gmail.com'
+                    sendEmail({
+                        subject: `Relatorio de despesas ${index}`,
+                        message: element,
+                        to: 'jeanlucafp@gmail.com'
+                    })
                 })
 
                 return
