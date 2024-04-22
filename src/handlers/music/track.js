@@ -42,7 +42,7 @@ class Track {
                         .then((probe) => resolve(createAudioResource(probe.stream, { metadata: this, inputType: probe.type })))
                         .catch(onError);
                 })
-                .catch(onError);
+                .on('error', onError)
         });
     }
 
