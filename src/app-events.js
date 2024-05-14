@@ -3,7 +3,8 @@ const { AMQP_CONNECTION } = require('./config')
 const { notificacaoCaixinha } = require('./services')
 const amqp = require('amqplib/callback_api');
 
-const EventEmitter = require('events')
+const EventEmitter = require('events');
+const { enviarMensagemParaMim } = require('./telegram');
 
 class AppEvents extends EventEmitter { }
 
@@ -15,6 +16,10 @@ appEvents.on('update-state-jogo-bixo', () => {
 
 appEvents.on('notification-emprestimo', () => {
     console.info('event::', 'notification-emprestimo')
+})
+
+appEvents.on('enviar-mensagem-telegram', message => {
+    enviarMensagemParaMim(message)
 })
 
 amqp.connect(AMQP_CONNECTION, function (error0, connection) {

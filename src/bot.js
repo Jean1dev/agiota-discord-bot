@@ -1,7 +1,9 @@
-const { Client, Intents } = require('discord.js')
 const config = require('./config')
-const commands = require('./commands')
 const { createContext, contextInstance } = require('./context')
+
+const { Client, Intents } = require('discord.js')
+
+const commands = require('./commands')
 const { handleMessageWithIa } = require('./ia')
 const handleDM = require('./handlers/dm')
 const registerJobs = require('./register-jobs')

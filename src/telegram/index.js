@@ -20,7 +20,7 @@ const tecladoOpcoes = Markup.keyboard([
 
 function enviarMensagemParaMim(message) {
     new Telegram(TELEGRAM_API_KEY)
-        .sendMessage(CHAT_ID, message)
+        .sendMessage(String(CHAT_ID), message)
 }
 
 bot.use(async (ctx, next) => {

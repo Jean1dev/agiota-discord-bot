@@ -28,6 +28,10 @@ class Context {
     this.client = client
   }
 
+  emitEvent(eventName, payload) {
+    appEvents.emit(eventName, payload)
+  }
+
   async fillState() {
     try {
       const data = await repository.getData()
