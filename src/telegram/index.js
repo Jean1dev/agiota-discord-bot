@@ -6,8 +6,8 @@ if (!TELEGRAM_API_KEY) {
 
 const { Telegraf, session, Markup, Telegram } = require('telegraf')
 const { myDailyBudgetService } = require('../services')
-const { contextInstance } = require('../context')
 
+const CHAT_ID = 512142034
 const bot = new Telegraf(TELEGRAM_API_KEY)
 bot.use(session())
 
@@ -18,10 +18,22 @@ const tecladoOpcoes = Markup.keyboard([
     ['spent money'],
 ]).resize()
 
-function enviarMessageRef(chatId, message) {
+function enviarMensagemParaMim(message) {
     new Telegram(TELEGRAM_API_KEY)
-        .sendMessage(chatId, message)
+        .sendMessage(CHAT_ID, message)
 }
+
+bot.use(async (ctx, next) => {
+    const id = ctx.update.message.from.id
+    
+    if (id !== CHAT_ID) {
+        await ctx.reply('Voce nao tem permissao para acessar esse bot')
+        enviarMensagemParaMim(`Usuario desconhecido tentou acessar o bot: ${ctx.update.message.from.first_name}`)
+        return
+    }
+
+    next()
+})
 
 bot.start(async context => {
     let nome = context.update.message.from.first_name
@@ -32,13 +44,11 @@ bot.start(async context => {
 bot.hears('My Daily budget', async ctx => {
     const budget = await myDailyBudgetService.getMyDailyBudget()
     ctx.reply(`R$ ${budget}`)
-    contextInstance().addTelegramId(ctx.update.message.from.id, enviarMessageRef)
 })
 
 bot.hears('spent money', ctx => {
     awaitResponseSpentMoney = true
     ctx.reply('informe o valor e descricao separado por virgula')
-    contextInstance().addTelegramId(ctx.update.message.from.id, enviarMessageRef)
 })
 
 bot.on('text', async ctx => {
@@ -51,7 +61,10 @@ bot.on('text', async ctx => {
     
     ctx.reply(`your new daily budget is R$ ${budget}`)
     awaitResponseSpentMoney = false
-    contextInstance().addTelegramId(ctx.update.message.from.id, enviarMessageRef)
 })
 
 bot.launch()
+
+module.exports = {
+    enviarMensagemParaMim
+}

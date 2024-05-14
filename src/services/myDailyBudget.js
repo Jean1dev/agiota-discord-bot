@@ -1,6 +1,6 @@
-const { contextInstance } = require('../context')
 const captureException = require('../observability/Sentry')
 const { DbInstance } = require('../repository/mongodb')
+const { enviarMensagemParaMim } = require('../telegram')
 
 const state = {
     budget: null,
@@ -115,14 +115,7 @@ function hojeEhFimDeSemana() {
 }
 
 function sendMessage(message) {
-    const context = contextInstance()
-
-    if (!context.telegramIds) {
-        return
-    }
-
-    const item1 = context.telegramIds[0]
-    item1.callback(item1.chatId, message)
+    enviarMensagemParaMim(message)
 }
 
 function displayTransactionsToday() {
