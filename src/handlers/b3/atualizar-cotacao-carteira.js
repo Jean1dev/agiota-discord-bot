@@ -26,6 +26,7 @@ module.exports = async message => {
 
     const ativoComImagem = []
     for (const papel of listaAtivos) {
+        // TODO: rotina nao esta mais funcionando
         try {
             const results = await google.scrape(papel, 200)
             ativoComImagem.push({

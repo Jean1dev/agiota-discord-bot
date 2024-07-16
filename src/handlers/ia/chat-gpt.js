@@ -18,7 +18,7 @@ async function getCompletion(messages) {
         const response = await openaiAxios.post('/chat/completions', {
             model: 'gpt-3.5-turbo',
             messages,
-            temperature: 0.7
+            temperature: 0.8
         });
 
         return response.data;

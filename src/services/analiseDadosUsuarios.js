@@ -9,6 +9,9 @@ const state = {
 const ANALISE_DADOS_COLLECTION = 'analise_dados_usuarios'
 
 function registrarEntradaTexto(discordMessage) {
+    if (discordMessage.content.startsWith("$"))
+            return
+    
     const data = {
         username: discordMessage.author.username,
         message: discordMessage.content,
@@ -29,6 +32,7 @@ function clearRegistros() {
         .collection(ANALISE_DADOS_COLLECTION)
         .insertMany(state.registros)
         .then(() => {
+            console.log('inserindo registros para analise', state.registros.length)
             state.registros = []
         })
 }

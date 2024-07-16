@@ -11,7 +11,21 @@ const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
 const dailyBudgetGain = 300
-const weekendBudgetGain = 500
+const weekendBudgetGain = 355
+
+async function consultarTransacoesDoDiaForaDaCompetencia(dataProcurada) {
+    const db = DbInstance()
+
+    const data = await db
+        .collection(collectionTransactionName)
+        .find({
+            date: { $lte: dataProcurada },
+            date: { $gte: dataProcurada }
+        })
+        .toArray()
+
+    return data.map(it => `R$ ${it.money} -- ${it.description}`)
+}
 
 async function consultarTransacoesDoDia(dataProcurada) {
     const db = DbInstance()
@@ -23,6 +37,10 @@ async function consultarTransacoesDoDia(dataProcurada) {
             periodoFinal: { $gte: dataProcurada }
         })
         .toArray()
+
+    if (data.length == 0) {
+        return consultarTransacoesDoDiaForaDaCompetencia(dataProcurada)
+    }
 
     return data[0].transactions
         .filter(it => {
