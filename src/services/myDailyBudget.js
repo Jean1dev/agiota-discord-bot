@@ -1,6 +1,7 @@
 const { contextInstance } = require('../context')
 const captureException = require('../observability/Sentry')
 const { DbInstance } = require('../repository/mongodb')
+const { formatDate } = require('../utils/discord-nicks-default')
 
 const state = {
     budget: null,
@@ -24,7 +25,7 @@ async function consultarTransacoesDoDiaForaDaCompetencia(dataProcurada) {
         })
         .toArray()
 
-    return data.map(it => `R$ ${it.money} -- ${it.description}`)
+    return data.map(it => `${formatDate(it.date)} R$ ${it.money} -- ${it.description}`)
 }
 
 async function consultarTransacoesDoDia(dataProcurada) {
@@ -50,7 +51,7 @@ async function consultarTransacoesDoDia(dataProcurada) {
                 transactionDate.getMonth() === dataProcurada.getMonth() &&
                 transactionDate.getFullYear() === dataProcurada.getFullYear()
         })
-        .map(it => `R$ ${it.money} -- ${it.description}`)
+        .map(it => `${formatDate(it.date)} R$ ${it.money} -- ${it.description}`)
 }
 
 async function gerarRelatorioFechamentoCompentencia() {
@@ -65,15 +66,11 @@ async function gerarRelatorioFechamentoCompentencia() {
         return []
     }
 
-    function getFormatedDateString(date) {
-        return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
-    }
-
     let valueReturned = []
     data.forEach(it => {
         const transactions = it.transactions.map(transacation => Number(transacation.money))
         const total = transactions.reduce((sum, value) => sum + value, 0)
-        const periodo = `de ${getFormatedDateString(it.periodoInicial)} ate ${getFormatedDateString(it.periodoFinal)}`
+        const periodo = `de ${formatDate(it.periodoInicial)} ate ${formatDate(it.periodoFinal)}`
         const totalTransactions = transactions.length
         const maiorTransacation = it.transactions.map(transacation => ({
             money: Number(transacation.money),
