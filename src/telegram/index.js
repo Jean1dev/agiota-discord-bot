@@ -6,9 +6,11 @@ if (!TELEGRAM_API_KEY) {
 
 const { Telegraf, session, Markup, Telegram } = require('telegraf')
 const { myDailyBudgetService } = require('../services')
+const { message } = require('telegraf/filters')
 
 const CHAT_ID = 512142034
 const bot = new Telegraf(TELEGRAM_API_KEY)
+const telegram = new Telegram(TELEGRAM_API_KEY)
 bot.use(session())
 
 let awaitResponseSpentMoney = false
@@ -19,13 +21,19 @@ const tecladoOpcoes = Markup.keyboard([
 ]).resize()
 
 function enviarMensagemParaMim(message) {
-    new Telegram(TELEGRAM_API_KEY)
-        .sendMessage(String(CHAT_ID), message)
+    telegram.sendMessage(String(CHAT_ID), message)
+}
+
+function enviarMensagemHTML(message, chatID) {
+    telegram.sendMessage(chatID, message, { parse_mode: 'HTML' })
+        .catch(error => {
+            console.log(error)
+        })
 }
 
 bot.use(async (ctx, next) => {
     const id = ctx.update.message.from.id
-    
+
     if (id !== CHAT_ID) {
         await ctx.reply('Voce nao tem permissao para acessar esse bot')
         enviarMensagemParaMim(`Usuario desconhecido tentou acessar o bot: ${ctx.update.message.from.first_name}`)
@@ -51,14 +59,14 @@ bot.hears('spent money', ctx => {
     ctx.reply('informe o valor e descricao separado por virgula')
 })
 
-bot.on('text', async ctx => {
+bot.on(message('text'), async ctx => {
     if (!awaitResponseSpentMoney) {
         return
     }
 
     const content = ctx.update.message.text.split(',')
     const budget = await myDailyBudgetService.spentMoney({ money: content[0], description: content[1] })
-    
+
     ctx.reply(`your new daily budget is R$ ${budget}`)
     awaitResponseSpentMoney = false
 })
@@ -66,5 +74,6 @@ bot.on('text', async ctx => {
 bot.launch()
 
 module.exports = {
-    enviarMensagemParaMim
+    enviarMensagemParaMim,
+    enviarMensagemHTML
 }

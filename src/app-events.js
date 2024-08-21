@@ -1,10 +1,10 @@
 const { updateStateAfterDataLoad } = require('./handlers/jogo-bixo/game-functions')
 const { AMQP_CONNECTION } = require('./config')
-const { notificacaoCaixinha } = require('./services')
+const { notificacaoCaixinha, cryptoServiceProcessMessage } = require('./services')
 const amqp = require('amqplib/callback_api');
 
 const EventEmitter = require('events');
-const { enviarMensagemParaMim } = require('./telegram');
+const { enviarMensagemParaMim, enviarMensagemHTML } = require('./telegram');
 
 class AppEvents extends EventEmitter { }
 
@@ -18,8 +18,13 @@ appEvents.on('notification-emprestimo', () => {
     console.info('event::', 'notification-emprestimo')
 })
 
-appEvents.on('enviar-mensagem-telegram', message => {
-    enviarMensagemParaMim(message)
+appEvents.on('enviar-mensagem-telegram', payload => {
+    if (typeof payload === 'string' || payload instanceof String) {
+        enviarMensagemParaMim(payload)
+        return
+    }
+
+    enviarMensagemHTML(payload.message, payload.chatId)
 })
 
 amqp.connect(AMQP_CONNECTION, function (error0, connection) {
@@ -31,7 +36,7 @@ amqp.connect(AMQP_CONNECTION, function (error0, connection) {
         if (error1) {
             throw error1;
         }
-        var queue = 'caixinha-serverless';
+        const queue = 'caixinha-serverless';
 
         channel.assertQueue(queue, {
             durable: false
@@ -40,6 +45,19 @@ amqp.connect(AMQP_CONNECTION, function (error0, connection) {
         channel.consume(queue, function (msg) {
             console.log(" [x] Received %s", msg.content.toString());
             notificacaoCaixinha(msg.content.toString())
+        }, {
+            noAck: true
+        });
+
+        const queue2 = 'crypto.arbitragem.queue'
+
+        channel.assertQueue(queue2, {
+            durable: true
+        });
+
+        channel.consume(queue2, function (msg) {
+            console.log(" [x] Received %s", msg.content.toString());
+            cryptoServiceProcessMessage(msg)
         }, {
             noAck: true
         });
