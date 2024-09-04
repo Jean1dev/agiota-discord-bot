@@ -169,12 +169,20 @@ function notifyRendimento(message) {
     channel.send({ embeds: [embed] })
 }
 
-function notifyEmail({ message, remetentes }) {
-    remetentes.forEach(email => {
-        const data = {
+function notifyEmail(messageInput) {
+    messageInput.remetentes.forEach(email => {
+        let data = {
             to: email,
             subject: 'Notificação Caixinha',
-            message
+            message: messageInput.message
+        }
+
+        if (messageInput.templateCode) {
+            data = { 
+                ...data, 
+                templateCode: messageInput.templateCode,
+                customBodyProps: messageInput.customBodyProps
+            }
         }
         sendEmail(data)
     })
