@@ -1,13 +1,10 @@
 const { myDailyBudgetService } = require('../../services')
-const { JEANLUCAFP_NICK } = require('../../utils/discord-nicks-default')
+const { requireAdmin } = require('../guard-handler')
 
-module.exports = async (args, message) => {
-    const myName = message.author.username
-    if (myName !== JEANLUCAFP_NICK) {
-        return
-    }
-
+function handle(args, message) {
     const money = args[0]
     const balance = myDailyBudgetService.addMoneyToDailyBudget(Number(money))
     message.reply(`new balance ${balance.toFixed(2)}`)
 }
+
+module.exports = async (args, message) => requireAdmin(args, message, handle)
