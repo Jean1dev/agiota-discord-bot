@@ -14,6 +14,7 @@ const imgur = require("./imgur")
 const addDailyBudgetHandler = require('./agiotagem/add-daily-budget')
 const relatorioMensalDeGastosHandler = require('./agiotagem/relatorio-daily-budget')
 const buscarGastoNoDiaHandler = require('./agiotagem/pesquisar-gastos-do-dia')
+const assinaturasHandler = require('./assinaturas')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -31,5 +32,6 @@ module.exports = {
   chatGpt,
   imgur,
   relatorioMensalDeGastosHandler,
-  buscarGastoNoDiaHandler
+  buscarGastoNoDiaHandler,
+  assinaturasHandler
 }

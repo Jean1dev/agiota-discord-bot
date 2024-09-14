@@ -17,7 +17,8 @@ const {
   imgur,
   addDailyBudgetHandler,
   relatorioMensalDeGastosHandler,
-  buscarGastoNoDiaHandler
+  buscarGastoNoDiaHandler,
+  assinaturasHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -45,3 +46,4 @@ registrarComando('imgur', imgur, 'Busca 5 imagens aleatorias do imgur')
 registrarComando('budget', addDailyBudgetHandler, 'Adiciona um valor no orcamento diario de gastos', true)
 registrarComando('relatorio', relatorioMensalDeGastosHandler, 'Gera o relatorio mensal de gastos do Jean')
 registrarComando('bg', buscarGastoNoDiaHandler, 'Busca as transacoes do dia enviado por parametro no formato DD/MM', true)
+registrarComando('sub', assinaturasHandler, 'Cria uma nova assinatura de 30 dias :: args @email', true)

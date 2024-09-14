@@ -1,10 +1,10 @@
 const { consultarTransacoesDoDia } = require("../../services/myDailyBudget");
-const { JEANLUCAFP_NICK } = require("../../utils/discord-nicks-default");
+const { requireAdmin } = require("../guard-handler");
 
 function parseDate(dateString) {
     // Separar os componentes da data
     const parts = dateString.split('/');
-    
+
     // Obter dia, mês e ano dos componentes
     let day, month, year;
     if (parts.length === 3) {
@@ -34,11 +34,7 @@ function parseDate(dateString) {
     return date;
 }
 
-module.exports = (args, message) => {
-    const myName = message.author.username
-    if (myName !== JEANLUCAFP_NICK) {
-        return
-    }
+function handler(args, message) {
 
     const dataParaBusca = parseDate(args[0])
 
@@ -52,3 +48,5 @@ module.exports = (args, message) => {
             message.reply(resultado.join("\n"))
         })
 }
+
+module.exports = (args, message) => requireAdmin(args, message, handler)

@@ -1,6 +1,6 @@
 const sendEmail = require("../../services/EmailService")
 const { gerarRelatorioFechamentoCompentencia } = require("../../services/myDailyBudget")
-const { JEANLUCAFP_NICK } = require("../../utils/discord-nicks-default")
+const { requireAdmin } = require("../guard-handler")
 
 function displayAs3Ultimas(result, message) {
     const last3 = result.slice(-3)
@@ -9,16 +9,11 @@ function displayAs3Ultimas(result, message) {
     })
 }
 
-module.exports = async message => {
-    const myName = message.author.username
-    if (myName !== JEANLUCAFP_NICK) {
-        return
-    }
-
+function handler(discordMessage) {
     gerarRelatorioFechamentoCompentencia()
         .then(result => {
             if (result && result.length > 0) {
-                displayAs3Ultimas(result, message)
+                displayAs3Ultimas(result, discordMessage)
 
                 result.forEach((element, index) => {
                     sendEmail({
@@ -31,6 +26,8 @@ module.exports = async message => {
                 return
             }
 
-            message.reply("Não há dados para o relatorio mensal")
+            discordMessage.reply("Não há dados para o relatorio mensal")
         })
 }
+
+module.exports = async message => requireAdmin(message, handler)
