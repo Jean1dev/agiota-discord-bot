@@ -1,54 +1,32 @@
 const fs = require('fs')
 const path = require('path')
-const createDiscordJSAdapter = require('../../adapters/discord-adapter')
 const {
-    joinVoiceChannel,
     entersState,
-    VoiceConnectionStatus,
-    createAudioPlayer,
     createAudioResource,
     StreamType,
     AudioPlayerStatus,
-} = require('@discordjs/voice')
+} = require('@discordjs/voice');
+const connectUserChannel = require('../../audio/connect-user-channel');
+const audioPlayer = require('../../audio/audio-player');
 
-const player = createAudioPlayer();
-
-async function connectToChannel(channel) {
-    const connection = joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        adapterCreator: createDiscordJSAdapter(channel),
-    });
-
-    try {
-        await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
-
-        return connection;
-    } catch (error) {
-
-        connection.destroy();
-        throw error;
-    }
-}
-
-async function playMusicBuffer(buffer) {
+async function playMusicByBuffer(buffer) {
     const speechFile = path.resolve("./speech.mp3");
     await fs.promises.writeFile(speechFile, buffer);
 
-    const resource = createAudioResource(buffer, {
+    const resource = createAudioResource(speechFile, {
         inputType: StreamType.Arbitrary,
     });
 
-    player.play(resource);
+    audioPlayer.play(resource);
 
-    return entersState(player, AudioPlayerStatus.Playing, 5000);
+    return entersState(audioPlayer, AudioPlayerStatus.Playing, 5000);
 }
 
 async function runMusicBuffer(channel, buffer) {
     try {
-        const connection = await connectToChannel(channel);
-        await playMusicBuffer(buffer);
-        connection.subscribe(player);
+        const connection = await connectUserChannel(channel);
+        await playMusicByBuffer(buffer);
+        connection.subscribe(audioPlayer);
     } catch (error) {
         console.error(error);
     }

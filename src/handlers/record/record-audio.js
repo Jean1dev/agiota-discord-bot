@@ -1,8 +1,9 @@
-const connectToChannel = require('../../adapters/connect-user-channel')
 const path = require('path')
-const createListeningStream = require('../../adapters/create-listening-stream')
 const { contextInstance: context } = require('../../context')
 const audioconcat = require('audioconcat')
+const connectUserChannel = require('../../audio/connect-user-channel')
+const ListeningStream = require('../../audio/listening-audio-stream')
+const { speechToText } = require('../../ia/open-ai-api')
 
 const recordable = new Set()
 const files = new Set()
@@ -30,6 +31,7 @@ function concatAudios() {
     })
     .on('end', function (output) {
       console.error('Audio created in:', filenameOutput)
+      speechToText(filenameOutput)
     })
 }
 
@@ -41,14 +43,14 @@ module.exports = async (args, message) => {
 
   if (channel) {
     try {
-      const connection = await connectToChannel(channel)
+      const connection = await connectUserChannel(channel)
       const receiver = connection.receiver
 
       receiver.speaking.on('start', (userId) => {
         if (recordable.has(userId)) {
-          createListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
+          ListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
         } else {
-          createListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
+          ListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
         }
       })
 

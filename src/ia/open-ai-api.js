@@ -1,3 +1,4 @@
+const fs = require('fs')
 const OpenAI = require('openai');
 const { KEY_OPEN_AI } = require('../config');
 
@@ -5,7 +6,19 @@ const client = new OpenAI({
     apiKey: KEY_OPEN_AI
 });
 
-async function audioCompletion(inputText) {
+async function speechToText(filename) {
+    const stream = fs.createReadStream(filename);
+    const transcription = await client.audio.transcriptions.create({
+        file: stream,
+        model: "whisper-1",
+        language: "pt",
+        response_format: "verbose_json",
+    });
+
+    console.log(transcription.text);
+}
+
+async function textToSpeech(inputText) {
     const mp3 = await client.audio.speech.create({
         model: "tts-1",
         voice: "alloy",
@@ -28,7 +41,7 @@ async function textCompletion(messages) {
         return chatCompletion;
     } catch (error) {
         if (err instanceof OpenAI.APIError) {
-            console.log(err.status); 
+            console.log(err.status);
             console.log(err.name);
             console.log(err.headers);
         }
@@ -37,8 +50,9 @@ async function textCompletion(messages) {
 }
 
 module.exports = {
-    textCompletion,
-    audioCompletion
+    textToSpeech,
+    speechToText,
+    textCompletion
 }
 
 

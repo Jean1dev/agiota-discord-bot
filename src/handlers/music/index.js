@@ -9,7 +9,7 @@ const {
     AudioPlayerStatus
 } = require('@discordjs/voice')
 const { addMusic, ramdomMusic } = require('../../services')
-const { audioCompletion } = require('../../ia/open-ai-api')
+const { textToSpeech } = require('../../ia/open-ai-api')
 const { runMusicBuffer } = require('./play-resource-buffer')
 
 const subscriptions = new Map();
@@ -219,7 +219,7 @@ module.exports = async (message) => {
         } else if (interaction.commandName === 'talk-to-me') {
             await interaction.deferReply();
             const inputText = interaction.options.get('input').value;
-            const audioBuffer = await audioCompletion(inputText)
+            const audioBuffer = await textToSpeech(inputText)
             const channel = interaction.member.voice.channel;
             await runMusicBuffer(channel, audioBuffer)
             await interaction.followUp('eita po');

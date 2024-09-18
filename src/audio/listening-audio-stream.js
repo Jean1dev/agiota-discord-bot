@@ -8,8 +8,8 @@ function getDisplayName(userId, user) {
 	return user ? `${user.username}_${user.discriminator}` : userId
 }
 
-function createListeningStream(receiver, userId, user, callback = () => { }) {
-	const opusStream = receiver.subscribe(userId, {
+function ListeningStream(connectionReceiver, userId, user, callback = () => { }) {
+	const opusStream = connectionReceiver.subscribe(userId, {
 		end: {
 			behavior: EndBehaviorType.AfterSilence,
 			duration: 100,
@@ -42,4 +42,4 @@ function createListeningStream(receiver, userId, user, callback = () => { }) {
 	})
 }
 
-module.exports = createListeningStream
+module.exports = ListeningStream
