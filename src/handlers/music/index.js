@@ -9,47 +9,13 @@ const {
     AudioPlayerStatus
 } = require('@discordjs/voice')
 const { addMusic, ramdomMusic } = require('../../services')
+const { audioCompletion } = require('../../ia/open-ai-api')
+const { runMusicBuffer } = require('./play-resource-buffer')
 
 const subscriptions = new Map();
 let playerLigado = false
 
 const gifDj = 'https://i.imgur.com/z7R8T.gif';
-
-// async function myImpl(args, message) {
-//     const url = args[0]
-//     const channel = message.member?.voice.channel
-//     try {
-//         const subscription = new MusicSubscription(
-//             joinVoiceChannel({
-//                 channelId: channel.id,
-//                 guildId: channel.guild.id,
-//                 adapterCreator: channel.guild.voiceAdapterCreator,
-//             }),
-//         );
-
-//         await entersState(subscription.voiceConnection, VoiceConnectionStatus.Ready, 20e3);
-
-//         // Attempt to create a Track from the user's video URL
-//         const track = await Track.from(url, {
-//             onStart() {
-//                 message.channel.send('Now playing!')
-//             },
-//             onFinish() {
-//                 message.channel.send('Now finished!')
-//             },
-//             onError(error) {
-//                 console.warn(error);
-//                 message.channel.send(`Error: ${error.message}`)
-//             },
-//         });
-//         // Enqueue the track and reply a success message to the user
-//         subscription.enqueue(track);
-//     } catch (error) {
-//         console.warn(error);
-
-//         return;
-//     }
-// }
 
 async function playSong(url, subscription, interaction, subscriptions) {
     if (!subscription) {
@@ -152,6 +118,18 @@ module.exports = async (message) => {
             name: 'random',
             description: 'Play random music',
         },
+        {
+            name: 'talk-to-me',
+            description: 'Conversa com o mamaco',
+            options: [
+                {
+                    name: 'input',
+                    type: 'STRING',
+                    description: 'Sobre oq vamos conversar?',
+                    required: true,
+                },
+            ],
+        },
     ]);
 
     // Criar um objeto de incorporação
@@ -176,7 +154,7 @@ module.exports = async (message) => {
             // If a connection to the guild doesn't already exist and the user is in a voice channel, join that channel
             // and create a subscription.
             await playSong(url, subscription, interaction, subscriptions)
-            
+
         } else if (interaction.commandName === 'skip') {
             if (subscription) {
                 // Calling .stop() on an AudioPlayer causes it to transition into the Idle state. Because of a state transition
@@ -237,6 +215,14 @@ module.exports = async (message) => {
             }
 
             await playSong(musicEscolhida, subscription, interaction, subscriptions)
+
+        } else if (interaction.commandName === 'talk-to-me') {
+            await interaction.deferReply();
+            const inputText = interaction.options.get('input').value;
+            const audioBuffer = await audioCompletion(inputText)
+            const channel = interaction.member.voice.channel;
+            await runMusicBuffer(channel, audioBuffer)
+            await interaction.followUp('eita po');
 
         } else {
             await interaction.reply('Unknown command');

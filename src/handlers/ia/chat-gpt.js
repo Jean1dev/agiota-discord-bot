@@ -1,38 +1,8 @@
-const axios = require('axios');
-const context = require('../../context').contextInstance
-const { KEY_OPEN_AI } = require('../../config')
-const MAX_LENGTH = 2000;
+const context = require("../../context").contextInstance;
+const { textCompletion } = require("../../ia/open-ai-api");
 
 let threadId = 1
-
-const openaiAxios = axios.create({
-    baseURL: 'https://api.openai.com/v1',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${KEY_OPEN_AI}`
-    }
-});
-
-async function getCompletion(messages) {
-    try {
-        const response = await openaiAxios.post('/chat/completions', {
-            model: 'gpt-3.5-turbo',
-            messages,
-            temperature: 0.8
-        });
-
-        return response.data;
-    } catch (error) {
-        if (error.response) {
-            console.error('Erro da API:', error.response.data);
-        } else if (error.request) {
-            console.error('Nenhuma resposta da API:', error.request);
-        } else {
-            console.error('Erro ao configurar a solicitação:', error.message);
-        }
-        throw error;
-    }
-}
+const MAX_LENGTH = 2000;
 
 function divideMessage(message, maxLength) {
     const chunks = [];
@@ -59,7 +29,7 @@ function continueConversation(conversationHistory, newMessage) {
         content: newMessage
     })
 
-    getCompletion(conversationHistory.messages)
+    textCompletion(conversationHistory.messages)
         .then((data) => {
             const chatGPTResponse = data.choices[0].message.content.trim();
             conversationHistory.messages.push({
@@ -91,9 +61,9 @@ async function handleCommand(args, message) {
             threadRef: thread.id
         })
 
-        const position = context().conversationHistory.length -1
+        const position = context().conversationHistory.length - 1
 
-        getCompletion(context().conversationHistory[position].messages)
+        textCompletion(context().conversationHistory[position].messages)
             .then((data) => {
                 const chatGPTResponse = data.choices[0].message.content.trim();
                 context().conversationHistory[position].messages.push({
@@ -102,9 +72,8 @@ async function handleCommand(args, message) {
                 })
                 gptResponseDisplay(thread, chatGPTResponse)
             })
-            .catch(error => {
+            .catch(() => {
                 message.reply('Error ao buscar resposta 🥵')
-                console.error('Erro ao obter conclusão:', error);
             });
     } else {
         message.reply('Chat Gpt desativado  👩‍💻 🥵')
