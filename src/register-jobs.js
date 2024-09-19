@@ -1,6 +1,7 @@
 /**
  * https://crontab.guru/
  */
+const { CHAT_GERAL, CANAIS_PARA_LIMPAR } = require('./discord-constants')
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context').contextInstance
 const { 
@@ -12,12 +13,12 @@ const {
 } = require('./services')
 
 function limparCanais() {
-    let channel = context().client.channels.cache.find(channel => channel.name === '🧵-geral')
-    channel.send('Iniciando tarefa agendada para limpar o canal 🤖-testes-bot').then(msg => {
+    let channel = context().client.channels.cache.find(channel => channel.name === CHAT_GERAL)
+    channel.send('Iniciando tarefa agendada para limpar o canal 🤖').then(msg => {
         msg.delete({ timeout: 60000 })
     })
 
-    const listChannel = ['lixo2', 'musica']
+    const listChannel = CANAIS_PARA_LIMPAR
     for (const channelName of listChannel) {
         channel = context().client.channels.cache.find(channel => channel.name === channelName)
         channel.bulkDelete(30)
@@ -40,12 +41,16 @@ function salvarDadosAnalise() {
 }
 
 function registerJobs() {
+    // “At minute 0.”
     schedule('0 * * * *', salvarDadosAnalise)
 
-    schedule('0 10 * * *', procedimentosDaMadruga)
+    // “At 23:10.”
+    schedule('10 23 * * *', procedimentosDaMadruga)
 
+    // “At 08:35 on Monday.”
     schedule('35 8 * * 1', exibirRankingNoChat)
 
+    // “At 22:05.”
     schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
 }
 

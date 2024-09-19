@@ -10,6 +10,7 @@ const registerJobs = require('./register-jobs')
 const { registrarEntradaTexto, listarAsUltimasFeatures, myDailyBudgetService } = require('./services')
 const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
 const { connect } = require('./repository/mongodb')
+const { CHAT_GERAL } = require('./discord-constants')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -32,7 +33,7 @@ function avisarQueEstaOnline() {
   if (process.env.NODE_ENV === 'dev')
     return
 
-  const channel = client.channels.cache.find(channel => channel.name === '🧵-geral')
+  const channel = client.channels.cache.find(channel => channel.name === CHAT_GERAL)
 
   if (channel && channel.send) {
     listarAsUltimasFeatures(channel)

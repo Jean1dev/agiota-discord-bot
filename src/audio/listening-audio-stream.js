@@ -36,7 +36,6 @@ function ListeningStream(connectionReceiver, userId, user, callback = () => { })
 		if (err) {
 			console.warn(`❌ Error recording file ${filename} - ${err.message}`)
 		} else {
-			console.log(`✅ Recorded ${filename}`)
 			callback(filename)
 		}
 	})

@@ -3,6 +3,7 @@ const { MessageEmbed } = require("discord.js")
 const { FINANCE_API_AUTH } = require('../config')
 const captureException = require('../observability/Sentry')
 const axios = require('axios')
+const { CAIXINHA_CHANNEL } = require('../discord-constants')
 
 const MAX_RETRY_TENTATIVES = 10
 
@@ -16,7 +17,7 @@ const apiCall = axios.create({
 })
 
 function getChannelCaixinha() {
-    return context().client.channels.cache.find(channel => channel.name === '💰-caixinha')
+    return context().client.channels.cache.find(channel => channel.name === CAIXINHA_CHANNEL)
 }
 
 function handleAxiosException(e) {

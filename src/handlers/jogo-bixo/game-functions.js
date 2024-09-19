@@ -2,14 +2,13 @@ const { DbInstance: MongoClient } = require('../../repository/mongodb')
 const Jogo = require('./jogo')
 const context = require('../../context').contextInstance
 const bichos = require('./bicho')
+const { JOGO_BIXO_CHANNEL } = require('../../discord-constants')
 
 const state = {
   jogoAberto: false,
   jogo: null,
   monitoramentoFimDeJogoRef: null
 }
-
-const JOGO_BIXO_CHANNEL = '🐒-jogo-do-bixo'
 
 function mandarMensagemNoChatGeral(message) {
   const channel = context().client.channels.cache.find(channel => channel.name === JOGO_BIXO_CHANNEL)

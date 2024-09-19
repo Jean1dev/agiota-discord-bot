@@ -3,7 +3,6 @@ const { contextInstance: context } = require('../../context')
 const audioconcat = require('audioconcat')
 const connectUserChannel = require('../../audio/connect-user-channel')
 const ListeningStream = require('../../audio/listening-audio-stream')
-const { speechToText } = require('../../ia/open-ai-api')
 
 const recordable = new Set()
 const files = new Set()
@@ -29,9 +28,8 @@ function concatAudios() {
       console.error('Error:', err)
       console.error('ffmpeg stderr:', stderr)
     })
-    .on('end', function (output) {
-      console.error('Audio created in:', filenameOutput)
-      speechToText(filenameOutput)
+    .on('end', function (_) {
+      console.log('✅ Audio created in:', filenameOutput)
     })
 }
 
@@ -48,7 +46,8 @@ module.exports = async (args, message) => {
 
       receiver.speaking.on('start', (userId) => {
         if (recordable.has(userId)) {
-          ListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
+          //ListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
+          console.log('nao gravar o autor do comando')
         } else {
           ListeningStream(receiver, userId, client.users.cache.get(userId), addFile)
         }

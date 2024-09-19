@@ -15,7 +15,7 @@ async function speechToText(filename) {
         response_format: "verbose_json",
     });
 
-    console.log(transcription.text);
+    return transcription.text
 }
 
 async function textToSpeech(inputText) {

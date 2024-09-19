@@ -5,6 +5,7 @@ const axios = require('axios')
 const { CAIXINHA_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
+const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
 
 const state = {
     aprovacoes: 0,
@@ -62,10 +63,10 @@ function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
 
 function getChannelCaixinha() {
     if (process.env.NODE_ENV === 'dev') {
-        return context().client.channels.cache.find(channel => channel.name === 'lixo')    
+        return context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)    
     }
 
-    return context().client.channels.cache.find(channel => channel.name === '💰-caixinha')
+    return context().client.channels.cache.find(channel => channel.name === CAIXINHA_CHANNEL)
 }
 
 function notifyDeposito(deposito) {
