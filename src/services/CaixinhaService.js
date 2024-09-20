@@ -30,7 +30,7 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
 }
 
 function reprovarEmprestimo(interaction, emprestimoUid) {
-    const nick = interaction.member.nickname
+    const nick = interaction.member.user.username
     const url = `https://caixinha-gilt.vercel.app/detalhes-emprestimo?uid=${emprestimoUid}`
     interaction.reply(`${nick} para continuar a rejeicao \n
         acesse o link ${url} \n
@@ -40,7 +40,7 @@ function reprovarEmprestimo(interaction, emprestimoUid) {
 }
 
 function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
-    const nick = interaction.member.nickname
+    const nick = interaction.member.user.username
     const find = state.quemAprovou.find(it => it.nick === nick)
     if (find) {
         interaction.reply(`${nick} voce ja aceitou`);
