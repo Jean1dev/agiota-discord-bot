@@ -1,5 +1,4 @@
 const comandos = []
-module.exports = comandos
 
 const {
   addDividaHandler,
@@ -18,7 +17,8 @@ const {
   addDailyBudgetHandler,
   relatorioMensalDeGastosHandler,
   buscarGastoNoDiaHandler,
-  assinaturasHandler
+  assinaturasHandler,
+  realTimeConversaGpt
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -47,3 +47,6 @@ registrarComando('budget', addDailyBudgetHandler, 'Adiciona um valor no orcament
 registrarComando('relatorio', relatorioMensalDeGastosHandler, 'Gera o relatorio mensal de gastos do Jean')
 registrarComando('bg', buscarGastoNoDiaHandler, 'Busca as transacoes do dia enviado por parametro no formato DD/MM', true)
 registrarComando('sub', assinaturasHandler, 'Cria uma nova assinatura de 30 dias :: args @email', true)
+registrarComando('conversa', realTimeConversaGpt, 'Converse com o chat gpt')
+
+module.exports = comandos

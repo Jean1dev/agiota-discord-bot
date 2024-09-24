@@ -1,18 +1,18 @@
 const {
     AudioPlayerStatus,
-    createAudioPlayer,
     entersState,
     VoiceConnectionDisconnectReason,
     VoiceConnectionStatus,
 } = require('@discordjs/voice')
-const { promisify } = require('node:util')
+const { promisify } = require('node:util');
+const audioPlayer = require('../../audio/audio-player');
 
 const wait = promisify(setTimeout);
 
 class MusicSubscription {
     constructor(voiceConnection) {
         this.voiceConnection = voiceConnection;
-        this.audioPlayer = createAudioPlayer();
+        this.audioPlayer = audioPlayer;
         this.queue = [];
         this.queueLock = false;
         this.readyLock = false;

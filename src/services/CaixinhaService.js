@@ -5,6 +5,7 @@ const axios = require('axios')
 const { CAIXINHA_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
+const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
 
 const state = {
     aprovacoes: 0,
@@ -29,7 +30,7 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
 }
 
 function reprovarEmprestimo(interaction, emprestimoUid) {
-    const nick = interaction.member.nickname
+    const nick = interaction.member.user.username
     const url = `https://caixinha-gilt.vercel.app/detalhes-emprestimo?uid=${emprestimoUid}`
     interaction.reply(`${nick} para continuar a rejeicao \n
         acesse o link ${url} \n
@@ -39,7 +40,7 @@ function reprovarEmprestimo(interaction, emprestimoUid) {
 }
 
 function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
-    const nick = interaction.member.nickname
+    const nick = interaction.member.user.username
     const find = state.quemAprovou.find(it => it.nick === nick)
     if (find) {
         interaction.reply(`${nick} voce ja aceitou`);
@@ -62,10 +63,10 @@ function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
 
 function getChannelCaixinha() {
     if (process.env.NODE_ENV === 'dev') {
-        return context().client.channels.cache.find(channel => channel.name === 'lixo')    
+        return context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)    
     }
 
-    return context().client.channels.cache.find(channel => channel.name === '💰-caixinha')
+    return context().client.channels.cache.find(channel => channel.name === CAIXINHA_CHANNEL)
 }
 
 function notifyDeposito(deposito) {

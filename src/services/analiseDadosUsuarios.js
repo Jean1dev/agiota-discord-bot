@@ -1,3 +1,4 @@
+const { CHAT_GERAL } = require('../discord-constants')
 const { DbInstance: MongoClient } = require('../repository/mongodb')
 const rankingService = require('./RankingService')
 const context = require('../context').contextInstance
@@ -46,7 +47,7 @@ function executarRegraPontuacao(acumuladorDeCaracteres, acumuladorDeAnexos) {
 }
 
 async function exibirDadosUsuarioERankear(dadosUsuarioAcumulados) {
-    const chatGeral = context().client.channels.cache.find(channel => channel.name === '🧵-geral')
+    const chatGeral = context().client.channels.cache.find(channel => channel.name === CHAT_GERAL)
     let acumuladorDeCaracteres = 0
     let acumuladorDeAnexos = 0
 
@@ -98,7 +99,7 @@ async function rankearUso() {
 
 function exibirRankingNoChat() {
     rankingService.listagem().then(data => {
-        const chatGeral = context().client.channels.cache.find(channel => channel.name === '🧵-geral')
+        const chatGeral = context().client.channels.cache.find(channel => channel.name === CHAT_GERAL)
         data.sort((valor1, valor2) => {
             if (valor1.pontuacao > valor2.pontuacao) {
                 return 1

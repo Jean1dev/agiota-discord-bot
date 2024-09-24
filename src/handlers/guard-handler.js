@@ -18,7 +18,7 @@ function requireAdmin(...args) {
     }
 
     discordArgs !== undefined
-        ? nextFunction(args, discordMessage)
+        ? nextFunction(discordArgs, discordMessage)
         : nextFunction(discordMessage)
 }
 
