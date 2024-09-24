@@ -15,6 +15,7 @@ const addDailyBudgetHandler = require('./agiotagem/add-daily-budget')
 const relatorioMensalDeGastosHandler = require('./agiotagem/relatorio-daily-budget')
 const buscarGastoNoDiaHandler = require('./agiotagem/pesquisar-gastos-do-dia')
 const assinaturasHandler = require('./assinaturas')
+const realTimeConversaGpt = require('./real-time-conversa')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -33,5 +34,6 @@ module.exports = {
   imgur,
   relatorioMensalDeGastosHandler,
   buscarGastoNoDiaHandler,
-  assinaturasHandler
+  assinaturasHandler,
+  realTimeConversaGpt
 }
