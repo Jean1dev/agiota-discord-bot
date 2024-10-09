@@ -1,3 +1,5 @@
 const comandos = []
 
-module.exports = comandos
+module.exports = function () {
+    return comandos
+}()
