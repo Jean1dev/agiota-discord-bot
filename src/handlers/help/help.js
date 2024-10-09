@@ -1,5 +1,5 @@
 const { MessageEmbed } = require("discord.js")
-const comandos = require('../../commands/lista-comandos')
+const comandos = require('../../commands/comandos-struct')
 const LIMITE_EMBEDS_DISCORD = 10
 
 module.exports = message => {

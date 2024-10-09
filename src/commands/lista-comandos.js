@@ -1,4 +1,4 @@
-const comandos = []
+const comandos = require('./comandos-struct')
 
 const {
   addDividaHandler,

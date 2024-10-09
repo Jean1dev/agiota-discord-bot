@@ -1,4 +1,4 @@
-const comandos = require('./lista-comandos')
+const comandos = require('./comandos-struct')
 
 async function handleAgtCommand(command, args, message) {
   const funcaoHandlerData = comandos.find(item => item.comando === command)
