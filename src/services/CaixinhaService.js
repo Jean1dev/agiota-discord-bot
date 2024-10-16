@@ -2,7 +2,7 @@ const context = require('../context').contextInstance
 const { MessageEmbed, MessageButton, MessageActionRow } = require("discord.js")
 const captureException = require('../observability/Sentry')
 const axios = require('axios')
-const { CAIXINHA_SERVER_URL } = require('../config')
+const { CAIXINHA_SERVER_URL, COMMUNICATION_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
@@ -11,6 +11,19 @@ const state = {
     aprovacoes: 0,
     quemAprovou: [],
     reprovado: false
+}
+
+function notifySms(payload) {
+    const { message } = payload
+    const inputBody = {
+        types: ['sms'],
+        desc: message,
+        user: 'jeanlucafp@gmail.com'
+    }
+    
+    axios.default.post(`${COMMUNICATION_SERVER_URL}/notificacao`, inputBody)
+        .then(({ data }) => console.log(data))
+        .catch(captureException)
 }
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
@@ -49,7 +62,7 @@ function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
 
     if (state.reprovado) {
         interaction.reply(`Esse emprestimo foi rejeitado`);
-        return    
+        return
     }
 
     state.aprovacoes++
@@ -63,7 +76,7 @@ function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
 
 function getChannelCaixinha() {
     if (process.env.NODE_ENV === 'dev') {
-        return context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)    
+        return context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)
     }
 
     return context().client.channels.cache.find(channel => channel.name === CAIXINHA_CHANNEL)
@@ -147,7 +160,7 @@ function notifyEmprestimo(emprestimo) {
         collector.on('collect', (interaction) => {
             if (interaction.customId === 'aprovar') {
                 adicionarAprovacao(interaction, caixinhaId, emprestimoUid)
-                
+
             } else if (interaction.customId === 'rejeitar') {
                 reprovarEmprestimo(interaction, emprestimoUid)
             }
@@ -179,8 +192,8 @@ function notifyEmail(messageInput) {
         }
 
         if (messageInput.templateCode) {
-            data = { 
-                ...data, 
+            data = {
+                ...data,
                 templateCode: messageInput.templateCode,
                 customBodyProps: messageInput.customBodyProps
             }
@@ -244,6 +257,10 @@ function notificar(message) {
 
             case 'EMAIL':
                 notifyEmail(jsonMessage.data)
+                break;
+
+            case 'SMS':
+                notifySms(jsonMessage.data)
                 break;
 
             case 'FINANCE':

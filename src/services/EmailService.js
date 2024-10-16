@@ -1,6 +1,7 @@
+const { COMMUNICATION_SERVER_URL } = require('../config')
 const captureException = require('../observability/Sentry')
 const axios = require('axios')
-const url = "https://communication-service-4f4f57e0a956.herokuapp.com/email"
+const url = `${COMMUNICATION_SERVER_URL}/email`
 
 function sendEmail(payload) {
     axios.default.post(url, payload)
