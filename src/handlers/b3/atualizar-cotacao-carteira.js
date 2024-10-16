@@ -65,7 +65,7 @@ module.exports = async message => {
             const results = await imgScrape([papel])
             ativoComImagem.push({
                 papel,
-                imagem: results[0]['url']
+                imagem: results[0]
             })
         } catch (e) {
             console.log(e.message)
@@ -78,6 +78,7 @@ module.exports = async message => {
             nome: obj.papel,
             imageUrl: obj.imagem
         })
+
         message.channel.send(`Atualizado ${obj.papel}`).then(deleteMessageAfterTime)
     }
 
