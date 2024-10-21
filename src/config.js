@@ -15,8 +15,9 @@ module.exports = {
   CAIXINHA_KEY: process.env.CAIXINHA_KEY,
   CAIXINHA_SERVER_URL: process.env.CAIXINHA_SERVER_URL,
 
+  COMMUNICATION_SERVER_URL: 'https://communication-service-4f4f57e0a956.herokuapp.com',
+
   AMQP_CONNECTION: process.env.AMQP_CONNECTION,
-  
   
   FINANCE_API_AUTH: process.env.FINANCE_API_AUTH,
 
