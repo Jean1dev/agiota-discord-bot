@@ -1,6 +1,6 @@
 const { updateStateAfterDataLoad } = require('./handlers/jogo-bixo/game-functions')
 const { AMQP_CONNECTION } = require('./config')
-const { notificacaoCaixinha, cryptoServiceProcessMessage } = require('./services')
+const { notificacaoCaixinha, cryptoServiceProcessMessage, broadcastDiscord } = require('./services')
 const amqp = require('amqplib/callback_api');
 
 const EventEmitter = require('events');
@@ -25,6 +25,11 @@ appEvents.on('enviar-mensagem-telegram', payload => {
     }
 
     enviarMensagemHTML(payload.message, payload.chatId)
+})
+
+appEvents.on('enviar-mensagem-discord', payload => {
+    const { message } = payload
+    broadcastDiscord(message)
 })
 
 amqp.connect(AMQP_CONNECTION, function (error0, connection) {
