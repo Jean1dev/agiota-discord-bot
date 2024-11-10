@@ -38,7 +38,7 @@ async function getDataFromMongo() {
 function save(object) {
   DbInstance.collection('data').deleteMany().then(() => {
     DbInstance.collection('data').insertOne(object).then(() => {
-      console.log('object data saved')
+      console.log('object saved', object)
     })
   })
 }

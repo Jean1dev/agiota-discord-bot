@@ -26,12 +26,22 @@ function consultar(id) {
     });
 }
 
+function enviarMensagem(alert) {
+    contextInstance().emitEvent('enviar-mensagem-discord', {
+        message: alert
+    })
+}
+
 function processAMQPMessage(message) {
     const jsonContent = JSON.parse(message.content.toString());
-    const { id } = jsonContent;
-    if (!id) return
-
-    consultar(id)
+    const id = jsonContent?.id;
+    const alert = jsonContent?.alert;
+    if (id) {
+        consultar(id)
+    } else if (alert) {
+        enviarMensagem(alert)
+        return
+    }
 }
 
 module.exports = {

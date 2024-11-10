@@ -13,6 +13,7 @@ const financeServices = require('./FinanceServices')
 const { addMusic, ramdomMusic } = require('./MusicManagerService')
 const { processAMQPMessage : cryptoServiceProcessMessage} = require('./cryptoArbitrageService')
 const myDailyBudgetService = require('./myDailyBudget')
+const { broadcastDiscord } = require('./broadcast-discord')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -28,5 +29,6 @@ module.exports = {
     addMusic,
     ramdomMusic,
     gerarRelatorioFechamentoCompentencia,
-    cryptoServiceProcessMessage
+    cryptoServiceProcessMessage,
+    broadcastDiscord
 }
