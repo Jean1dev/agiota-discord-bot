@@ -3,13 +3,6 @@ const { contextInstance } = require('../context');
 const baseUrl = "https://crypto-svc-e108728a6a2f.herokuapp.com"
 const GROUP_ID = -1002156828677
 
-function enviarMensagem(htmlMessage) {
-    contextInstance().emitEvent('enviar-mensagem-telegram', {
-        message: htmlMessage,
-        chatId: GROUP_ID
-    })
-}
-
 function consultar(id) {
     axios.get(`${baseUrl}/v1/arbitrage/${id}`, {
         timeout: 4000
@@ -26,9 +19,14 @@ function consultar(id) {
     });
 }
 
-function enviarMensagem(alert) {
+function enviarMensagem(message) {
     contextInstance().emitEvent('enviar-mensagem-discord', {
-        message: alert
+        message: message
+    })
+
+    contextInstance().emitEvent('enviar-mensagem-telegram', {
+        message: message,
+        chatId: GROUP_ID
     })
 }
 
