@@ -1,7 +1,7 @@
 const CHAT_GERAL = '🧵-geral'
 const JOGO_BIXO_CHANNEL = '🐒-jogo-do-bixo'
 const CAIXINHA_CHANNEL = '💰-caixinha'
-const LIXO_CHANNEL = '☢️-lixo-'
+const LIXO_CHANNEL = '🧻-lixo'
 const ALERT_CHANNEL = '🚨-alertas'
 const MARKET_ALERT = '📈-alertas'
 
