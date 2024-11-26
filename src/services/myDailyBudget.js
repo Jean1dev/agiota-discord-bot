@@ -20,7 +20,9 @@ const weekendBudgetGain = 555
 
 async function gerarReportDosGastosDoUltimoFinalDeSemana() {
     const dados = await gastosDoUltimoFimDeSemana()
-    const caminho = criarPDFRetornarCaminho(dados, 'Relatorio de gastos do ultimo final de semana')
+    const itemsParaImprimir = dados.map(item => `${formatDate(item.date)} R$ ${item.money} -- ${item.description}`)
+    itemsParaImprimir.push(`Total: R$${dados.map(it => it.money).reduce((sum, value) => sum + value, 0).toFixed(2)}`)
+    const caminho = criarPDFRetornarCaminho(itemsParaImprimir, 'Relatorio de gastos do ultimo final de semana')
     await sleep(1000)
     const uploaded = await upload(caminho)
     if (uploaded) {
@@ -52,7 +54,8 @@ async function gastosDoUltimoFimDeSemana() {
     const domingo = new Date(segundaFeira.getTime() - 1 * 60 * 60 * 1000)
 
     const sextaFeiraData = await searchTransactions({
-        date: { $eq: sextaFeira },
+        date: { $lte: sextaFeira },
+        date: { $gte: sextaFeira }
     })
 
     const sextaFeiraDataFilter = sextaFeiraData.filter(item => {
@@ -61,11 +64,13 @@ async function gastosDoUltimoFimDeSemana() {
     })
 
     const sabadoData = await searchTransactions({
-        date: { $eq: sabado },
+        date: { $lte: sabado },
+        date: { $gte: sabado }
     })
 
     const domingoData = await searchTransactions({
-        date: { $eq: domingo },
+        date: { $lte: domingo },
+        date: { $gte: domingo }
     })
 
     return [...sextaFeiraDataFilter, ...sabadoData, ...domingoData];
@@ -316,3 +321,8 @@ module.exports = {
     consultarTransacoesDoDia,
     gerarReportDosGastosDoUltimoFinalDeSemana
 }
+
+
+setTimeout(() => {
+    gerarReportDosGastosDoUltimoFinalDeSemana()
+}, 9000)
