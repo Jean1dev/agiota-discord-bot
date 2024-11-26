@@ -8,7 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const { randomUUID } = require('crypto')
 
-function criarPDFRetornarCaminho(itens) {
+function criarPDFRetornarCaminho(itens, titulo = `Relatorios de dividas.`) {
   const doc = new PDFDocument()
   const filename = `${randomUUID()}-output.pdf`
   doc.pipe(fs.createWriteStream(filename))
@@ -19,7 +19,7 @@ function criarPDFRetornarCaminho(itens) {
     valign: 'right'
   })
 
-  doc.text(`Relatorios de dividas.`, {
+  doc.text(titulo, {
     width: 410,
     align: 'center'
   })

@@ -14,6 +14,7 @@ const { addMusic, ramdomMusic } = require('./MusicManagerService')
 const { processAMQPMessage : cryptoServiceProcessMessage} = require('./cryptoArbitrageService')
 const myDailyBudgetService = require('./myDailyBudget')
 const { broadcastDiscord } = require('./broadcast-discord')
+const UploadService = require('./UploadService')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -30,5 +31,6 @@ module.exports = {
     ramdomMusic,
     gerarRelatorioFechamentoCompentencia,
     cryptoServiceProcessMessage,
-    broadcastDiscord
+    broadcastDiscord,
+    UploadService
 }

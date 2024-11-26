@@ -11,6 +11,7 @@ function resultHandlerError(sols, pubKey, net, max_retrys, message, resultStr) {
         setTimeout(() => tryAirdrop(sols, pubKey, net, new_retrys, message), 15000)
     } else {
         message.reply(resultStr?.errorDetails?.message || 'Erro ao realizar airdrop')
+        message.channel.send(`Try https://solfaucet.com/ pubKey ${resultStr.pubKey}`)
     }
 }
 
