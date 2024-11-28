@@ -321,8 +321,3 @@ module.exports = {
     consultarTransacoesDoDia,
     gerarReportDosGastosDoUltimoFinalDeSemana
 }
-
-
-setTimeout(() => {
-    gerarReportDosGastosDoUltimoFinalDeSemana()
-}, 9000)
