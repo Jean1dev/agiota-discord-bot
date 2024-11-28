@@ -2,6 +2,10 @@ const { contextInstance } = require('../context')
 const captureException = require('../observability/Sentry')
 const { DbInstance } = require('../repository/mongodb')
 const { formatDate } = require('../utils/discord-nicks-default')
+const { sleep } = require('../utils/utils')
+const sendEmail = require('./EmailService')
+const criarPDFRetornarCaminho = require('./GerarPDF')
+const upload = require('./UploadService')
 
 const state = {
     budget: null,
@@ -11,19 +15,74 @@ const state = {
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
-const dailyBudgetGain = 150
+const dailyBudgetGain = 152
 const weekendBudgetGain = 555
+
+async function gerarReportDosGastosDoUltimoFinalDeSemana() {
+    const dados = await gastosDoUltimoFimDeSemana()
+    const itemsParaImprimir = dados.map(item => `${formatDate(item.date)} R$ ${item.money} -- ${item.description}`)
+    itemsParaImprimir.push(`Total: R$${dados.map(it => it.money).reduce((sum, value) => sum + value, 0).toFixed(2)}`)
+    const caminho = criarPDFRetornarCaminho(itemsParaImprimir, 'Relatorio de gastos do ultimo final de semana')
+    await sleep(1000)
+    const uploaded = await upload(caminho)
+    if (uploaded) {
+        const email = {
+            to: 'jeanlucafp@gmail.com',
+            subject: 'Gastos do final de semana',
+            message: 'Segue em anexo ',
+            attachmentLink: uploaded
+        }
+
+        sendEmail(email)
+    }
+}
+
+async function searchTransactions(filter = {}) {
+    const db = DbInstance()
+    const result = await db
+        .collection(collectionTransactionName)
+        .find(filter)
+        .toArray()
+
+    return result
+}
+
+async function gastosDoUltimoFimDeSemana() {
+    const segundaFeira = new Date()
+    const sextaFeira = new Date(segundaFeira.getTime() - 3 * 24 * 60 * 60 * 1000)
+    const sabado = new Date(segundaFeira.getTime() - 2 * 24 * 60 * 60 * 1000)
+    const domingo = new Date(segundaFeira.getTime() - 1 * 60 * 60 * 1000)
+
+    const sextaFeiraData = await searchTransactions({
+        date: { $lte: sextaFeira },
+        date: { $gte: sextaFeira }
+    })
+
+    const sextaFeiraDataFilter = sextaFeiraData.filter(item => {
+        const transactionDate = new Date(item.date);
+        return transactionDate.getHours() >= 18;
+    })
+
+    const sabadoData = await searchTransactions({
+        date: { $lte: sabado },
+        date: { $gte: sabado }
+    })
+
+    const domingoData = await searchTransactions({
+        date: { $lte: domingo },
+        date: { $gte: domingo }
+    })
+
+    return [...sextaFeiraDataFilter, ...sabadoData, ...domingoData];
+}
 
 async function consultarTransacoesDoDiaForaDaCompetencia(dataProcurada) {
     const db = DbInstance()
 
-    const data = await db
-        .collection(collectionTransactionName)
-        .find({
-            date: { $lte: dataProcurada },
-            date: { $gte: dataProcurada }
-        })
-        .toArray()
+    const data = await searchTransactions({
+        date: { $lte: dataProcurada },
+        date: { $gte: dataProcurada }
+    })
 
     return data.map(it => `${formatDate(it.date)} R$ ${it.money} -- ${it.description}`)
 }
@@ -173,9 +232,7 @@ function dailyHandles() {
 
     displayTransactionsToday()
 
-    db.collection(collectionTransactionName)
-        .find({})
-        .toArray()
+    searchTransactions()
         .then(result => {
             if (result.length === 0) {
                 return
@@ -261,5 +318,11 @@ module.exports = {
     fillDaylyBudgetState: fillState,
     addMoneyToDailyBudget,
     gerarRelatorioFechamentoCompentencia,
-    consultarTransacoesDoDia
+    consultarTransacoesDoDia,
+    gerarReportDosGastosDoUltimoFinalDeSemana
 }
+
+
+setTimeout(() => {
+    gerarReportDosGastosDoUltimoFinalDeSemana()
+}, 9000)
