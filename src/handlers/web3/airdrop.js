@@ -33,6 +33,6 @@ module.exports = (args, message) => {
     const sols = Number(args[0])
     const pubKey = args[1]
     const net = args[2]
-    const max_retrys = 25
+    const max_retrys = 125
     tryAirdrop(sols, pubKey, net, max_retrys, message)
 }
