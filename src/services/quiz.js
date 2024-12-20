@@ -122,6 +122,7 @@ function explainQuestion(channel) {
         content: 'Me explique a resposta'
     }]
 
+    channel.send(`A resposta correta era ${state.currentQuiz.answer}`)
     textCompletion(messageToGpt)
         .then(completition => {
             const message = completition.choices[0].message.content.trim()
