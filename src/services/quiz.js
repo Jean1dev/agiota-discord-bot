@@ -1,6 +1,7 @@
 const { MessageEmbed, MessageButton, MessageActionRow } = require("discord.js")
 const { textCompletion } = require("../ia/open-ai-api")
 const { CHAT_GERAL } = require("../discord-constants")
+const RankingService = require("./RankingService")
 const context = require('../context').contextInstance
 
 const ROOT_PROMPT = `
@@ -24,9 +25,10 @@ const state = {
     currentQuiz: {
         question: '',
         alternatives: '',
-        answer: ''
+        answer: '',
     },
-    rawMessage: null
+    rawMessage: null,
+    multipleChoise: false
 }
 
 async function getQuizResponse() {
@@ -52,12 +54,23 @@ async function getQuizResponse() {
     }
 }
 
+function defineMultipleChoiseAnswer(answer) {
+    const answers = answer.split(',')
+    if (answers.length > 1) {
+        state.multipleChoise = true
+        return answers
+    }
+
+    state.multipleChoise = false
+    return answer
+}
+
 function processResponseQuiz(message) {
     const [question, rest] = message.split('-------------------');
     const [alternatives, answer] = rest.split('----------');
     const formattedQuestion = question.trim();
     const formattedAlternatives = alternatives.trim();
-    const formattedAnswer = answer.trim();
+    const formattedAnswer = defineMultipleChoiseAnswer(answer.trim());
 
     return {
         question: formattedQuestion,
@@ -85,10 +98,38 @@ function generateDiscordMessage(question, alternatives) {
     return { embed, actionRow }
 }
 
+function multipleChoiseQuestionIsCorrect(interaction) {
+    const number = Number(interaction.split('-')[1])
+    let charResponse
+    switch(number) {
+        case 0: 
+            charResponse = 'a'
+            break
+        case 1:
+            charResponse = 'b'
+            break
+        case 2:
+            charResponse = 'c'
+            break
+        default:
+            return false
+    }
+
+    const findedAnswer = state.currentQuiz.answer.find(ans => ans === charResponse)
+    if (findedAnswer)
+        return true
+
+    return false
+}
+
 function questionIsCorrect(interaction) {
     // 0 -> a
     // 1 -> b
     // 2 -> c
+    if (state.multipleChoise) {
+        return multipleChoiseQuestionIsCorrect(interaction)
+    }
+
     const number = Number(interaction.split('-')[1])
     switch (number) {
         case 0:
@@ -130,6 +171,17 @@ function explainQuestion(channel) {
         })
 }
 
+function handleChampion(interaction) {
+    const { id, username } = interaction.member.user
+    console.log(username, 'acertou o quiz e ganhou 10 pontos')
+    RankingService.criarOuAtualizarRanking({
+        operacao: 'ADICIONAR',
+        pontuacao: 10,
+        userId: id,
+        username
+    })
+}
+
 function publishAndListening({ embed, actionRow }) {
     const channel = context().client.channels.cache.find(channel => channel.name === CHAT_GERAL)
     channel.send({ embeds: [embed], components: [actionRow] })
@@ -140,6 +192,7 @@ function publishAndListening({ embed, actionRow }) {
                 const yes = questionIsCorrect(interaction.customId)
                 if (yes) {
                     interaction.reply('Resposta correta')
+                    handleChampion(interaction)
                 } else {
                     interaction.reply('Resposta errada')
                     explainQuestion(channel)
@@ -148,8 +201,7 @@ function publishAndListening({ embed, actionRow }) {
                 collector.stop()
             })
 
-            collector.on('end', collected => {
-                console.log(`Collected ${collected.size} items`)
+            collector.on('end', () => {
                 message.delete()
             })
         })
@@ -173,3 +225,22 @@ async function runQuizTask() {
 }
 
 module.exports = runQuizTask
+
+// setTimeout(async () => {
+//     const m = `
+//     Qual dos seguintes provedores de cloud oferece suporte direto para executar aplicações em Node.js?
+//     -------------------
+//     a) Google Cloud, b) AWS, c) Azure
+//     ----------
+//     a, b, c
+//     `
+//     const { question, alternatives, answer } = processResponseQuiz(m)
+//     state.currentQuiz = {
+//         question,
+//         alternatives,
+//         answer
+//     }
+
+//     const embed = generateDiscordMessage(question, alternatives)
+//     publishAndListening(embed)
+// }, 15000)
