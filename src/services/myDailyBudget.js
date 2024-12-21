@@ -16,7 +16,7 @@ const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
 const dailyBudgetGain = 152
-const weekendBudgetGain = 555
+const weekendBudgetGain = 655
 
 async function gerarReportDosGastosDoUltimoFinalDeSemana() {
     const dados = await gastosDoUltimoFimDeSemana()
@@ -48,10 +48,20 @@ async function searchTransactions(filter = {}) {
 }
 
 async function gastosDoUltimoFimDeSemana() {
-    const segundaFeira = new Date()
-    const sextaFeira = new Date(segundaFeira.getTime() - 3 * 24 * 60 * 60 * 1000)
-    const sabado = new Date(segundaFeira.getTime() - 2 * 24 * 60 * 60 * 1000)
-    const domingo = new Date(segundaFeira.getTime() - 1 * 60 * 60 * 1000)
+    function getUltimoFimDeSemana() {
+        const hoje = new Date();
+        const diaDaSemana = hoje.getDay();
+        const sextaFeira = new Date(hoje);
+        sextaFeira.setDate(hoje.getDate() - diaDaSemana + 5);
+        const sabado = new Date(sextaFeira);
+        sabado.setDate(sextaFeira.getDate() + 1);
+        const domingo = new Date(sabado);
+        domingo.setDate(sabado.getDate() + 1);
+
+        return { sextaFeira, sabado, domingo };
+    }
+
+    const { sextaFeira, sabado, domingo } = getUltimoFimDeSemana();
 
     const sextaFeiraData = await searchTransactions({
         date: { $lte: sextaFeira },

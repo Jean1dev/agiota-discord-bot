@@ -15,6 +15,7 @@ const { processAMQPMessage : cryptoServiceProcessMessage} = require('./cryptoArb
 const myDailyBudgetService = require('./myDailyBudget')
 const { broadcastDiscord } = require('./broadcast-discord')
 const UploadService = require('./UploadService')
+const runQuizTask = require('./quiz')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -32,5 +33,6 @@ module.exports = {
     gerarRelatorioFechamentoCompentencia,
     cryptoServiceProcessMessage,
     broadcastDiscord,
-    UploadService
+    UploadService,
+    runQuizTask
 }
