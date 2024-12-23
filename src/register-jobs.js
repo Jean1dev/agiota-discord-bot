@@ -9,7 +9,8 @@ const {
     clearRegistros,
     rankearUso,
     exibirRankingNoChat,
-    myDailyBudgetService 
+    myDailyBudgetService, 
+    runQuizTask
 } = require('./services')
 
 function limparCanais() {
@@ -55,6 +56,9 @@ function registerJobs() {
 
     // “At 22:05.”
     schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
+    
+    //“At minute 2 past every 3rd hour from 9 through 19 on every day-of-week from Monday through Friday.”
+    schedule('2 9-19/3 * * 1-5', runQuizTask)
 }
 
 module.exports = registerJobs

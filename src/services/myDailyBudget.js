@@ -16,7 +16,7 @@ const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
 const dailyBudgetGain = 152
-const weekendBudgetGain = 555
+const weekendBudgetGain = 655
 
 async function gerarReportDosGastosDoUltimoFinalDeSemana() {
     const dados = await gastosDoUltimoFimDeSemana()

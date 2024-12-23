@@ -5,7 +5,7 @@ const { Octokit } = require("@octokit/core")
 const captureException = require('../observability/Sentry')
 const { GITHUB_API_TOKEN } = require('../config')
 
-const TIMEOUT = 35000
+const TIMEOUT = 45000
 
 function listarAsUltimasFeatures(discordChannel) {
     const octokit = new Octokit({ auth: GITHUB_API_TOKEN })
