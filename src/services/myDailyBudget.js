@@ -48,25 +48,21 @@ async function searchTransactions(filter = {}) {
 }
 
 async function gastosDoUltimoFimDeSemana() {
-    function getUltimoFimDeSemana() {
-        const hoje = new Date();
-        const diaDaSemana = hoje.getDay();
-        const sextaFeira = new Date(hoje);
-        sextaFeira.setDate(hoje.getDate() - diaDaSemana + 5);
-        const sabado = new Date(sextaFeira);
-        sabado.setDate(sextaFeira.getDate() + 1);
-        const domingo = new Date(sabado);
-        domingo.setDate(sabado.getDate() + 1);
+    const sextaFeira = new Date();
+    sextaFeira.setDate(sextaFeira.getDate() - 3);
 
-        return { sextaFeira, sabado, domingo };
-    }
+    const sabado = new Date();
+    sabado.setDate(sabado.getDate() - 2);
 
-    const { sextaFeira, sabado, domingo } = getUltimoFimDeSemana();
+    const domingo = new Date();
+    domingo.setDate(domingo.getDate() - 1);
 
     const sextaFeiraData = await searchTransactions({
-        date: { $lte: sextaFeira },
-        date: { $gte: sextaFeira }
-    })
+        date: {
+            $gte: new Date(sextaFeira.setHours(0, 0, 0, 0)),
+            $lte: new Date(sextaFeira.setHours(23, 59, 59, 999))
+        }
+    });
 
     const sextaFeiraDataFilter = sextaFeiraData.filter(item => {
         const transactionDate = new Date(item.date);
@@ -74,14 +70,18 @@ async function gastosDoUltimoFimDeSemana() {
     })
 
     const sabadoData = await searchTransactions({
-        date: { $lte: sabado },
-        date: { $gte: sabado }
-    })
+        date: {
+            $gte: new Date(sabado.setHours(0, 0, 0, 0)),
+            $lte: new Date(sabado.setHours(23, 59, 59, 999))
+        }
+    });
 
     const domingoData = await searchTransactions({
-        date: { $lte: domingo },
-        date: { $gte: domingo }
-    })
+        date: {
+            $gte: new Date(domingo.setHours(0, 0, 0, 0)),
+            $lte: new Date(domingo.setHours(23, 59, 59, 999))
+        }
+    });
 
     return [...sextaFeiraDataFilter, ...sabadoData, ...domingoData];
 }
