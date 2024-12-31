@@ -1,5 +1,8 @@
+const { criarPDFRetornarCaminho } = require("../../services")
 const sendEmail = require("../../services/EmailService")
 const { gerarRelatorioFechamentoCompentencia } = require("../../services/myDailyBudget")
+const upload = require("../../services/UploadService")
+const { sleep } = require("../../utils/utils")
 const { requireAdmin } = require("../guard-handler")
 
 function displayAs3Ultimas(result, message) {
@@ -9,19 +12,30 @@ function displayAs3Ultimas(result, message) {
     })
 }
 
+function gerarRelatorioPdf(items) {
+    const path = criarPDFRetornarCaminho(items, 'Relatorio de despesas')
+    sleep(1000)
+        .then(() => {
+            upload(path)
+                .then((url) => {
+                    const email = {
+                        to: 'jeanlucafp@gmail.com',
+                        subject: 'Relatorio de despesas',
+                        message: 'Segue em anexo ',
+                        attachmentLink: url
+                    }
+
+                    sendEmail(email)
+                })
+        })
+}
+
 function handler(discordMessage) {
     gerarRelatorioFechamentoCompentencia()
         .then(result => {
             if (result && result.length > 0) {
                 displayAs3Ultimas(result, discordMessage)
-
-                result.forEach((element, index) => {
-                    sendEmail({
-                        subject: `Relatorio de despesas ${index}`,
-                        message: element,
-                        to: 'jeanlucafp@gmail.com'
-                    })
-                })
+                gerarRelatorioPdf(result)
 
                 return
             }
