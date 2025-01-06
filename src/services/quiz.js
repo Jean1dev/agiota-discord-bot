@@ -186,7 +186,7 @@ function publishAndListening({ embed, actionRow }) {
     const channel = context().client.channels.cache.find(channel => channel.name === CHAT_GERAL)
     channel.send({ embeds: [embed], components: [actionRow] })
         .then(message => {
-            const collector = message.createMessageComponentCollector({ time: 120000 })
+            const collector = message.createMessageComponentCollector({ time: 360000 })
 
             collector.on('collect', interaction => {
                 const yes = questionIsCorrect(interaction.customId)

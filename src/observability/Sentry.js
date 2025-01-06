@@ -9,13 +9,13 @@ if (SENTRY_DNS) {
 }
 
 function captureException(ex) {
-    console.log(ex.message)
-
     if (ex.isAxiosError) {
         console.log('Http Axios Error ')
         console.log(ex.toJSON())
+    } else {
+        console.log(ex.message)
     }
-    
+
     if (SENTRY_DNS) {
         Sentry.captureException(ex)
         return
