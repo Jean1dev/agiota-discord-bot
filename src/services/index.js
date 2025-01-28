@@ -16,6 +16,7 @@ const myDailyBudgetService = require('./myDailyBudget')
 const { broadcastDiscord } = require('./broadcast-discord')
 const UploadService = require('./UploadService')
 const runQuizTask = require('./quiz')
+const gastosCartao = require('./GastosCartaoService')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -34,5 +35,6 @@ module.exports = {
     cryptoServiceProcessMessage,
     broadcastDiscord,
     UploadService,
-    runQuizTask
+    runQuizTask,
+    gastosCartao
 }

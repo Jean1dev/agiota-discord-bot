@@ -17,6 +17,7 @@ class Context {
   isChatGPTEnabled = true
   jogoAberto = false
   jogo
+  totalGastoCartao = 0
 
   constructor() {
     this.dividas = []
@@ -38,6 +39,7 @@ class Context {
       this.dividas = data?.dividas
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
+      this.totalGastoCartao = data?.totalGastoCartao || 0
       //TODO:: refatorar o inicio disso no futuro
       appEvents.emit('update-state-jogo-bixo', null)
 
@@ -50,7 +52,8 @@ class Context {
     repository.save({
       dividas: this.dividas,
       jogoAberto: this.jogoAberto,
-      jogo: this.jogo
+      jogo: this.jogo,
+      totalGastoCartao: this.totalGastoCartao
     })
   }
 }

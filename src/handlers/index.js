@@ -17,6 +17,7 @@ const buscarGastoNoDiaHandler = require('./agiotagem/pesquisar-gastos-do-dia')
 const assinaturasHandler = require('./assinaturas')
 const realTimeConversaGpt = require('./real-time-conversa')
 const airDropHandler = require('./web3/airdrop')
+const updateGastosCartaoHandler = require('./agiotagem/update-gastos-cartao')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -37,5 +38,6 @@ module.exports = {
   buscarGastoNoDiaHandler,
   assinaturasHandler,
   realTimeConversaGpt,
-  airDropHandler
+  airDropHandler,
+  updateGastosCartaoHandler
 }
