@@ -6,6 +6,7 @@ const { sleep } = require('../utils/utils')
 const sendEmail = require('./EmailService')
 const criarPDFRetornarCaminho = require('./GerarPDF')
 const upload = require('./UploadService')
+const gastosCartao = require('./GastosCartaoService')
 
 const state = {
     budget: null,
@@ -306,6 +307,9 @@ async function spentMoney({ money, description }) {
     const newBudget = state.budget - money
     state.transactions.push({ money, description })
     setTimeout(() => addTransaction({ money, description, newBudget }), 1000)
+    
+    gastosCartao.adicionarGasto(money)
+
     return newBudget
 }
 

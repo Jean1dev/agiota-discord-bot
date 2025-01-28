@@ -31,14 +31,15 @@ async function getDataFromMongo() {
   return {
     dividas: data[0]['dividas'],
     jogoAberto: data[0]['jogoAberto'],
-    jogo: data[0]['jogo']
+    jogo: data[0]['jogo'],
+    totalGastoCartao: data[0]['totalGastoCartao']
   }
 }
 
 function save(object) {
   DbInstance.collection('data').deleteMany().then(() => {
     DbInstance.collection('data').insertOne(object).then(() => {
-      console.log('object saved', object)
+      console.log('context updated', object)
     })
   })
 }
