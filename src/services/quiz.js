@@ -8,7 +8,8 @@ const ROOT_PROMPT = `
     Estou criando um quiz iterativo sobre tecnologia e linguagens de programacao.
     Crie uma pergunta cujo a resposta seja de multiplas alternativas sendo que no maximo 3 e separadas por virgula,
     a pergunta tem que ser sobre os assunstos relacionados as linguagens de programacao Java, JavaScript e TypeScript,
-    provedores de cloud como Google Cloud, AWS e Azure, ferramentas de infraestrutura como Docker e Kubernetes e Framworkds como ReactJS e SpringBoot.
+    provedores de cloud como Google Cloud, AWS e Azure, ferramentas de infraestrutura como Docker e Kubernetes e Framworkds como ReactJS e SpringBoot
+    Faca perguntas bem dificeis tambem sobre particularidades da linguagem e funcionamento interno.
 
     Apos gerar a pergunta separe a linha por ------------------- e joga a resposta separadas por virgula e depois outro separador de linha ----------
     e a reposta correta.
@@ -101,8 +102,8 @@ function generateDiscordMessage(question, alternatives) {
 function multipleChoiseQuestionIsCorrect(interaction) {
     const number = Number(interaction.split('-')[1])
     let charResponse
-    switch(number) {
-        case 0: 
+    switch (number) {
+        case 0:
             charResponse = 'a'
             break
         case 1:
@@ -115,7 +116,7 @@ function multipleChoiseQuestionIsCorrect(interaction) {
             return false
     }
 
-    const findedAnswer = state.currentQuiz.answer.find(ans => ans === charResponse)
+    const findedAnswer = state.currentQuiz.answer.find(ans => ans.trim() === charResponse)
     if (findedAnswer)
         return true
 
@@ -226,21 +227,23 @@ async function runQuizTask() {
 
 module.exports = runQuizTask
 
-// setTimeout(async () => {
-//     const m = `
-//     Qual dos seguintes provedores de cloud oferece suporte direto para executar aplicações em Node.js?
-//     -------------------
-//     a) Google Cloud, b) AWS, c) Azure
-//     ----------
-//     a, b, c
-//     `
-//     const { question, alternatives, answer } = processResponseQuiz(m)
-//     state.currentQuiz = {
-//         question,
-//         alternatives,
-//         answer
-//     }
+async function test() {
+    const m = `
+    Qual dos seguintes provedores de cloud oferece suporte direto para executar aplicações em Node.js?
+    -------------------
+    a) Google Cloud, b) AWS, c) Azure
+    ----------
+    a, b, c
+    `
+    const { question, alternatives, answer } = processResponseQuiz(m)
+    state.currentQuiz = {
+        question,
+        alternatives,
+        answer
+    }
 
-//     const embed = generateDiscordMessage(question, alternatives)
-//     publishAndListening(embed)
-// }, 15000)
+    const embed = generateDiscordMessage(question, alternatives)
+    publishAndListening(embed)
+}
+
+// setTimeout(test, 10000)
