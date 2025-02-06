@@ -9,8 +9,8 @@ function atualizarTotalGasto(valor) {
 }
 
 function verificarLimiteEstourado() {
-    if (context.totalGastoCartao > LIMIT) {
-        context.emitEvent('enviar-mensagem-telegram', `O limite do cartão foi estourado!`)
+    if (context().totalGastoCartao > LIMIT) {
+        context().emitEvent('enviar-mensagem-telegram', `O limite do cartão foi estourado!`)
     }
 }
 
