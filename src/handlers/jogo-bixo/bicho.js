@@ -121,7 +121,7 @@ const bichos = [
   },
   {
     nome: 'vaca',
-    valores: [97, 98, 99, 00],
+    valores: [97, 98, 99, 100],
     emoj: '🐄'
   }
 ]
