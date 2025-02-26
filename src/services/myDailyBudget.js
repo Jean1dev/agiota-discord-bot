@@ -287,6 +287,17 @@ function getMyDailyBudget() {
     return state.budget.toFixed(2)
 }
 
+function bulkAddTransaction(newBudget, items) {
+    addNewBalance(newBudget)
+    DbInstance().collection(collectionTransactionName)
+        .insertMany(items.map(i => ({
+            date: new Date(),
+            money: i.money,
+            description: i.description
+        })))
+        .catch(captureException)
+}
+
 function addTransaction({ money, description, newBudget }) {
     addNewBalance(newBudget)
     DbInstance().collection(collectionTransactionName)
@@ -307,7 +318,7 @@ async function spentMoney({ money, description }) {
     const newBudget = state.budget - money
     state.transactions.push({ money, description })
     setTimeout(() => addTransaction({ money, description, newBudget }), 1000)
-    
+
     gastosCartao.adicionarGasto(money)
 
     return newBudget
@@ -325,6 +336,26 @@ function addMoneyToDailyBudget(money) {
     return newBudget
 }
 
+function batchInsert(batchItens) {
+    const itemsMapped = batchItens.filter(i => {
+        const money = Number(i.money)
+        if (isNaN(money))
+            return false
+
+        return true
+    }).map(i => ({
+        money: Number(i.money),
+        description: i.description
+    }))
+
+    itemsMapped.forEach(({ money, description }) => state.transactions.push({ money, description }))
+    const total = itemsMapped.map(i => i.money).reduce((sum, value) => sum + value, 0)
+    const newBudget = state.budget - total
+    bulkAddTransaction(newBudget, itemsMapped)
+    gastosCartao.adicionarGasto(total)
+    return newBudget
+}
+
 module.exports = {
     spentMoney,
     getMyDailyBudget,
@@ -333,5 +364,6 @@ module.exports = {
     addMoneyToDailyBudget,
     gerarRelatorioFechamentoCompentencia,
     consultarTransacoesDoDia,
-    gerarReportDosGastosDoUltimoFinalDeSemana
+    gerarReportDosGastosDoUltimoFinalDeSemana,
+    batchInsert
 }
