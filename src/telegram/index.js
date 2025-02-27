@@ -13,15 +13,33 @@ const bot = new Telegraf(TELEGRAM_API_KEY)
 const telegram = new Telegram(TELEGRAM_API_KEY)
 bot.use(session())
 
-let awaitResponseSpentMoney = false
+const state = {
+    awaitResponseSpentMoney: false,
+    batchResponse: false,
+    batchInserts: []
+}
 
 const tecladoOpcoes = Markup.keyboard([
     ['My Daily budget'],
     ['spent money'],
+    ['batch'],
 ]).resize()
 
 function enviarMensagemParaMim(message) {
     telegram.sendMessage(String(CHAT_ID), message)
+}
+
+function handleBatchResponse(ctx, content) {
+    if (content[0].toLowerCase() === 'fim') {
+        state.awaitResponseSpentMoney = false
+        state.batchResponse = false
+        const budget = myDailyBudgetService.batchInsert(state.batchInserts)
+        ctx.reply(`your new daily budget is R$ ${budget}`)
+        return
+    }
+
+    ctx.reply('digite fim para finalizar o batch, ou continue informando o valor e descricao separado por virgula')
+    state.batchInserts.push({ money: content[0], description: content[1] })
 }
 
 function enviarMensagemHTML(message, chatID) {
@@ -55,20 +73,30 @@ bot.hears('My Daily budget', async ctx => {
 })
 
 bot.hears('spent money', ctx => {
-    awaitResponseSpentMoney = true
+    state.awaitResponseSpentMoney = true
+    ctx.reply('informe o valor e descricao separado por virgula')
+})
+
+bot.hears('batch', ctx => {
+    state.awaitResponseSpentMoney = true
+    state.batchResponse = true
     ctx.reply('informe o valor e descricao separado por virgula')
 })
 
 bot.on(message('text'), async ctx => {
-    if (!awaitResponseSpentMoney) {
+    if (!state.awaitResponseSpentMoney) {
         return
     }
 
     const content = ctx.update.message.text.split(',')
+    if (state.batchResponse) {
+        return handleBatchResponse(ctx, content)
+    }
+
     const budget = await myDailyBudgetService.spentMoney({ money: content[0], description: content[1] })
 
     ctx.reply(`your new daily budget is R$ ${budget}`)
-    awaitResponseSpentMoney = false
+    state.awaitResponseSpentMoney = false
 })
 
 bot.launch()

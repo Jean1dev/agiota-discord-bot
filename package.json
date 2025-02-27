@@ -2,7 +2,7 @@
   "name": "mamaco-agiota-bot",
   "version": "1.0.0",
   "engines": {
-    "node": "21.x"
+    "node": "23.x"
   },
   "description": "",
   "main": "index.js",
@@ -41,8 +41,8 @@
     "telegraf": "^4.15.0",
     "tweetnacl": "^1.0.3",
     "web3-client-lib": "^0.0.4",
-    "youtube-dl-exec": "^3.0.8",
-    "ytdl-core": "^4.11.5"
+    "youtube-dl-exec": "^3.0.16",
+    "ytdl-core": "npm:@distube/ytdl-core@^4.16.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
