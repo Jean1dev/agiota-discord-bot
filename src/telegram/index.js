@@ -35,6 +35,7 @@ function handleBatchResponse(ctx, content) {
         state.batchResponse = false
         const budget = myDailyBudgetService.batchInsert(state.batchInserts)
         ctx.reply(`your new daily budget is R$ ${budget}`)
+        state.batchInserts = []
         return
     }
 
