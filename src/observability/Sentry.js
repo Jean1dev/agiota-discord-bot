@@ -8,12 +8,26 @@ if (SENTRY_DNS) {
     });
 }
 
-function captureException(ex) {
+function captureException(ex, alreadyLogged = false) {
     if (ex.isAxiosError) {
-        console.log('Http Axios Error ')
-        console.log(ex.toJSON())
-    } else {
-        console.log(ex.message)
+        console.error('HTTP Axios Error: ', {
+            message: ex.message,
+            name: ex.name,
+            code: ex.code,
+            config: ex.config,
+            response: ex.response ? {
+            status: ex.response.status,
+            statusText: ex.response.statusText,
+            headers: ex.response.headers,
+            data: ex.response.data
+            } : null
+        });
+    } else if (!alreadyLogged) {
+        console.error('Unknown Error: ', {
+            message: ex.message,
+            name: ex.name,
+            stack: ex.stack
+        });
     }
 
     if (SENTRY_DNS) {
