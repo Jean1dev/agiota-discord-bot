@@ -13,12 +13,12 @@ function deleteMessageAfterTime(message) {
 function evidenciarRankingExchanges(exchangesRanking) {
     const evidenciaCompra = exchangesRanking
         .filter(ex => ex.type === 'buy')
-        .map(ex => `${ex.exchange_name} - Quantidade de oportunidades ${ex.count}%`)
+        .map(ex => `${ex.exchange_name} - Quantidade de oportunidades ${ex.count}`)
         .join('\n')
 
     const evidenciaVenda = exchangesRanking
         .filter(ex => ex.type === 'sell')
-        .map(ex => `${ex.exchange_name} - Quantidade de oportunidades ${ex.count}%`)
+        .map(ex => `${ex.exchange_name} - Quantidade de oportunidades ${ex.count}`)
         .join('\n')
 
     enviarMensagemAvisoCrypto(`Ranking de exchanges para compra:\n${evidenciaCompra}\n`)

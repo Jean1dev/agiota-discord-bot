@@ -18,7 +18,7 @@ function limparEstatisticas() {
 }
 
 function getRankingExchanges() {
-    axios.get(`${baseUrl}/v1/statistics/ranking`)
+    return axios.get(`${baseUrl}/v1/statistics/ranking`)
         .then(response => {
             return response.data
         }).catch(error => console.log('Erro na requisição:', error.message));
