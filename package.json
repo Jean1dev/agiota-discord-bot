@@ -41,8 +41,8 @@
     "telegraf": "^4.15.0",
     "tweetnacl": "^1.0.3",
     "web3-client-lib": "^0.0.4",
-    "youtube-dl-exec": "^3.0.16",
-    "ytdl-core": "npm:@distube/ytdl-core@^4.16.4"
+    "youtube-dl-exec": "^3.0.19",
+    "ytdl-core": "npm:@distube/ytdl-core@^4.16.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

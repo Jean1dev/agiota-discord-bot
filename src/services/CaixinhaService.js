@@ -6,6 +6,7 @@ const { CAIXINHA_SERVER_URL, COMMUNICATION_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
+const { billingbudgets } = require('googleapis/build/src/apis/billingbudgets')
 
 const state = {
     aprovacoes: 0,
@@ -20,10 +21,55 @@ function notifySms(payload) {
         desc: message,
         user: 'jeanlucafp@gmail.com'
     }
-    
+
     axios.default.post(`${COMMUNICATION_SERVER_URL}/notificacao`, inputBody)
         .then(({ data }) => console.log(data))
         .catch(captureException)
+}
+
+async function getInfoUltimoEmprestimo(username) {
+    const dePara = {
+        'jeanlucafp': {
+            'name': 'Jeanluca FP',
+            'email': 'jeanlucafp@gmail.com'
+        },
+        'augustosavi': {
+            'name': 'Augusto Savi',
+            'email': 'guto_savi@outlook.com'
+        },
+        'ursodepilado': {
+            'name': 'Arnaldo Pagani Junior',
+            'email': 'dinhupagani@gmail.com'
+        }
+    }
+
+    const user = dePara[username]
+    if (!user) {
+        return {
+            error: `Usuario ${username} não mapeado discord x caixinha, acesse o link https://caixinha-gilt.vercel.app/meus-emprestimos `
+        }
+    }
+
+    const url = `${CAIXINHA_SERVER_URL}/get-ultimo-emprestimo-pendente?email=${user.email}&name=${user.name}`
+    const response = await axios.default.get(url)
+    const data = response.data
+    if (data.error || !data?.exists) {
+        return {
+            error: data.error || 'Nenhum emprestimo pendente'
+        }
+    }
+
+    const link = `https://caixinha-gilt.vercel.app/detalhes-emprestimo?uid=${data.data.uid}`
+    let text = `R$${data.data.totalValue.value}  valor total solicitado\n`
+    if (data.data.billingDates.length > 0) {
+        text += `Parcelado em ${data.data.installments}x \n`
+        text += `Valor esperado para a parcela R$${data.data.totalValue.value / data.data.installments} \n`
+    }
+
+    return {
+        text,
+        link
+    }
 }
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
@@ -281,5 +327,6 @@ function notificar(message) {
 }
 
 module.exports = {
-    notificar
+    notificar,
+    getInfoUltimoEmprestimo
 }

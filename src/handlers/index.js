@@ -1,3 +1,4 @@
+const ultimoEmprestimoInfoHandler = require('./agiotagem/ultimo-emprestimo-info')
 const addDividaHandler = require('./agiotagem/adicionar-divida')
 const cobrarDividaHandler = require('./agiotagem/cobrar-dividas')
 const pagarDividaHandler = require('./agiotagem/pagar-divida')
@@ -41,5 +42,6 @@ module.exports = {
   realTimeConversaGpt,
   airDropHandler,
   updateGastosCartaoHandler,
-  cryptoHandler
+  cryptoHandler,
+  ultimoEmprestimoInfoHandler
 }
