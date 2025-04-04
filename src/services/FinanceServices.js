@@ -94,7 +94,7 @@ function cobrancaImediata(contract) {
             .setTitle(`Cobranca imedieta para ${contract.nome} - ${contract.cpf}`)
             .setThumbnail('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjUjtI3p1UZWNBBJHMDd9nqDjPIKQemaFDGg&usqp=CAU')
             .setDescription(`
-                    pague atraves do link ${paymentUrl}
+                    pague atraves do link de pagamento ${paymentUrl}
                 `).setColor("RANDOM")
 
         channel.send({ embeds: [embed] })
@@ -107,7 +107,12 @@ function cobrancaImediata(contract) {
         descricaoSolicitacao: "cobranca imediata",
         valor: contract.valor.toFixed(2)
     }).then(({ data }) => {
-        const { qrCode, txId } = data
+        const { 
+            qrCode, 
+            txId,
+            pixCopiaECola,
+            chave
+        } = data
         const urlQrCode = 'https://' + qrCode.replace('\"', '')
         const embed = new MessageEmbed()
             .setTitle(`Cobranca imedieta para ${contract.nome} - ${contract.cpf}`)
@@ -115,7 +120,9 @@ function cobrancaImediata(contract) {
             .setImage(urlQrCode)
             .setDescription(`
                     txId ${txId.replace('\"', '')} \n
-                    se nao carregar o qrCode acesse ${urlQrCode}
+                    Pix Copia & Cola ${pixCopiaECola} \n
+                    chave ${chave} \n
+                    pague atraves do link ${urlQrCode} \n
                 `).setColor("RANDOM")
 
         channel.send({ embeds: [embed] })

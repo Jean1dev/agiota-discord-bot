@@ -33,8 +33,13 @@ function handleBatchResponse(ctx, content) {
     if (content[0].toLowerCase() === 'fim') {
         state.awaitResponseSpentMoney = false
         state.batchResponse = false
+        
         const budget = myDailyBudgetService.batchInsert(state.batchInserts)
+        const batchSummary = state.batchInserts.map(item => `- R$ ${item.money}: ${item.description}`).join('\n');
+
+        ctx.reply(`Batch summary:\n${batchSummary}`);
         ctx.reply(`your new daily budget is R$ ${budget}`)
+
         state.batchInserts = []
         return
     }
@@ -85,20 +90,25 @@ bot.hears('batch', ctx => {
 })
 
 bot.on(message('text'), async ctx => {
-    if (!state.awaitResponseSpentMoney) {
-        return
-    }
+    if (!state.awaitResponseSpentMoney) return;
 
-    const content = ctx.update.message.text.split(',')
+    const [money, description] = ctx.update.message.text.split(',');
+
     if (state.batchResponse) {
-        return handleBatchResponse(ctx, content)
+        handleBatchResponse(ctx, [money, description]);
+        return;
     }
 
-    const budget = await myDailyBudgetService.spentMoney({ money: content[0], description: content[1] })
-
-    ctx.reply(`your new daily budget is R$ ${budget}`)
-    state.awaitResponseSpentMoney = false
-})
+    try {
+        const budget = await myDailyBudgetService.spentMoney({ money, description });
+        ctx.reply(`your new daily budget is R$ ${budget}`);
+    } catch (error) {
+        console.error('Error processing spent money:', error);
+        ctx.reply('An error occurred while processing your request. Please try again.');
+    } finally {
+        state.awaitResponseSpentMoney = false;
+    }
+});
 
 bot.launch()
 
