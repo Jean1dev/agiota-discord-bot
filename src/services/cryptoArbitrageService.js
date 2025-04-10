@@ -1,7 +1,31 @@
 const axios = require('axios');
 const { contextInstance } = require('../context');
-const baseUrl = "https://crypto-svc-e108728a6a2f.herokuapp.com"
+const baseUrl = "https://crypto-svc-eur-0e4c4365b070.herokuapp.com"
 const GROUP_ID = -1002156828677
+
+function forceArbitrage(quantities, callback) {
+    let count = 0;
+    const interval = setInterval(() => {
+        if (count >= quantities) {
+            clearInterval(interval);
+            return;
+        }
+
+        console.log(`Executando arbitragem ${count + 1} de ${quantities}`);
+        axios.post(`${baseUrl}/v1/arbitrage`)
+            .then(response => {
+                const threshold = response.data?.threshold;
+                if (threshold) {
+                    callback(`Arbitrage executed successfully. Threshold: ${threshold}`);
+                }
+            })
+            .catch(error => {
+                console.log('Error during arbitrage execution:', error.message);
+            });
+
+        count++;
+    }, 16000);
+}
 
 function getMediaSpread() {
     axios.get(`${baseUrl}/v1/statistics/avarage-spread`)
@@ -83,5 +107,6 @@ module.exports = {
     limparEstatisticas,
     getRankingExchanges,
     gerarRankingExchanges,
-    enviarMensagemAvisoCrypto
+    enviarMensagemAvisoCrypto,
+    forceArbitrage
 }

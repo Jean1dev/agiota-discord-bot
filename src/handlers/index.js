@@ -20,6 +20,7 @@ const realTimeConversaGpt = require('./real-time-conversa')
 const airDropHandler = require('./web3/airdrop')
 const updateGastosCartaoHandler = require('./agiotagem/update-gastos-cartao')
 const cryptoHandler = require('./b3/crypto-statistcs')
+const arbitragemHandler = require('./b3/arbitragem')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -43,5 +44,6 @@ module.exports = {
   airDropHandler,
   updateGastosCartaoHandler,
   cryptoHandler,
-  ultimoEmprestimoInfoHandler
+  ultimoEmprestimoInfoHandler,
+  arbitragemHandler
 }
