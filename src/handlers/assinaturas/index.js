@@ -13,6 +13,19 @@ function notifySuccessWithEmail(email) {
     })
 }
 
+function sendEmailBoasVindas(email) {
+    sendEmail({
+        subject: `Acesso software de arbitragem`,
+        message: `Fala mestre tudo bem, liberei o acesso ao software de arbitragem, estamos liberando novas features 
+
+                    Se tiver alguma opinião/comentário pode me acionar, o link do nosso grupo do WhatsApp https://chat.whatsapp.com/Fyd8t4sXknGHgxlPaaYzKB o grupo do Telegram tem o link na plataforma 
+
+
+                    Abraço e bons investimentos `,
+        to: email
+    })
+}
+
 function handler(args, discordMessage) {
     const email = String(args[0])
 
@@ -54,13 +67,16 @@ function handler(args, discordMessage) {
                 .then((response) => {
                     discordMessage.reply(`Status ${response.status} para criacao do plano`)
                     notifySuccessWithEmail(email)
+                    setTimeout(() => {
+                        sendEmailBoasVindas(email)
+                    }, 1000 * 60 * 45)
                 })
                 .catch((error) => {
                     if (error.isAxiosError) {
                         discordMessage.reply(`Erro ao criar plano: ${error.response.data.message}`)
                         return
                     }
-                    
+
                     captureException(error)
                     discordMessage.reply(`Erro ao criar o plano ${error.message}`)
                 })

@@ -5,9 +5,11 @@ const GROUP_ID = -1002156828677
 
 function forceArbitrage(quantities, callback) {
     let count = 0;
+    let lastTreshhold = 0;
     const interval = setInterval(() => {
         if (count >= quantities) {
             clearInterval(interval);
+            callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`)
             return;
         }
 
@@ -15,6 +17,7 @@ function forceArbitrage(quantities, callback) {
         axios.post(`${baseUrl}/v1/arbitrage`)
             .then(response => {
                 const threshold = response.data?.threshold;
+                lastTreshhold = threshold
                 if (threshold) {
                     callback(`Arbitrage executed successfully. Threshold: ${threshold}`);
                 }
