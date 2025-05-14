@@ -2,7 +2,7 @@ const { contextInstance } = require('../context')
 const captureException = require('../observability/Sentry')
 const { DbInstance } = require('../repository/mongodb')
 const { formatDate } = require('../utils/discord-nicks-default')
-const { sleep } = require('../utils/utils')
+const { sleep, nowInSaoPaulo } = require('../utils/utils')
 const sendEmail = require('./EmailService')
 const criarPDFRetornarCaminho = require('./GerarPDF')
 const upload = require('./UploadService')
@@ -88,14 +88,20 @@ async function gastosDoUltimoFimDeSemana() {
 }
 
 async function consultarTransacoesDoDiaForaDaCompetencia(dataProcurada) {
-    const db = DbInstance()
-
     const data = await searchTransactions({
         date: { $lte: dataProcurada },
         date: { $gte: dataProcurada }
     })
 
-    return data.map(it => `${formatDate(it.date)} R$ ${it.money} -- ${it.description}`)
+    return data
+        .filter(it => {
+            const transactionDate = new Date(it.date);
+
+            return transactionDate.getDate() === dataProcurada.getDate() &&
+                transactionDate.getMonth() === dataProcurada.getMonth() &&
+                transactionDate.getFullYear() === dataProcurada.getFullYear()
+        })
+        .map(it => `${formatDate(it.date)} R$ ${it.money} -- ${it.description}`)
 }
 
 async function consultarTransacoesDoDia(dataProcurada) {
@@ -291,7 +297,7 @@ function bulkAddTransaction(newBudget, items) {
     addNewBalance(newBudget)
     DbInstance().collection(collectionTransactionName)
         .insertMany(items.map(i => ({
-            date: new Date(),
+            date: nowInSaoPaulo(),
             money: i.money,
             description: i.description
         })))
@@ -302,7 +308,7 @@ function addTransaction({ money, description, newBudget }) {
     addNewBalance(newBudget)
     DbInstance().collection(collectionTransactionName)
         .insertOne({
-            date: new Date(),
+            date: nowInSaoPaulo(),
             money,
             description
         }).catch(captureException)

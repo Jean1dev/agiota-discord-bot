@@ -6,7 +6,6 @@ const { CAIXINHA_SERVER_URL, COMMUNICATION_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
-const { billingbudgets } = require('googleapis/build/src/apis/billingbudgets')
 
 const state = {
     aprovacoes: 0,

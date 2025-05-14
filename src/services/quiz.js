@@ -5,21 +5,42 @@ const RankingService = require("./RankingService")
 const context = require('../context').contextInstance
 
 const ROOT_PROMPT = `
-    Estou criando um quiz iterativo sobre tecnologia e linguagens de programacao.
-    Crie uma pergunta cujo a resposta seja de multiplas alternativas sendo que no maximo 3 e separadas por virgula,
-    a pergunta tem que ser sobre os assunstos relacionados as linguagens de programacao Java, JavaScript e TypeScript,
-    provedores de cloud como Google Cloud, AWS e Azure, ferramentas de infraestrutura como Docker e Kubernetes e Framworkds como ReactJS e SpringBoot
-    Faca perguntas bem dificeis tambem sobre particularidades da linguagem e funcionamento interno.
-
-    Apos gerar a pergunta separe a linha por ------------------- e joga a resposta separadas por virgula e depois outro separador de linha ----------
-    e a reposta correta.
-
-    Exemplo:
-    Qual linguagem de programacao tem a instrucao console.log()?
+    Estou criando um quiz iterativo sobre tecnologia e desenvolvimento de software.
+    
+    Crie uma pergunta técnica cuja resposta seja de múltiplas alternativas (máximo 3) separadas por vírgula.
+    
+    As perguntas devem cobrir os seguintes tópicos:
+    1. Linguagens de Programação:
+       - Java: JVM, bytecode, garbage collection, streams, lambdas, Spring Framework
+       - JavaScript: event loop, closures, promises, async/await, ES6+
+       - TypeScript: tipos, interfaces, generics, decorators, type inference
+    
+    2. Cloud Computing:
+       - AWS: EC2, Lambda, S3, DynamoDB, CloudFormation
+       - Google Cloud: Compute Engine, Cloud Functions, BigQuery, Cloud Storage
+       - Azure: Virtual Machines, Functions, Cosmos DB, Blob Storage
+    
+    3. Infraestrutura e DevOps:
+       - Docker: containers, imagens, Dockerfile, Docker Compose
+       - Kubernetes: pods, services, deployments, ingress, helm
+       - CI/CD: Jenkins, GitHub Actions, GitLab CI
+    
+    4. Frameworks e Bibliotecas:
+       - React: hooks, context, redux, virtual DOM
+       - Spring Boot: dependency injection, AOP, security
+       - Node.js: event-driven, non-blocking I/O, npm
+    
+    Inclua perguntas de diferentes níveis de complexidade:
+    - Básico: conceitos fundamentais e sintaxe
+    - Intermediário: padrões de projeto e boas práticas
+    - Avançado: funcionamento interno, otimização e casos de uso específicos
+    
+    A resposta deve seguir o formato:
+    Pergunta
     -------------------
-    a) Java, b) JavaScript, c) TypeScript
+    a) Alternativa 1, b) Alternativa 2, c) Alternativa 3
     ----------
-    b
+    Resposta correta (pode ser uma ou mais letras separadas por vírgula)
 `
 
 const state = {
@@ -124,9 +145,6 @@ function multipleChoiseQuestionIsCorrect(interaction) {
 }
 
 function questionIsCorrect(interaction) {
-    // 0 -> a
-    // 1 -> b
-    // 2 -> c
     if (state.multipleChoise) {
         return multipleChoiseQuestionIsCorrect(interaction)
     }
@@ -134,19 +152,11 @@ function questionIsCorrect(interaction) {
     const number = Number(interaction.split('-')[1])
     switch (number) {
         case 0:
-            if (state.currentQuiz.answer === "a") {
-                return true
-            }
+            return state.currentQuiz.answer === "a"
         case 1:
-            if (state.currentQuiz.answer === "b") {
-                return true
-            }
-
+            return state.currentQuiz.answer === "b"
         case 2:
-            if (state.currentQuiz.answer === "c") {
-                return true
-            }
-
+            return state.currentQuiz.answer === "c"
         default:
             return false
     }
