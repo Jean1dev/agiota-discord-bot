@@ -33,7 +33,7 @@ function handleBatchResponse(ctx, content) {
     if (content[0].toLowerCase() === 'fim') {
         state.awaitResponseSpentMoney = false
         state.batchResponse = false
-        
+
         const budget = myDailyBudgetService.batchInsert(state.batchInserts)
         const batchSummary = state.batchInserts.map(item => `- R$ ${item.money}: ${item.description}`).join('\n');
 
@@ -51,17 +51,19 @@ function handleBatchResponse(ctx, content) {
 function enviarMensagemHTML(message, chatID) {
     telegram.sendMessage(chatID, message, { parse_mode: 'HTML' })
         .catch(error => {
-            console.log(error)
+            console.error('[Telegram][enviarMensagemHTML] Erro ao enviar mensagem:', error.message)
         })
 }
 
 bot.use(async (ctx, next) => {
-    const id = ctx.update.message.from.id
+    if (ctx.chat.type === 'private') {
+        const id = ctx.update.message.from.id
 
-    if (id !== CHAT_ID) {
-        await ctx.reply('Voce nao tem permissao para acessar esse bot')
-        enviarMensagemParaMim(`Usuario desconhecido tentou acessar o bot: ${ctx.update.message.from.first_name}`)
-        return
+        if (id !== CHAT_ID) {
+            await ctx.reply('Voce nao tem permissao para acessar esse bot')
+            enviarMensagemParaMim(`Usuario desconhecido tentou acessar o bot: ${ctx.update.message.from.first_name}`)
+            return
+        }
     }
 
     next()
@@ -87,6 +89,15 @@ bot.hears('batch', ctx => {
     state.awaitResponseSpentMoney = true
     state.batchResponse = true
     ctx.reply('informe o valor e descricao separado por virgula')
+})
+
+bot.hears(['info', 'links', 'link'], ctx => {
+    ctx.replyWithMarkdownV2(
+        `*Informações*
+• [Documentação](https://docs.arbitragem-crypto.cloud/introduction)
+• [Site](https://market.arbitragem-crypto.cloud/)
+• [Plataforma](https://arbitragem-crypto.cloud/)`
+    )
 })
 
 bot.on(message('text'), async ctx => {
