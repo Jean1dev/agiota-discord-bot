@@ -126,8 +126,8 @@ async function runQuizTask() {
 
 module.exports = runQuizTask
 
-async function test() {
-    await runQuizTask();
-}
+// async function test() {
+//     await runQuizTask();
+// }
 
-setTimeout(test, 10000)
+// setTimeout(test, 10000)
