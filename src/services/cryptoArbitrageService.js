@@ -27,7 +27,7 @@ function forceArbitrage(quantities, callback) {
             });
 
         count++;
-    }, 16000);
+    }, 18000);
 }
 
 function getMediaSpread() {
@@ -104,6 +104,34 @@ function processAMQPMessage(message) {
     }
 }
 
+function evidenciarRankingExchanges(exchangesRanking) {
+    const evidenciaCompra = exchangesRanking
+        .filter(ex => ex.type === 'buy')
+        .map(ex => `${ex.exchange_name} - Quantidade de oportunidades ${ex.count}`)
+        .join('\n')
+
+    const evidenciaVenda = exchangesRanking
+        .filter(ex => ex.type === 'sell')
+        .map(ex => `${ex.exchange_name} - Quantidade de oportunidades ${ex.count}`)
+        .join('\n')
+
+    enviarMensagemAvisoCrypto(`Ranking de exchanges para compra:\n${evidenciaCompra}\n`)
+    enviarMensagemAvisoCrypto(`Ranking de exchanges para venda:\n${evidenciaVenda}\n`)
+}
+
+function rotinaDiariaCrypto() {
+    gerarRankingExchanges()
+    getMediaSpread()
+
+    setTimeout(async () => {
+        getRankingExchanges()
+            .then(data => {
+                evidenciarRankingExchanges(data)
+                setTimeout(limparEstatisticas, 15000)
+            })
+    }, 15000)
+}
+
 module.exports = {
     processAMQPMessage,
     getMediaSpread,
@@ -111,5 +139,6 @@ module.exports = {
     getRankingExchanges,
     gerarRankingExchanges,
     enviarMensagemAvisoCrypto,
-    forceArbitrage
+    forceArbitrage,
+    rotinaDiariaCrypto
 }

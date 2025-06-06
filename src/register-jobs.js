@@ -10,7 +10,8 @@ const {
     rankearUso,
     exibirRankingNoChat,
     myDailyBudgetService, 
-    runQuizTask
+    runQuizTask,
+    rotinaDiariaCrypto
 } = require('./services')
 
 function limparCanais() {
@@ -31,6 +32,7 @@ function limparCanais() {
 function procedimentosDaMadruga() {
     limparCanais()
     rankearUso()
+    rotinaDiariaCrypto()
 }
 
 function salvarDadosAnalise() {

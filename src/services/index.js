@@ -11,7 +11,11 @@ const criarPDFRetornarCaminho = require('./GerarPDF')
 const { notificar: notificacaoCaixinha } = require('./CaixinhaService')
 const financeServices = require('./FinanceServices')
 const { addMusic, ramdomMusic } = require('./MusicManagerService')
-const { processAMQPMessage: cryptoServiceProcessMessage, forceArbitrage } = require('./cryptoArbitrageService')
+const { 
+    processAMQPMessage: cryptoServiceProcessMessage, 
+    forceArbitrage,
+    rotinaDiariaCrypto 
+} = require('./cryptoArbitrageService')
 const myDailyBudgetService = require('./myDailyBudget')
 const { broadcastDiscord } = require('./broadcast-discord')
 const UploadService = require('./UploadService')
@@ -37,5 +41,6 @@ module.exports = {
     broadcastDiscord,
     UploadService,
     runQuizTask,
-    gastosCartao
+    gastosCartao,
+    rotinaDiariaCrypto
 }

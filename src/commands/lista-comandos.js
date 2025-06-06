@@ -21,7 +21,6 @@ const {
   realTimeConversaGpt,
   airDropHandler,
   updateGastosCartaoHandler,
-  cryptoHandler,
   ultimoEmprestimoInfoHandler,
   arbitragemHandler
 } = require('../handlers')
@@ -55,6 +54,5 @@ registrarComando('sub', assinaturasHandler, 'Cria uma nova assinatura de 30 dias
 registrarComando('conversa', realTimeConversaGpt, 'Converse com o chat gpt')
 registrarComando('ad', airDropHandler, 'Faz um airdrop de SOL para os usuarios :: @args @valor @carteira, @cluster', true)
 registrarComando('card', updateGastosCartaoHandler, 'Atualiza os gastos do cartao de credito :: args @valor', true)
-registrarComando('crypto', cryptoHandler, 'Verifica oportunidades de arbitragem em exchanges')
 registrarComando('up', ultimoEmprestimoInfoHandler, 'Mostra o ultimo emprestimo solicitado')
 registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem em exchanges :: args @quantidade_execucoes', true)
