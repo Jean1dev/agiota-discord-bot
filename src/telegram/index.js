@@ -91,7 +91,7 @@ bot.hears('batch', ctx => {
     ctx.reply('informe o valor e descricao separado por virgula')
 })
 
-bot.hears(['info', 'links', 'link'], ctx => {
+bot.hears(['Info', 'Links', 'Link'], ctx => {
     ctx.replyWithMarkdownV2(
         `*Informações*
 • [Documentação](https://docs.arbitragem-crypto.cloud/introduction)
