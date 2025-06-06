@@ -22,7 +22,8 @@ const {
   airDropHandler,
   updateGastosCartaoHandler,
   ultimoEmprestimoInfoHandler,
-  arbitragemHandler
+  arbitragemHandler,
+  assinaturasAtivasHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -56,3 +57,4 @@ registrarComando('ad', airDropHandler, 'Faz um airdrop de SOL para os usuarios :
 registrarComando('card', updateGastosCartaoHandler, 'Atualiza os gastos do cartao de credito :: args @valor', true)
 registrarComando('up', ultimoEmprestimoInfoHandler, 'Mostra o ultimo emprestimo solicitado')
 registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem em exchanges :: args @quantidade_execucoes', true)
+registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')

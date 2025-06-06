@@ -103,9 +103,60 @@ async function createSubscription(email, fone) {
     }
 }
 
+async function getActiveSubscriptions() {
+    try {
+        const token = await getKeycloakToken()
+        const config = {
+            method: 'get',
+            url: 'https://o-auth-managment-server-6d5834301f7a.herokuapp.com/plano',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+
+        const response = await axios.request(config)
+        const plans = response.data
+
+        const today = new Date()
+        const sixDaysFromNow = new Date()
+        sixDaysFromNow.setDate(today.getDate() + 6)
+
+        const activePlans = plans.filter(plan => {
+            const vigenciaAte = new Date(plan.vigenteAte)
+            return vigenciaAte >= today
+        })
+
+        const expiringSoon = activePlans.filter(plan => {
+            const vigenciaAte = new Date(plan.vigenteAte)
+            return vigenciaAte <= sixDaysFromNow
+        })
+
+        return {
+            totalActive: activePlans.length,
+            expiringSoon: expiringSoon.map(plan => {
+                const expiresAt = new Date(plan.vigenteAte)
+                const diffTime = expiresAt - today
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                return {
+                    email: plan.email.split('@')[0],
+                    expiresAt: plan.vigenteAte,
+                    expiresIn: `Vence em ${diffDays} dias`
+                }
+            })
+        }
+    } catch (error) {
+        if (error.isAxiosError) {
+            throw new Error(error.response.data.message)
+        }
+        captureException(error)
+        throw error
+    }
+}
+
 module.exports = {
     createSubscription,
     notifySms,
     notifySuccessWithEmail,
-    sendEmailBoasVindas
+    sendEmailBoasVindas,
+    getActiveSubscriptions
 } 
