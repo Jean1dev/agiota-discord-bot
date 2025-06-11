@@ -56,7 +56,14 @@ function consultar(id) {
         timeout: 4000
     })
         .then(response => {
-            enviarMensagemAvisoCrypto(response.data.html_message)
+            const data = response.data;
+            const message = `*${data.ticker}*\n\n` +
+                `*${data.best_buy_exchange_name} ➡️ ${data.best_sell_exchange_name}*\n\n` +
+                `Preço: *${data.min_price_ask} ➡️ ${data.max_price_bid}*\n` +
+                `Volume (24h): *$${data.volume_best_buy.toFixed(2)} | $${data.volume_best_sell.toFixed(2)}*\n` +
+                `Networks: *${data.common_networks.join(', ')}*\n` +
+                `Lucro potencial: *${data.profit_percent_ask_bid}%*`;
+            enviarMensagemAvisoCrypto(message)
         })
         .catch(error => {
             if (error.code === 'ECONNABORTED') {
