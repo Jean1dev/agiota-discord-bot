@@ -3,7 +3,7 @@ const { createSubscription } = require('../../services/SubscriptionService')
 
 async function handler(args, discordMessage) {
     const email = String(args[0])
-    const fone = String(args[1])
+    const fone = String(args.slice(1).join(' '))
 
     try {
         discordMessage.reply('Acesso autorizado pelo Keycloack')

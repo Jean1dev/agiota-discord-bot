@@ -13,17 +13,29 @@ const state = {
     reprovado: false
 }
 
-function notifySms(payload) {
-    const { message } = payload
-    const inputBody = {
-        types: ['sms'],
-        desc: message,
-        user: 'jeanlucafp@gmail.com'
-    }
+async function notifySms(payload) {
+    const { message, phone } = payload
+    const baseUrl = `${COMMUNICATION_SERVER_URL}/notificacao`
+    
+    try {
+        if (phone) {
+            const response = await axios.post(`${baseUrl}/sms`, {
+                desc: message,
+                recipients: [phone]
+            })
+            console.log(response.data)
+            return
+        }
 
-    axios.default.post(`${COMMUNICATION_SERVER_URL}/notificacao`, inputBody)
-        .then(({ data }) => console.log(data))
-        .catch(captureException)
+        const response = await axios.post(baseUrl, {
+            types: ['sms'],
+            desc: message,
+            user: 'jeanlucafp@gmail.com'
+        })
+        console.log(response.data)
+    } catch (error) {
+        captureException(error)
+    }
 }
 
 async function getInfoUltimoEmprestimo(username) {
