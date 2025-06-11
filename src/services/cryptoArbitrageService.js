@@ -37,13 +37,6 @@ function getMediaSpread() {
         ).catch(error => console.log('Erro na requisição:', error.message));
 }
 
-function limparEstatisticas() {
-    axios.delete(`${baseUrl}/v1/statistics`)
-        .then(() =>
-            console.log('Estatísticas limpas com sucesso!')
-        ).catch(error => console.log('Erro na requisição:', error.message));
-}
-
 function getRankingExchanges() {
     return axios.get(`${baseUrl}/v1/statistics/ranking`)
         .then(response => {
@@ -127,7 +120,6 @@ function rotinaDiariaCrypto() {
         getRankingExchanges()
             .then(data => {
                 evidenciarRankingExchanges(data)
-                setTimeout(limparEstatisticas, 15000)
             })
     }, 15000)
 }
@@ -135,7 +127,6 @@ function rotinaDiariaCrypto() {
 module.exports = {
     processAMQPMessage,
     getMediaSpread,
-    limparEstatisticas,
     getRankingExchanges,
     gerarRankingExchanges,
     enviarMensagemAvisoCrypto,
