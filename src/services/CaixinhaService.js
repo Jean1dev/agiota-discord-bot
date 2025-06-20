@@ -89,12 +89,11 @@ function enviarAprovacao(caixinhaId, emprestimoUid) {
         caixinhaId,
         emprestimoUid
     }).then(() => {
-        const data = {
+        sendEmail({
             to: 'jeanlucafp@gmail.com',
             subject: 'Enviado aprovação de emprestimo via discord',
             message: `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`
-        }
-        sendEmail(data)
+        })
 
     }).catch(captureException)
 }
@@ -126,7 +125,7 @@ function adicionarAprovacao(interaction, caixinhaId, emprestimoUid) {
     state.quemAprovou.push({ nick })
     interaction.reply(`${nick} Aceitou esse emprestimo`);
 
-    if (state.aprovacoes >= 3) {
+    if (state.aprovacoes >= 2) {
         enviarAprovacao(caixinhaId, emprestimoUid)
     }
 }

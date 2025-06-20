@@ -23,7 +23,8 @@ const {
   updateGastosCartaoHandler,
   ultimoEmprestimoInfoHandler,
   arbitragemHandler,
-  assinaturasAtivasHandler
+  assinaturasAtivasHandler,
+  restartHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -58,3 +59,4 @@ registrarComando('card', updateGastosCartaoHandler, 'Atualiza os gastos do carta
 registrarComando('up', ultimoEmprestimoInfoHandler, 'Mostra o ultimo emprestimo solicitado')
 registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem em exchanges :: args @quantidade_execucoes', true)
 registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')
+registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')
