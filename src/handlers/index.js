@@ -21,6 +21,7 @@ const airDropHandler = require('./web3/airdrop')
 const updateGastosCartaoHandler = require('./agiotagem/update-gastos-cartao')
 const arbitragemHandler = require('./b3/arbitragem')
 const assinaturasAtivasHandler = require('./assinaturas/assinaturas-ativas')
+const restartHandler = require('./restart')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -45,5 +46,6 @@ module.exports = {
   updateGastosCartaoHandler,
   ultimoEmprestimoInfoHandler,
   arbitragemHandler,
-  assinaturasAtivasHandler
+  assinaturasAtivasHandler,
+  restartHandler
 }

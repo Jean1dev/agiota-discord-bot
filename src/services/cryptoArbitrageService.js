@@ -27,7 +27,7 @@ function forceArbitrage(quantities, callback) {
             });
 
         count++;
-    }, 18000);
+    }, 20000);
 }
 
 function getMediaSpread() {
