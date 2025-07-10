@@ -3,6 +3,18 @@ const { contextInstance } = require('../context');
 const baseUrl = "https://crypto-svc-eur-0e4c4365b070.herokuapp.com"
 const GROUP_ID = -1002156828677
 
+function forceFutureArbitrage() {
+    setTimeout(() => {
+        axios.post(`${baseUrl}/v1/arbitrage/future`)
+            .then(response => {
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }, 5000)
+}
+
 function forceArbitrage(quantities, callback) {
     let count = 0;
     let lastTreshhold = 0;
@@ -21,6 +33,7 @@ function forceArbitrage(quantities, callback) {
                 if (threshold) {
                     callback(`Arbitrage executed successfully. Threshold: ${threshold}`);
                 }
+                forceFutureArbitrage()
             })
             .catch(error => {
                 console.log('Error during arbitrage execution:', error.message);
