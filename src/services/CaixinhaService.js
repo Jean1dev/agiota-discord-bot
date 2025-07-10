@@ -13,6 +13,21 @@ const state = {
     reprovado: false
 }
 
+function sendSmsToCaixinhaMembers(message) {
+    [{
+        message,
+        phone: process.env.ARNALDO_NUMBER
+    }, {
+        message,
+        phone: process.env.ARTHUR_NUMBER
+    }, {
+        message,
+        phone: process.env.AUGUSTO_NUMBER
+    }].forEach(it => {
+        notifySms(it)
+    })
+}
+
 async function notifySms(payload) {
     const { message, phone } = payload
     const baseUrl = `${COMMUNICATION_SERVER_URL}/notificacao`
@@ -152,6 +167,7 @@ function notifyDeposito(deposito) {
     }
 
     channel.send({ embeds: [embed] })
+    sendSmsToCaixinhaMembers(`Novo deposito do ${deposito.memberName}, acesse no discord`)
 }
 
 function notifyEmprestimo(emprestimo) {
@@ -227,6 +243,8 @@ function notifyEmprestimo(emprestimo) {
         .then(sentMessage => {
             onInteraction(sentMessage, caixinhaId, emprestimoUid)
         })
+
+    sendSmsToCaixinhaMembers(`Novo emprestimo solicitado por ${emprestimo.memberName}, acesse o discord`)
 }
 
 function notifyRendimento(message) {
