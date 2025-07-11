@@ -40,7 +40,7 @@ function forceArbitrage(quantities, callback) {
             });
 
         count++;
-    }, 20000);
+    }, 21000);
 }
 
 function getMediaSpread() {
@@ -66,16 +66,30 @@ function gerarRankingExchanges() {
 
 function consultar(id) {
     axios.get(`${baseUrl}/v1/arbitrage/${id}`, {
-        timeout: 4000
+        timeout: 2000
     })
         .then(response => {
             const data = response.data;
-            const message = `*${data.ticker}*\n\n` +
-                `*${data.best_buy_exchange_name} ➡️ ${data.best_sell_exchange_name}*\n\n` +
-                `Preço: *${data.min_price_ask} ➡️ ${data.max_price_bid}*\n` +
-                `Volume (24h): *$${data.volume_best_buy.toFixed(2)} | $${data.volume_best_sell.toFixed(2)}*\n` +
-                `Networks: *${data.common_networks.join(', ')}*\n` +
-                `Lucro potencial: *${data.profit_percent_ask_bid}%*`;
+            const isFuture = data.type === 'future'
+            const spot = data.operation
+            const future = data.future_operation
+
+            
+            let message;
+            
+            if (isFuture) {
+                message = `*SPOT x FUTURE*\n` +
+                    `*${future.ticker}*\n\n` +
+                    `*${future.exchange}*\n\n` +
+                    `Strategy: *${future.strategy}*`;
+            } else {
+                message = `*SPOT x SPOT*\n` +
+                    `*${spot.ticker}*\n\n` +
+                    `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
+                    `Networks: *${spot.common_networks.join(', ')}*\n` +
+                    `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
+            }
+
             enviarMensagemAvisoCrypto(message)
         })
         .catch(error => {
