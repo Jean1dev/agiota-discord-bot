@@ -1,8 +1,15 @@
-const { COMMUNICATION_SERVER_URL, ADMIN_KC_CLIENT_ID, ADMIN_KC_USERNAME, ADMIN_KC_PASSWORD } = require('../config')
+const {
+    COMMUNICATION_SERVER_URL,
+    ADMIN_KC_CLIENT_ID,
+    ADMIN_KC_USERNAME,
+    ADMIN_KC_PASSWORD,
+} = require('../config')
 const axios = require('axios').default
 const qs = require('querystring')
 const sendEmail = require('./EmailService')
 const captureException = require('../observability/Sentry')
+const context = require('../context').contextInstance
+const { LIXO_CHANNEL } = require('../discord-constants')
 
 async function getKeycloakToken() {
     const data = qs.stringify({
@@ -153,10 +160,25 @@ async function getActiveSubscriptions() {
     }
 }
 
+async function addSubcriptionByEvent(event) {
+    const {
+        name,
+        email,
+        product,
+        status,
+    } = event
+
+    let channel = context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)
+    channel.send(`Novo plano de assinatura: ${product} - ${status} - ${name} - ${email}`)
+    
+    await createSubscription(email, null)
+}
+
 module.exports = {
     createSubscription,
     notifySms,
     notifySuccessWithEmail,
     sendEmailBoasVindas,
-    getActiveSubscriptions
+    getActiveSubscriptions,
+    addSubcriptionByEvent
 } 
