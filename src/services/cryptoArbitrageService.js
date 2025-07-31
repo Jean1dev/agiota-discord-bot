@@ -69,7 +69,7 @@ function forceArbitrage(quantities, callback) {
         }
 
         count++;
-    }, 21000);
+    }, 26000);
 }
 
 async function getMediaSpread() {
