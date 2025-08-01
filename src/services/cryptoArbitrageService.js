@@ -1,104 +1,136 @@
 const axios = require('axios');
 const { contextInstance } = require('../context');
-const baseUrl = "https://crypto-svc-eur-0e4c4365b070.herokuapp.com"
-const GROUP_ID = -1002156828677
+
+const URLS = {
+    primary: "https://crypto-svc-eur-0e4c4365b070.herokuapp.com",
+    backup: "https://crypto-svc-e108728a6a2f.herokuapp.com"
+};
+
+let currentUrl = URLS.primary;
+const GROUP_ID = -1002156828677;
+
+async function makeRequest(method, endpoint, data = null, options = {}) {
+    const config = {
+        method,
+        url: `${currentUrl}${endpoint}`,
+        timeout: options.timeout || 10000,
+        ...options
+    };
+
+    if (data) {
+        config.data = data;
+    }
+
+    try {
+        const response = await axios(config);
+        return response;
+    } catch (error) {
+        if (error.response?.status === 503 && currentUrl === URLS.primary) {
+            console.log('Erro 503 detectado, trocando para URL reserva');
+            currentUrl = URLS.backup;
+            return makeRequest(method, endpoint, data, options);
+        }
+        throw error;
+    }
+}
 
 function forceFutureArbitrage() {
-    setTimeout(() => {
-        axios.post(`${baseUrl}/v1/arbitrage/future`)
-            .then(response => {
-                console.log(response.data)
-            })
-            .catch(error => {
-                console.log(error)
-            })
-    }, 5000)
+    setTimeout(async () => {
+        try {
+            const response = await makeRequest('POST', '/v1/arbitrage/future');
+            console.log(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }, 5000);
 }
 
 function forceArbitrage(quantities, callback) {
     let count = 0;
     let lastTreshhold = 0;
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
         if (count >= quantities) {
             clearInterval(interval);
-            callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`)
+            callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`);
             return;
         }
 
         console.log(`Executando arbitragem ${count + 1} de ${quantities}`);
-        axios.post(`${baseUrl}/v1/arbitrage`)
-            .then(response => {
-                const threshold = response.data?.threshold;
-                lastTreshhold = threshold
-                if (threshold) {
-                    callback(`Arbitrage executed successfully. Threshold: ${threshold}`);
-                }
-                forceFutureArbitrage()
-            })
-            .catch(error => {
-                console.log('Error during arbitrage execution:', error.message);
-            });
+        try {
+            const response = await makeRequest('POST', '/v1/arbitrage');
+            const threshold = response.data?.threshold;
+            lastTreshhold = threshold;
+            if (threshold) {
+                callback(`Arbitrage executed successfully. Threshold: ${threshold}`);
+            }
+            forceFutureArbitrage();
+        } catch (error) {
+            console.log('Error during arbitrage execution:', error.message);
+        }
 
         count++;
-    }, 21000);
+    }, 26000);
 }
 
-function getMediaSpread() {
-    axios.get(`${baseUrl}/v1/statistics/avarage-spread`)
-        .then(response =>
-            enviarMensagemTelegram(`A média do spread é de ${response.data.average_spread.toFixed(2)}%`)
-        ).catch(error => console.log('Erro na requisição:', error.message));
+async function getMediaSpread() {
+    try {
+        const response = await makeRequest('GET', '/v1/statistics/avarage-spread');
+        enviarMensagemTelegram(`A média do spread é de ${response.data.average_spread.toFixed(2)}%`);
+    } catch (error) {
+        console.log('Erro na requisição:', error.message);
+    }
 }
 
-function getRankingExchanges() {
-    return axios.get(`${baseUrl}/v1/statistics/ranking`)
-        .then(response => {
-            return response.data
-        }).catch(error => console.log('Erro na requisição:', error.message));
+async function getRankingExchanges() {
+    try {
+        const response = await makeRequest('GET', '/v1/statistics/ranking');
+        return response.data;
+    } catch (error) {
+        console.log('Erro na requisição:', error.message);
+        return null;
+    }
 }
 
-function gerarRankingExchanges() {
-    axios.post(`${baseUrl}/v1/statistics/top3`)
-        .then(() =>
-            console.log('Ranking gerado com sucesso!')
-        ).catch(error => console.log('Erro na requisição:', error.message));
+async function gerarRankingExchanges() {
+    try {
+        await makeRequest('POST', '/v1/statistics/top3');
+        console.log('Ranking gerado com sucesso!');
+    } catch (error) {
+        console.log('Erro na requisição:', error.message);
+    }
 }
 
-function consultar(id) {
-    axios.get(`${baseUrl}/v1/arbitrage/${id}`, {
-        timeout: 2000
-    })
-        .then(response => {
-            const data = response.data;
-            const isFuture = data.type === 'future'
-            const spot = data.operation
-            const future = data.future_operation
+async function consultar(id) {
+    try {
+        const response = await makeRequest('GET', `/v1/arbitrage/${id}`, null, { timeout: 2000 });
+        const data = response.data;
+        const isFuture = data.type === 'future';
+        const spot = data.operation;
+        const future = data.future_operation;
 
-            
-            let message;
-            
-            if (isFuture) {
-                message = `*SPOT x FUTURE*\n` +
-                    `*${future.ticker}*\n\n` +
-                    `*${future.exchange}*\n\n` +
-                    `Strategy: *${future.strategy}*`;
-            } else {
-                message = `*SPOT x SPOT*\n` +
-                    `*${spot.ticker}*\n\n` +
-                    `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
-                    `Networks: *${spot.common_networks.join(', ')}*\n` +
-                    `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
-            }
+        let message;
 
-            enviarMensagemAvisoCrypto(message)
-        })
-        .catch(error => {
-            if (error.code === 'ECONNABORTED') {
-                console.log('A requisição foi abortada por exceder o tempo limite de 4 segundos.');
-            } else {
-                console.log('Erro na requisição:', error.message);
-            }
-        });
+        if (isFuture) {
+            message = `*SPOT x FUTURE*\n` +
+                `*${future.ticker}*\n\n` +
+                `*${future.exchange}*\n\n` +
+                `Strategy: *${future.strategy}*`;
+        } else {
+            message = `*SPOT x SPOT*\n` +
+                `*${spot.ticker}*\n\n` +
+                `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
+                `Networks: *${spot.common_networks.join(', ')}*\n` +
+                `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
+        }
+
+        enviarMensagemAvisoCrypto(message);
+    } catch (error) {
+        if (error.code === 'ECONNABORTED') {
+            console.log('A requisição foi abortada por exceder o tempo limite de 4 segundos.');
+        } else {
+            console.log('Erro na requisição:', error.message);
+        }
+    }
 }
 
 function enviarMensagemDiscord(message) {
