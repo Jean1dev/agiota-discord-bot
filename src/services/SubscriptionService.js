@@ -168,10 +168,36 @@ async function addSubcriptionByEvent(event) {
         status,
     } = event
 
+    await createSubscription(email, null)
     let channel = context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)
     channel.send(`Novo plano de assinatura: ${product} - ${status} - ${name} - ${email}`)
-    
-    await createSubscription(email, null)
+}
+
+async function addProtestByEvent(event) {
+    const {
+        name,
+        email,
+    } = event
+
+    const message = `
+    Olá ${name}, tudo bem?
+
+    Notamos que você cancelou sua assinatura recentemente. Estamos constantemente trabalhando para oferecer o melhor produto do mercado e sua opinião é muito importante para nós.
+
+    Se puder, gostaríamos de saber o que motivou essa decisão e como podemos melhorar. Fique à vontade para responder a este e-mail, caso queira compartilhar sua experiência.
+
+    Agradecemos desde já pelo seu tempo!
+
+    Atenciosamente,
+
+    Equipe Arbitragem Crypto
+    `
+
+    sendEmail({
+        subject: `Assinatura cancelada`,
+        message: message,
+        to: email
+    })
 }
 
 module.exports = {
@@ -180,5 +206,6 @@ module.exports = {
     notifySuccessWithEmail,
     sendEmailBoasVindas,
     getActiveSubscriptions,
-    addSubcriptionByEvent
+    addSubcriptionByEvent,
+    addProtestByEvent
 } 
