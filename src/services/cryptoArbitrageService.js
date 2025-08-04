@@ -37,6 +37,7 @@ async function makeRequest(method, endpoint, data = null, options = {}) {
 function forceFutureArbitrage() {
     setTimeout(async () => {
         try {
+            enviarMensagemTelegram('Buscando oportunidades de arbitragem FUTURE')
             const response = await makeRequest('POST', '/v1/arbitrage/future');
             console.log(response.data);
         } catch (error) {
@@ -55,6 +56,7 @@ function forceArbitrage(quantities, callback) {
             return;
         }
 
+        enviarMensagemTelegram('Buscando oportunidades de arbitragem SPOT')
         console.log(`Executando arbitragem ${count + 1} de ${quantities}`);
         try {
             const response = await makeRequest('POST', '/v1/arbitrage');
@@ -155,10 +157,14 @@ function processAMQPMessage(message) {
     const jsonContent = JSON.parse(message.content.toString());
     const id = jsonContent?.id;
     const alert = jsonContent?.alert;
+    const message = jsonContent?.message;
     if (id) {
         consultar(id)
     } else if (alert) {
         enviarMensagemAvisoCrypto(alert)
+        return
+    } else if (message) {
+        enviarMensagemAvisoCrypto(message)
         return
     }
 }
