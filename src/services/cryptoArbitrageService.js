@@ -153,11 +153,10 @@ function enviarMensagemAvisoCrypto(message) {
     enviarMensagemTelegram(message)
 }
 
-function processAMQPMessage(message) {
+function processAMQPMessage(message, routingKey) {
     const jsonContent = JSON.parse(message.content.toString());
-    const name = jsonContent.name;
 
-    switch (name) {
+    switch (routingKey) {
         case 'NOVA_ARBITRAGEM':
             consultar(jsonContent?.id)
             break

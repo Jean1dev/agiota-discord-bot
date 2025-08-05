@@ -62,7 +62,7 @@ amqp.connect(AMQP_CONNECTION, function (error0, connection) {
 
         channel.consume(queue2, function (msg) {
             console.log(" [x] Received %s", msg.content.toString());
-            cryptoServiceProcessMessage(msg)
+            cryptoServiceProcessMessage(msg, msg.fields.routingKey)
         }, {
             noAck: true
         });
