@@ -155,17 +155,18 @@ function enviarMensagemAvisoCrypto(message) {
 
 function processAMQPMessage(message) {
     const jsonContent = JSON.parse(message.content.toString());
-    const id = jsonContent?.id;
-    const alert = jsonContent?.alert;
-    const message = jsonContent?.message;
-    if (id) {
-        consultar(id)
-    } else if (alert) {
-        enviarMensagemAvisoCrypto(alert)
-        return
-    } else if (message) {
-        enviarMensagemAvisoCrypto(message)
-        return
+    const name = jsonContent.name;
+
+    switch (name) {
+        case 'NOVA_ARBITRAGEM':
+            consultar(jsonContent?.id)
+            break
+        case 'WHALE_ALERT':
+            enviarMensagemAvisoCrypto(jsonContent?.alert)
+            break
+        case 'SIMPLE_MESSAGE':
+            enviarMensagemAvisoCrypto(jsonContent?.message)
+            break
     }
 }
 
