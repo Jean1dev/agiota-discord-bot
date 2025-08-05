@@ -6,7 +6,7 @@ const { CAIXINHA_SERVER_URL, COMMUNICATION_SERVER_URL } = require('../config')
 const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
-const { addSubcriptionByEvent } = require('./SubscriptionService')
+const { addSubcriptionByEvent, addProtestByEvent } = require('./SubscriptionService')
 
 const state = {
     aprovacoes: 0,
@@ -348,6 +348,10 @@ function notificar(message) {
 
             case 'SUBSCRIPTION':
                 addSubcriptionByEvent(jsonMessage.data)
+                break;
+
+            case 'PROTEST':
+                addProtestByEvent(jsonMessage.data)
                 break;
 
             default:
