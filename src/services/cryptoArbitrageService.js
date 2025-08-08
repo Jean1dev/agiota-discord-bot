@@ -53,6 +53,7 @@ function forceArbitrage(quantities, callback) {
         if (count >= quantities) {
             clearInterval(interval);
             callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`);
+            getMediaSpread();
             return;
         }
 
