@@ -54,6 +54,7 @@ function forceArbitrage(quantities, callback) {
             clearInterval(interval);
             callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`);
             getMediaSpread();
+            getHighYieldStatistics();
             return;
         }
 
@@ -73,6 +74,40 @@ function forceArbitrage(quantities, callback) {
 
         count++;
     }, 26000);
+}
+
+async function getHighYieldStatistics() {
+    try {
+        const response = await makeRequest('GET', '/v1/statistics/high-yield-report');
+        processStatisticsResponse(response.data);
+    } catch (error) {
+        console.log('Erro na requisição:', error.message);
+    }
+}
+
+function processStatisticsResponse(data) {
+    const { crypto_stats, top_3_exchanges, total_operations, period } = data;
+    
+    let cryptoMessage = `📊 *Estatísticas por Crypto (${period})*\n\n`;
+    crypto_stats.forEach(stat => {
+        cryptoMessage += `*${stat.ticker}*\n` +
+            `Oportunidades: ${stat.count}\n` +
+            `Spread médio: ${stat.average_spread.toFixed(2)}%\n\n`;
+    });
+    enviarMensagemTelegram(cryptoMessage);
+    
+    let exchangesMessage = `🏆 *Top 3 Exchanges (${period})*\n\n`;
+    top_3_exchanges.forEach((exchange, index) => {
+        exchangesMessage += `${index + 1}. *${exchange.exchange_name}*\n` +
+            `Oportunidades: ${exchange.count}\n\n`;
+    });
+    enviarMensagemTelegram(exchangesMessage);
+    
+    let summaryMessage = `📈 *Resumo Geral (${period})*\n\n` +
+        `Total de operações: *${total_operations}*\n` +
+        `Criptos analisadas: *${crypto_stats.length}*\n` +
+        `Exchanges ativas: *${top_3_exchanges.length}*`;
+    enviarMensagemTelegram(summaryMessage);
 }
 
 async function getMediaSpread() {
@@ -204,5 +239,6 @@ module.exports = {
     gerarRankingExchanges,
     enviarMensagemAvisoCrypto,
     forceArbitrage,
-    rotinaDiariaCrypto
+    rotinaDiariaCrypto,
+    getHighYieldStatistics
 }
