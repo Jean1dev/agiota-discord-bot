@@ -37,7 +37,6 @@ async function makeRequest(method, endpoint, data = null, options = {}) {
 function forceFutureArbitrage() {
     setTimeout(async () => {
         try {
-            enviarMensagemTelegram('Buscando oportunidades de arbitragem FUTURE')
             const response = await makeRequest('POST', '/v1/arbitrage/future');
             console.log(response.data);
         } catch (error) {
@@ -49,6 +48,7 @@ function forceFutureArbitrage() {
 function forceArbitrage(quantities, callback) {
     let count = 0;
     let lastTreshhold = 0;
+    enviarMensagemTelegram('Buscando oportunidades de arbitragem')
     const interval = setInterval(async () => {
         if (count >= quantities) {
             clearInterval(interval);
@@ -58,7 +58,6 @@ function forceArbitrage(quantities, callback) {
             return;
         }
 
-        enviarMensagemTelegram('Buscando oportunidades de arbitragem SPOT')
         console.log(`Executando arbitragem ${count + 1} de ${quantities}`);
         try {
             const response = await makeRequest('POST', '/v1/arbitrage');
@@ -138,29 +137,46 @@ async function gerarRankingExchanges() {
     }
 }
 
+function formatSpotMessage(spot) {
+    return `*SPOT x SPOT*\n` +
+        `*${spot.ticker}*\n\n` +
+        `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
+        `Networks: *${spot.common_networks.join(', ')}*\n` +
+        `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
+}
+
+function formatFutureMessage(future) {
+    return `*SPOT x FUTURE*\n` +
+        `*${future.ticker}*\n\n` +
+        `*${future.exchange}*\n\n` +
+        `Strategy: *${future.strategy}*`;
+}
+
+function formatTopCryptoMessage(topCrypto) {
+    return `*TOP CRYPTO*\n` +
+        `*${topCrypto.crypto}*\n\n` +
+        `*${topCrypto.buy_exchange_name} ➡️ ${topCrypto.sell_exchange_name}*\n\n` +
+        `Preço: *${topCrypto.buy_price} ➡️ ${topCrypto.sell_price}*\n` +
+        `Lucro potencial: *${topCrypto.profit_percent}%*`;
+}
+
+function processArbitrageData(data) {
+    const { type, operation, future_operation, top_crypto_operation } = data;
+    
+    switch (type) {
+        case 'future':
+            return formatFutureMessage(future_operation);
+        case 'top_crypto':
+            return formatTopCryptoMessage(top_crypto_operation);
+        default:
+            return formatSpotMessage(operation);
+    }
+}
+
 async function consultar(id) {
     try {
         const response = await makeRequest('GET', `/v1/arbitrage/${id}`, null, { timeout: 2000 });
-        const data = response.data;
-        const isFuture = data.type === 'future';
-        const spot = data.operation;
-        const future = data.future_operation;
-
-        let message;
-
-        if (isFuture) {
-            message = `*SPOT x FUTURE*\n` +
-                `*${future.ticker}*\n\n` +
-                `*${future.exchange}*\n\n` +
-                `Strategy: *${future.strategy}*`;
-        } else {
-            message = `*SPOT x SPOT*\n` +
-                `*${spot.ticker}*\n\n` +
-                `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
-                `Networks: *${spot.common_networks.join(', ')}*\n` +
-                `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
-        }
-
+        const message = processArbitrageData(response.data);
         enviarMensagemAvisoCrypto(message);
     } catch (error) {
         if (error.code === 'ECONNABORTED') {
