@@ -37,7 +37,6 @@ async function makeRequest(method, endpoint, data = null, options = {}) {
 function forceFutureArbitrage() {
     setTimeout(async () => {
         try {
-            enviarMensagemTelegram('Buscando oportunidades de arbitragem FUTURE')
             const response = await makeRequest('POST', '/v1/arbitrage/future');
             console.log(response.data);
         } catch (error) {
@@ -49,15 +48,16 @@ function forceFutureArbitrage() {
 function forceArbitrage(quantities, callback) {
     let count = 0;
     let lastTreshhold = 0;
+    enviarMensagemTelegram('Buscando oportunidades de arbitragem')
     const interval = setInterval(async () => {
         if (count >= quantities) {
             clearInterval(interval);
             callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`);
             getMediaSpread();
+            getHighYieldStatistics();
             return;
         }
 
-        enviarMensagemTelegram('Buscando oportunidades de arbitragem SPOT')
         console.log(`Executando arbitragem ${count + 1} de ${quantities}`);
         try {
             const response = await makeRequest('POST', '/v1/arbitrage');
@@ -73,6 +73,40 @@ function forceArbitrage(quantities, callback) {
 
         count++;
     }, 26000);
+}
+
+async function getHighYieldStatistics() {
+    try {
+        const response = await makeRequest('GET', '/v1/statistics/high-yield-report');
+        processStatisticsResponse(response.data);
+    } catch (error) {
+        console.log('Erro na requisição:', error.message);
+    }
+}
+
+function processStatisticsResponse(data) {
+    const { crypto_stats, top_3_exchanges, total_operations, period } = data;
+    
+    let cryptoMessage = `📊 *Estatísticas por Crypto (${period})*\n\n`;
+    crypto_stats.forEach(stat => {
+        cryptoMessage += `*${stat.ticker}*\n` +
+            `Oportunidades: ${stat.count}\n` +
+            `Spread médio: ${stat.average_spread.toFixed(2)}%\n\n`;
+    });
+    enviarMensagemTelegram(cryptoMessage);
+    
+    let exchangesMessage = `🏆 *Top 3 Exchanges (${period})*\n\n`;
+    top_3_exchanges.forEach((exchange, index) => {
+        exchangesMessage += `${index + 1}. *${exchange.exchange_name}*\n` +
+            `Oportunidades: ${exchange.count}\n\n`;
+    });
+    enviarMensagemTelegram(exchangesMessage);
+    
+    let summaryMessage = `📈 *Resumo Geral (${period})*\n\n` +
+        `Total de operações: *${total_operations}*\n` +
+        `Criptos analisadas: *${crypto_stats.length}*\n` +
+        `Exchanges ativas: *${top_3_exchanges.length}*`;
+    enviarMensagemTelegram(summaryMessage);
 }
 
 async function getMediaSpread() {
@@ -103,29 +137,46 @@ async function gerarRankingExchanges() {
     }
 }
 
+function formatSpotMessage(spot) {
+    return `*SPOT x SPOT*\n` +
+        `*${spot.ticker}*\n\n` +
+        `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
+        `Networks: *${spot.common_networks.join(', ')}*\n` +
+        `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
+}
+
+function formatFutureMessage(future) {
+    return `*SPOT x FUTURE*\n` +
+        `*${future.ticker}*\n\n` +
+        `*${future.exchange}*\n\n` +
+        `Strategy: *${future.strategy}*`;
+}
+
+function formatTopCryptoMessage(topCrypto) {
+    return `*TOP CRYPTO*\n` +
+        `*${topCrypto.crypto}*\n\n` +
+        `*${topCrypto.buy_exchange_name} ➡️ ${topCrypto.sell_exchange_name}*\n\n` +
+        `Preço: *${topCrypto.buy_price} ➡️ ${topCrypto.sell_price}*\n` +
+        `Lucro potencial: *${topCrypto.profit_percent}%*`;
+}
+
+function processArbitrageData(data) {
+    const { type, operation, future_operation, top_crypto_operation } = data;
+    
+    switch (type) {
+        case 'future':
+            return formatFutureMessage(future_operation);
+        case 'top_crypto':
+            return formatTopCryptoMessage(top_crypto_operation);
+        default:
+            return formatSpotMessage(operation);
+    }
+}
+
 async function consultar(id) {
     try {
         const response = await makeRequest('GET', `/v1/arbitrage/${id}`, null, { timeout: 2000 });
-        const data = response.data;
-        const isFuture = data.type === 'future';
-        const spot = data.operation;
-        const future = data.future_operation;
-
-        let message;
-
-        if (isFuture) {
-            message = `*SPOT x FUTURE*\n` +
-                `*${future.ticker}*\n\n` +
-                `*${future.exchange}*\n\n` +
-                `Strategy: *${future.strategy}*`;
-        } else {
-            message = `*SPOT x SPOT*\n` +
-                `*${spot.ticker}*\n\n` +
-                `*${spot.best_buy_exchange_name} ➡️ ${spot.best_sell_exchange_name}*\n\n` +
-                `Networks: *${spot.common_networks.join(', ')}*\n` +
-                `Lucro potencial: *${spot.profit_percent_ask_bid}%*`;
-        }
-
+        const message = processArbitrageData(response.data);
         enviarMensagemAvisoCrypto(message);
     } catch (error) {
         if (error.code === 'ECONNABORTED') {
@@ -204,5 +255,6 @@ module.exports = {
     gerarRankingExchanges,
     enviarMensagemAvisoCrypto,
     forceArbitrage,
-    rotinaDiariaCrypto
+    rotinaDiariaCrypto,
+    getHighYieldStatistics
 }
