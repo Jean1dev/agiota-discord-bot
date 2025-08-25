@@ -18,6 +18,7 @@ class Context {
   jogoAberto = false
   jogo
   totalGastoCartao = 0
+  autoArbitragem = true
 
   constructor() {
     this.dividas = []
@@ -27,6 +28,11 @@ class Context {
 
   setClient(client) {
     this.client = client
+  }
+
+  changeAutoArbitragem() {
+    this.autoArbitragem = !this.autoArbitragem
+    this.save()
   }
 
   emitEvent(eventName, payload) {
@@ -40,6 +46,7 @@ class Context {
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
       this.totalGastoCartao = data?.totalGastoCartao || 0
+      this.autoArbitragem = data?.autoArbitragem || true
       //TODO:: refatorar o inicio disso no futuro
       appEvents.emit('update-state-jogo-bixo', null)
 
@@ -53,7 +60,8 @@ class Context {
       dividas: this.dividas,
       jogoAberto: this.jogoAberto,
       jogo: this.jogo,
-      totalGastoCartao: this.totalGastoCartao
+      totalGastoCartao: this.totalGastoCartao,
+      autoArbitragem: this.autoArbitragem
     })
   }
 }

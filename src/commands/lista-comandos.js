@@ -23,6 +23,7 @@ const {
   updateGastosCartaoHandler,
   ultimoEmprestimoInfoHandler,
   arbitragemHandler,
+  changeAutoArbitragemHandler,
   assinaturasAtivasHandler,
   restartHandler
 } = require('../handlers')
@@ -58,5 +59,6 @@ registrarComando('ad', airDropHandler, 'Faz um airdrop de SOL para os usuarios :
 registrarComando('card', updateGastosCartaoHandler, 'Atualiza os gastos do cartao de credito :: args @valor', true)
 registrarComando('up', ultimoEmprestimoInfoHandler, 'Mostra o ultimo emprestimo solicitado')
 registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem em exchanges :: args @quantidade_execucoes', true)
+registrarComando('auto-arb', changeAutoArbitragemHandler, 'Altera o status da auto arbitragem (apenas JEAN)')
 registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')

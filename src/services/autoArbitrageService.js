@@ -1,5 +1,5 @@
-const { DISABLE_AUTO_ARBITRAGE } = require("../config");
 const { asyncArbitrage } = require("./cryptoArbitrageService");
+const context = require("../context").contextInstance;
 
 const state = {
     isRunning: false,
@@ -34,7 +34,7 @@ async function execute(count) {
 }
 
 function startAutoArbitrage() {
-    if (DISABLE_AUTO_ARBITRAGE && DISABLE_AUTO_ARBITRAGE === 'true') {
+    if (!context().autoArbitragem) {
         return;
     }
 
