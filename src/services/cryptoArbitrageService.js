@@ -45,6 +45,11 @@ function forceFutureArbitrage() {
     }, 5000);
 }
 
+async function asyncArbitrage() {
+    await makeRequest('POST', '/v1/arbitrage');
+    forceFutureArbitrage();
+}
+
 function forceArbitrage(quantities, callback) {
     let count = 0;
     let lastTreshhold = 0;
@@ -256,5 +261,6 @@ module.exports = {
     enviarMensagemAvisoCrypto,
     forceArbitrage,
     rotinaDiariaCrypto,
-    getHighYieldStatistics
+    getHighYieldStatistics,
+    asyncArbitrage
 }

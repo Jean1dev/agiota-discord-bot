@@ -21,6 +21,7 @@ const { broadcastDiscord } = require('./broadcast-discord')
 const UploadService = require('./UploadService')
 const runQuizTask = require('./quiz')
 const gastosCartao = require('./GastosCartaoService')
+const { startAutoArbitrage } = require('./autoArbitrageService')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -42,5 +43,6 @@ module.exports = {
     UploadService,
     runQuizTask,
     gastosCartao,
-    rotinaDiariaCrypto
+    rotinaDiariaCrypto,
+    startAutoArbitrage
 }

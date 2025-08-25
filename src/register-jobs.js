@@ -11,7 +11,8 @@ const {
     exibirRankingNoChat,
     myDailyBudgetService, 
     runQuizTask,
-    rotinaDiariaCrypto
+    rotinaDiariaCrypto,
+    startAutoArbitrage
 } = require('./services')
 
 function limparCanais() {
@@ -35,6 +36,11 @@ function procedimentosDaMadruga() {
     rotinaDiariaCrypto()
 }
 
+function procedimentosDeHoraEmHora() {
+    startAutoArbitrage()
+    salvarDadosAnalise()
+}
+
 function salvarDadosAnalise() {
     const registros = getRegistros()
     if (!registros.length)
@@ -45,7 +51,7 @@ function salvarDadosAnalise() {
 
 function registerJobs() {
     // “At minute 0.”
-    schedule('0 * * * *', salvarDadosAnalise)
+    schedule('0 * * * *', procedimentosDeHoraEmHora)
 
     // “At 23:10.”
     schedule('10 23 * * *', procedimentosDaMadruga)
