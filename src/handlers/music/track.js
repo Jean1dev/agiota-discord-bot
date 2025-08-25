@@ -1,4 +1,3 @@
-const { getInfo } = require('ytdl-core')
 const { createAudioResource, demuxProbe } = require('@discordjs/voice')
 const { exec } = require('youtube-dl-exec')
 
@@ -21,7 +20,11 @@ class Track {
                     output: '-',
                     quiet: true,
                     format: 'best[ext=opus]/best',
-                    //limitRate: '100K',
+                    noWarnings: true,
+                    noCallHome: true,
+                    addHeader: [
+                        'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    ]
                 },
                 { stdio: ['ignore', 'pipe', 'ignore'] },
             );
@@ -47,7 +50,43 @@ class Track {
     }
 
     static async from(url, methods) {
-        const info = await getInfo(url);
+        let info;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+            try {
+                const ytInfo = await exec(url, {
+                    dumpSingleJson: true,
+                    noWarnings: true,
+                    noCallHome: true,
+                    preferFreeFormats: true,
+                    addHeader: [
+                        'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    ]
+                }, { stdio: ['ignore', 'pipe', 'ignore'] });
+                
+                const ytInfoStr = ytInfo.stdout.toString();
+                const ytInfoData = JSON.parse(ytInfoStr);
+                
+                info = {
+                    videoDetails: {
+                        title: ytInfoData.title || 'Unknown Title'
+                    }
+                };
+                break;
+            } catch (error) {
+                retryCount++;
+                console.warn(`youtube-dl-exec attempt ${retryCount} failed:`, error.message);
+                
+                if (retryCount >= maxRetries) {
+                    console.error('youtube-dl-exec failed after all retries:', error.message);
+                    throw new Error('Failed to get video information. Please try again later.');
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                }
+            }
+        }
 
         const wrappedMethods = {
             onStart() {

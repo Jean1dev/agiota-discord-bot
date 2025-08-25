@@ -44,7 +44,6 @@
     "tweetnacl": "^1.0.3",
     "web3-client-lib": "^0.0.4",
     "youtube-dl-exec": "^3.0.19",
-    "ytdl-core": "npm:@distube/ytdl-core@^4.16.10",
     "zod": "^3.25.36",
     "zod-to-json-schema": "^3.24.5"
   },
