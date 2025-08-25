@@ -67,7 +67,19 @@ async function playSong(url, subscription, interaction, subscriptions) {
         await interaction.followUp(`Enqueued **${track.title}**`);
     } catch (error) {
         console.warn(error);
-        await interaction.followUp('Failed to play track, please try again later!');
+        let errorMessage = 'Failed to play track, please try again later!';
+        
+        if (error.message.includes('Sign in to confirm you\'re not a bot')) {
+            errorMessage = 'YouTube is temporarily blocking requests. Please try again in a few minutes.';
+        } else if (error.message.includes('Video unavailable')) {
+            errorMessage = 'This video is unavailable or private.';
+        } else if (error.message.includes('Video is private')) {
+            errorMessage = 'This video is private and cannot be played.';
+        } else if (error.message.includes('Video is age restricted')) {
+            errorMessage = 'This video is age restricted and cannot be played.';
+        }
+        
+        await interaction.followUp(errorMessage);
     }
 }
 
