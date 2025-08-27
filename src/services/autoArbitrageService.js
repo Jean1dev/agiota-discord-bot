@@ -3,7 +3,7 @@ const context = require("../context").contextInstance;
 
 const state = {
     isRunning: false,
-    REQUEST_INTERVAL: 26000,
+    REQUEST_INTERVAL: 50000,
     quantities: 10,
 }
 
