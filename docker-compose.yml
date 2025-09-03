@@ -5,6 +5,7 @@ services:
     ports:
       - "27017:27017"
     container_name: mongodb_bot_local
+    network_mode: bridge
 
   rabbit:
     container_name: amqp_bot
@@ -17,3 +18,4 @@ services:
     ports:
       - 15672:15672
       - 5672:5672
+    network_mode: bridge

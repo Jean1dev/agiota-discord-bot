@@ -22,6 +22,7 @@ const UploadService = require('./UploadService')
 const runQuizTask = require('./quiz')
 const gastosCartao = require('./GastosCartaoService')
 const organizzeService = require('./OrganizzeService')
+const transactionCategorizationService = require('./TransactionCategorizationService')
 const { startAutoArbitrage } = require('./autoArbitrageService')
 
 module.exports = {
@@ -45,6 +46,7 @@ module.exports = {
     runQuizTask,
     gastosCartao,
     organizzeService,
+    transactionCategorizationService,
     rotinaDiariaCrypto,
     startAutoArbitrage
 }
