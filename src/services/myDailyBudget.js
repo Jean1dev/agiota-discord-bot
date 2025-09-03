@@ -7,10 +7,13 @@ const sendEmail = require('./EmailService')
 const criarPDFRetornarCaminho = require('./GerarPDF')
 const upload = require('./UploadService')
 const gastosCartao = require('./GastosCartaoService')
+const organizzeService = require('./OrganizzeService')
+const { categorizarTransacao } = require('./TransactionCategorizationService')
 
 const state = {
     budget: null,
-    transactions: []
+    transactions: [],
+    categories: []
 }
 
 const collectionName = 'my_daily_budget'
@@ -19,11 +22,51 @@ const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
 const dailyBudgetGain = 152
 const weekendBudgetGain = 655
 
+async function fillCategoriesIfNecessary() {
+    if (state.categories.length === 0) {
+        const categories = await organizzeService.getExpensesCategories()
+        state.categories = categories
+    }
+}
+
+async function categorizar(transactionData) {
+    await fillCategoriesIfNecessary()
+    const descriptionCategories = state.categories.map(category => category.name)
+    const result = await categorizarTransacao(descriptionCategories, transactionData.description)
+    console.log('result categorizar', result)
+    return result
+}
+
+async function createTransaction(transactionData, categorieDescription) {
+    const categorieId = state.categories.find(category => category.name === categorieDescription).id
+    const amountCents = transactionData.money * 100
+    await organizzeService.createTransaction({
+        description: transactionData.description.trim(),
+        notes: "Criado pelo bot",
+        category_id: categorieId,
+        amount_cents: amountCents
+    })
+}
+
+async function categorizarTodos(dados) {
+    const dadosCategorizados = await Promise.all(dados.map(async (transactionData) => {
+        const categorieDescription = await categorizar(transactionData)
+        await createTransaction(transactionData, categorieDescription.categoria)
+        return { ...transactionData, categorieDescription }
+    }))
+    return dadosCategorizados
+}
+
 async function gerarReportDosGastosDoUltimoFinalDeSemana() {
     const dados = await gastosDoUltimoFimDeSemana()
-    const itemsParaImprimir = dados.map(item => `${formatDate(item.date)} R$ ${item.money} -- ${item.description}`)
+    const dadosCategorizados = await categorizarTodos(dados)
+
+    const itemsParaImprimir = dadosCategorizados.map(item => 
+        `${formatDate(item.date)} R$ ${item.money} -- ${item.description} -- ${item.categorieDescription.categoria}`)
     itemsParaImprimir.push(`Total: R$${dados.map(it => it.money).reduce((sum, value) => sum + value, 0).toFixed(2)}`)
+
     const caminho = criarPDFRetornarCaminho(itemsParaImprimir, 'Relatorio de gastos do ultimo final de semana')
+
     await sleep(1000)
     const uploaded = await upload(caminho)
     if (uploaded) {

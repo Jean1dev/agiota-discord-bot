@@ -1,5 +1,5 @@
 const context = require('../context').contextInstance
-const LIMIT = 8300
+const LIMIT = 8400
 
 function atualizarTotalGasto(valor) {
     setTimeout(() => {

@@ -173,13 +173,8 @@ async function addSubcriptionByEvent(event) {
     channel.send(`Novo plano de assinatura: ${product} - ${status} - ${name} - ${email}`)
 }
 
-async function addProtestByEvent(event) {
-    const {
-        name,
-        email,
-    } = event
-
-    const message = `
+function getCancellationEmailTemplate(name) {
+    return `
     Olá ${name}, tudo bem?
 
     Notamos que você cancelou sua assinatura recentemente. Estamos constantemente trabalhando para oferecer o melhor produto do mercado e sua opinião é muito importante para nós.
@@ -192,12 +187,50 @@ async function addProtestByEvent(event) {
 
     Equipe Arbitragem Crypto
     `
+}
 
+async function cancelSubscription(email) {
+    const token = await getKeycloakToken()
+    const config = {
+        method: 'post',
+        url: `https://o-auth-managment-server-6d5834301f7a.herokuapp.com/plano/reembolso?email=${encodeURIComponent(email)}`,
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }
+
+    await axios.request(config)
+    console.log(`Assinatura cancelada com sucesso para: ${email}`)
+}
+
+function sendCancellationEmail(name, email) {
+    const message = getCancellationEmailTemplate(name)
+    
     sendEmail({
         subject: `Assinatura cancelada`,
         message: message,
         to: email
     })
+}
+
+function notifyDiscordCancellation(name, email) {
+    const channel = context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)
+    if (channel) {
+        channel.send(`🚫 Protesto registrado e assinatura cancelada para: ${name} (${email})`)
+    }
+}
+
+async function addProtestByEvent(event) {
+    const { name, email } = event
+
+    try {
+        sendCancellationEmail(name, email)
+        await cancelSubscription(email)
+        notifyDiscordCancellation(name, email)
+    } catch (error) {
+        console.error(`Erro ao cancelar assinatura para ${email}:`, error.message)
+        captureException(error)
+    }
 }
 
 module.exports = {

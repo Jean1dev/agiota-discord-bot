@@ -8,7 +8,7 @@ const { requireAdmin } = require("../guard-handler")
 function displayAs3Ultimas(result, message) {
     const last3 = result.slice(-3)
     last3.forEach((element) => {
-        message.reply(element)
+        message.author.send(element)
     })
 }
 
