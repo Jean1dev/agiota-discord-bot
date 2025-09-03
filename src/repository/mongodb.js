@@ -32,7 +32,8 @@ async function getDataFromMongo() {
     dividas: data[0]['dividas'],
     jogoAberto: data[0]['jogoAberto'],
     jogo: data[0]['jogo'],
-    totalGastoCartao: data[0]['totalGastoCartao']
+    totalGastoCartao: data[0]['totalGastoCartao'],
+    autoArbitragem: data[0]['autoArbitragem']
   }
 }
 
