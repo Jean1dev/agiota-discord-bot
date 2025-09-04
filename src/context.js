@@ -46,8 +46,9 @@ class Context {
       this.jogoAberto = data?.jogoAberto
       this.jogo = data?.jogo
       this.totalGastoCartao = data?.totalGastoCartao || 0
-      this.autoArbitragem = data?.autoArbitragem || true
+      this.autoArbitragem = data.autoArbitragem
       //TODO:: refatorar o inicio disso no futuro
+
       appEvents.emit('update-state-jogo-bixo', null)
 
     } catch (error) {
