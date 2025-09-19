@@ -10,6 +10,8 @@ let currentUrl = URLS.primary;
 const GROUP_ID = -1002156828677;
 
 async function makeRequest(method, endpoint, data = null, options = {}) {
+    console.log(method, ' . . ', `${currentUrl}${endpoint}`)
+    
     const config = {
         method,
         url: `${currentUrl}${endpoint}`,
