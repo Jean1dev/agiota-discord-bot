@@ -1,6 +1,7 @@
 const axios = require('axios')
 const FormData = require('form-data')
 const fs = require('fs')
+const captureException = require('../observability/Sentry')
 
 async function upload(filePath) {
     const storageServiceUrl = 'https://storage-manager-svc.herokuapp.com/v1/s3'
@@ -25,11 +26,10 @@ async function upload(filePath) {
 
     try {
         const response = await axios.request(options)
-        console.log('upload feito', response.data)
 
         return response.data
     } catch (error) {
-        console.log(error)
+        captureException(error)
         return null
     }
 }
