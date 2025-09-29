@@ -59,8 +59,8 @@ function registerJobs() {
     // “At 08:35 on Monday.”
     schedule('35 8 * * 1', exibirRankingNoChat)
 
-    // “At 10:15 on Monday.”
-    schedule('15 10 * * 1', myDailyBudgetService.gerarReportDosGastosDoUltimoFinalDeSemana)
+    // “At 11:15 on Monday.”
+    schedule('15 11 * * 1', myDailyBudgetService.gerarReportDosGastosDoUltimoFinalDeSemana)
 
     // “At 22:05.”
     schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
