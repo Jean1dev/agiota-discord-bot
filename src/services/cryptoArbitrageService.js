@@ -55,7 +55,7 @@ async function asyncArbitrage() {
 function forceArbitrage(quantities, callback) {
     let count = 0;
     let lastTreshhold = 0;
-    enviarMensagemTelegram('Buscando oportunidades de arbitragem')
+    
     const interval = setInterval(async () => {
         if (count >= quantities) {
             clearInterval(interval);
