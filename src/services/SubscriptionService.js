@@ -10,6 +10,7 @@ const sendEmail = require('./EmailService')
 const captureException = require('../observability/Sentry')
 const context = require('../context').contextInstance
 const { LIXO_CHANNEL } = require('../discord-constants')
+const { startAutomateAfterNewSubscription } = require('./autoArbitrageService')
 
 async function getKeycloakToken() {
     const data = qs.stringify({
@@ -171,6 +172,9 @@ async function addSubcriptionByEvent(event) {
     await createSubscription(email, null)
     let channel = context().client.channels.cache.find(channel => channel.name === LIXO_CHANNEL)
     channel.send(`Novo plano de assinatura: ${product} - ${status} - ${name} - ${email}`)
+    
+    startAutomateAfterNewSubscription();
+    channel.send('Iniciando arbitragem após nova assinatura')
 }
 
 function getCancellationEmailTemplate(name) {
