@@ -1,4 +1,4 @@
-const { asyncArbitrage } = require("./cryptoArbitrageService");
+const { asyncArbitrage, forceArbitrage } = require("./cryptoArbitrageService");
 const context = require("../context").contextInstance;
 
 const state = {
@@ -33,6 +33,16 @@ async function execute(count) {
     }, state.REQUEST_INTERVAL);
 }
 
+function startAutomateAfterNewSubscription() {
+    if (!context().autoArbitragem) {
+        return;
+    }
+
+    forceArbitrage(155, (message) => {
+        console.log(message);
+    });
+}
+
 function startAutoArbitrage() {
     if (!context().autoArbitragem) {
         return;
@@ -45,5 +55,6 @@ function startAutoArbitrage() {
 }
 
 module.exports = {
-    startAutoArbitrage
+    startAutoArbitrage,
+    startAutomateAfterNewSubscription
 }
