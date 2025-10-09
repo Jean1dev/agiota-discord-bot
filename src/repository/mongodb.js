@@ -25,7 +25,7 @@ async function getDataFromMongo() {
       dividas: [],
       jogoAberto: false,
       jogo: null,
-      autoArbitragem: true
+      autoArbitragem: false
     }
   }
 
