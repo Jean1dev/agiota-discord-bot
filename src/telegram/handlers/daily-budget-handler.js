@@ -56,7 +56,8 @@ function registerDailyBudgetHandlers(bot) {
             `*Informações*
 • [Documentação](https://docs.arbitragem-crypto.cloud/introduction)
 • [Site](https://market.arbitragem-crypto.cloud/)
-• [Plataforma](https://arbitragem-crypto.cloud/)`
+• [Plataforma](https://arbitragem-crypto.cloud/)
+• [Comunidade](https://comunidade.arbitragem-crypto.cloud/)`
         )
     })
 
