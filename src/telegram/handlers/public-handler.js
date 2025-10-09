@@ -1,6 +1,8 @@
-const { enviarMensagemParaMim } = require('../utils/telegram-utils')
+const { enviarMensagemParaMim, enviarMensagemParaUsuario } = require('../utils/telegram-utils')
 const { DbInstance } = require('../../repository/mongodb')
-const { getSubscriptionByEmail } = require('../../services/SubscriptionService')
+const { getSubscriptionByEmail } = require('../../services/SubscriptionValidator')
+const { Markup } = require('telegraf')
+const { KEYBOARDS } = require('../config/telegram-config')
 
 const usersCache = new Map()
 const userStates = new Map()
@@ -105,6 +107,29 @@ async function updateUserSubscription(userId, email, vigenteAte, isActive) {
     )
 
     updateCachedUser(userId, { email, vigenteAte, isActive })
+}
+
+async function clearUserEmail(userId) {
+    const collection = getTelegramUsersCollection()
+    if (!collection) return
+
+    await collection.updateOne(
+        { userId },
+        { 
+            $set: { 
+                email: null,
+                vigenteAte: null,
+                isActive: false,
+                lastUpdate: new Date()
+            }
+        }
+    )
+
+    updateCachedUser(userId, { 
+        email: null, 
+        vigenteAte: null, 
+        isActive: false 
+    })
 }
 
 function isValidEmail(email) {
@@ -237,7 +262,10 @@ function userHasSubscription(user) {
 
 async function handleCompletedState(ctx, user, userData) {
     const message = formatUserInfoMessage(user, userData.userName, userData.userId)
-    await ctx.reply(message)
+    await ctx.reply(
+        message,
+        Markup.keyboard(KEYBOARDS.publicUser.keyboard).resize()
+    )
 }
 
 async function handleInitialState(ctx, userData) {
@@ -337,6 +365,63 @@ async function handleUserMessage(ctx) {
     }
 }
 
+async function findUserByEmail(email) {
+    const normalizedEmail = email.toLowerCase()
+    
+    for (const [userId, user] of usersCache.entries()) {
+        if (user.email && user.email.toLowerCase() === normalizedEmail) {
+            return user
+        }
+    }
+    
+    const collection = getTelegramUsersCollection()
+    if (!collection) return null
+    
+    const userFromDb = await collection.findOne({ 
+        email: normalizedEmail
+    })
+    
+    if (userFromDb) {
+        usersCache.set(userFromDb.userId, userFromDb)
+    }
+    
+    return userFromDb
+}
+
+function hasActiveSubscription(user) {
+    return user && user.isActive === true
+}
+
+async function enviarAlertaParaUsuario(content) {
+    const { email, message } = content
+    
+    if (!email || !message) {
+        console.error('[Telegram] Email ou mensagem não fornecidos')
+        return
+    }
+
+    const user = await findUserByEmail(email)
+    
+    if (!user) {
+        console.log(`[Telegram] Usuário com email ${email} não encontrado`)
+        return
+    }
+
+    if (!hasActiveSubscription(user)) {
+        console.log(`[Telegram] Usuário ${email} não possui assinatura ativa`)
+        return
+    }
+
+    try {
+        await enviarMensagemParaUsuario(user.userId, message)
+        console.log(`[Telegram] Alerta enviado com sucesso para ${email} (userId: ${user.userId})`)
+        return { success: true, userId: user.userId }
+    } catch (error) {
+        console.error(`[Telegram] Erro ao enviar alerta para ${email}:`, error.message)
+        throw error
+    }
+}
+
 function registerPublicHandlers(bot) {
     bot.start(async ctx => {
         await ctx.reply('Olá! Bem-vindo ao bot de arbitragem.\n\nPor favor, envie qualquer mensagem para começar.')
@@ -346,10 +431,60 @@ function registerPublicHandlers(bot) {
         await ctx.reply('Para começar, envie uma mensagem e informe seu email de cadastro.')
     })
 
+    bot.hears('📊 Ver minha assinatura', async ctx => {
+        const userId = ctx.from.id
+        const user = await findUserInDatabase(userId)
+
+        if (!user || !userHasSubscription(user)) {
+            await ctx.reply('Você ainda não possui uma assinatura cadastrada.')
+            return
+        }
+
+        const vigenciaDate = new Date(user.vigenteAte)
+        const statusMessage = getSubscriptionStatusMessage(vigenciaDate)
+        
+        const message = [
+            '📊 Status da Assinatura\n',
+            `📧 Email: ${user.email}`,
+            `📅 Vigência: ${vigenciaDate.toLocaleDateString('pt-BR')}`,
+            `${statusMessage}`
+        ].join('\n')
+
+        await ctx.reply(message)
+    })
+
+    bot.hears('✉️ Alterar email', async ctx => {
+        const userId = ctx.from.id
+        const userName = ctx.from.first_name
+
+        await clearUserEmail(userId)
+        setUserState(userId, STATES.INITIAL)
+
+        await ctx.reply(
+            `${userName}, seu email foi removido.\n\n` +
+            `Vamos recadastrar! Por favor, envie seu novo email de cadastro:`,
+            Markup.removeKeyboard()
+        )
+    })
+
+    bot.hears('ℹ️ Ajuda', async ctx => {
+        const helpMessage = [
+            'ℹ️ Ajuda do Bot\n',
+            '📊 Ver minha assinatura - Exibe informações da sua assinatura',
+            '✉️ Alterar email - Permite trocar o email cadastrado',
+            'ℹ️ Ajuda - Mostra esta mensagem',
+            '',
+            'Para suporte, entre em contato com o administrador.'
+        ].join('\n')
+
+        await ctx.reply(helpMessage)
+    })
+
     bot.on('message', handleUserMessage)
 }
 
 module.exports = {
     registerPublicHandlers,
-    getUserFromCache
+    getUserFromCache,
+    enviarAlertaParaUsuario
 }

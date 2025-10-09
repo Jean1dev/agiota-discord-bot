@@ -63,5 +63,5 @@ bot.launch()
 
 module.exports = {
     enviarMensagemParaMim,
-    enviarMensagemHTML
+    enviarMensagemHTML,
 }

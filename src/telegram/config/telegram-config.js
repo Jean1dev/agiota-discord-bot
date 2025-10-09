@@ -10,6 +10,14 @@ const KEYBOARDS = {
             ['batch'],
         ],
         resize_keyboard: true
+    },
+    publicUser: {
+        keyboard: [
+            ['📊 Ver minha assinatura'],
+            ['✉️ Alterar email'],
+            ['ℹ️ Ajuda'],
+        ],
+        resize_keyboard: true
     }
 }
 

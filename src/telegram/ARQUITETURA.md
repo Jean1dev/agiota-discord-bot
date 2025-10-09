@@ -140,6 +140,10 @@
 - Exibe informações da assinatura
 - Mostra status (ativa/expirada)
 - Dias restantes ou mensagem de expiração
+- **Teclado Interativo:**
+  - 📊 Ver minha assinatura
+  - ✉️ Alterar email
+  - ℹ️ Ajuda
 
 **Sistema de Cache:**
 - Cache em memória usando `Map` nativo
@@ -492,7 +496,12 @@ Mensagem → Router → isAuthorizedUser()?
 ### Estados do Public Handler:
 1. **INITIAL:** Primeira interação, solicita email
 2. **WAITING_EMAIL:** Aguardando email, valida e busca assinatura
-3. **COMPLETED:** Email vinculado, exibe informações
+3. **COMPLETED:** Email vinculado, exibe informações + teclado interativo
+
+### Funcionalidades do Teclado (Estado COMPLETED):
+- **📊 Ver assinatura:** Consulta status atual
+- **✉️ Alterar email:** Remove email atual → volta para INITIAL → solicita novo email
+- **ℹ️ Ajuda:** Exibe informações sobre comandos
 
 ### Características:
 - ✅ Modular e escalável

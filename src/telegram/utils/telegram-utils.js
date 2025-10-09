@@ -18,10 +18,18 @@ function isAuthorizedUser(chatId) {
     return chatId === AUTHORIZED_CHAT_ID
 }
 
+function enviarMensagemParaUsuario(userId, message) {
+    return telegram.sendMessage(String(userId), message)
+        .catch(error => {
+            console.error(`[Telegram] Erro ao enviar mensagem para userId ${userId}:`, error.message)
+        })
+}
+
 module.exports = {
     telegram,
     enviarMensagemParaMim,
     enviarMensagemHTML,
+    enviarMensagemParaUsuario,
     isAuthorizedUser
 }
 
