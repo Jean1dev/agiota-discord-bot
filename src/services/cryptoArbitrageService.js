@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { contextInstance } = require('../context');
+const { enviarAlertaParaUsuario } = require('../telegram/handlers/public-handler');
 
 const URLS = {
     primary: "https://crypto-svc-eur-0e4c4365b070.herokuapp.com",
@@ -224,6 +225,9 @@ function processAMQPMessage(message, routingKey) {
             break
         case 'SIMPLE_MESSAGE':
             enviarMensagemAvisoCrypto(jsonContent?.message)
+            break
+        case 'ALERT_TELEGRAM_PRIVATE_USER':
+            enviarAlertaParaUsuario(jsonContent?.content)
             break
     }
 }

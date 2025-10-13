@@ -18,7 +18,7 @@ class Context {
   jogoAberto = false
   jogo
   totalGastoCartao = 0
-  autoArbitragem = true
+  autoArbitragem = false
 
   constructor() {
     this.dividas = []
