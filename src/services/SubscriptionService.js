@@ -4,6 +4,7 @@ const sendEmail = require('./EmailService')
 const captureException = require('../observability/Sentry')
 const context = require('../context').contextInstance
 const { LIXO_CHANNEL } = require('../discord-constants')
+const { COMMUNICATION_SERVER_URL } = require('../config')
 const { startAutomateAfterNewSubscription } = require('./autoArbitrageService')
 
 async function createSubscriptionPlan(email, token) {
