@@ -34,7 +34,7 @@ async function execute(count) {
 }
 
 function startAutomateAfterNewSubscription() {
-    if (!context().autoArbitragem) {
+    if (context().autoArbitragem) {
         return;
     }
 
