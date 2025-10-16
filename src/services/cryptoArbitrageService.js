@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { contextInstance } = require('../context');
 const { enviarAlertaParaUsuario } = require('../telegram/handlers/public-handler');
+const sendEmail = require('./EmailService');
 
 const URLS = {
     primary: "https://crypto-svc-eur-0e4c4365b070.herokuapp.com",
@@ -228,6 +229,17 @@ function processAMQPMessage(message, routingKey) {
             break
         case 'ALERT_TELEGRAM_PRIVATE_USER':
             enviarAlertaParaUsuario(jsonContent?.content)
+            break
+        case 'ALERT_EMAIL_PRIVATE_USER':
+            const { email, message } = jsonContent?.content
+            sendEmail({
+                to: email,
+                subject: 'Alerta de arbitragem',
+                message: message
+            })
+            break
+        case 'ALERT_SMS_PRIVATE_USER':
+            console.log(jsonContent?.content)
             break
     }
 }
