@@ -7,6 +7,23 @@ const { LIXO_CHANNEL } = require('../discord-constants')
 const { COMMUNICATION_SERVER_URL } = require('../config')
 const { startAutomateAfterNewSubscription } = require('./autoArbitrageService')
 
+async function migrateCollections(token) {
+    const config = {
+        method: 'post',
+        url: 'https://o-auth-managment-server-6d5834301f7a.herokuapp.com/migration/user-confirmations',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    }
+
+    const { data } = await axios.request(config)
+    return {
+        message: data.message,
+        total: data.migratedDocuments
+    }
+}
+
 async function createSubscriptionPlan(email, token) {
     const config = {
         method: 'post',
@@ -220,5 +237,6 @@ module.exports = {
     sendEmailBoasVindas,
     getActiveSubscriptions,
     addSubcriptionByEvent,
-    addProtestByEvent
+    addProtestByEvent,
+    migrateCollections
 } 

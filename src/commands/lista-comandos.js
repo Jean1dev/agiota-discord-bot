@@ -25,7 +25,8 @@ const {
   arbitragemHandler,
   changeAutoArbitragemHandler,
   assinaturasAtivasHandler,
-  restartHandler
+  restartHandler,
+  dbCleanHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -62,3 +63,4 @@ registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem
 registrarComando('auto-arb', changeAutoArbitragemHandler, 'Altera o status da auto arbitragem (apenas JEAN)')
 registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')
+registrarComando('db-clean', dbCleanHandler, 'Executa migração de coleções e limpa o banco crypto2 (apenas JEAN)')
