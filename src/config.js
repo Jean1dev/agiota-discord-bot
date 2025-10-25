@@ -30,4 +30,6 @@ module.exports = {
   ADMIN_KC_CLIENT_ID: process.env.ADMIN_KEYCLOACK_CLIENT_ID,
 
   CLOUD_CONVERT_API: process.env.CLOUD_CONVERT_API,
+
+  CRYPTO_SERVICE_DB: process.env.CRYPTO_SERVICE_DB
 }
