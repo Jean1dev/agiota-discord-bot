@@ -19,7 +19,7 @@ const state = {
 const collectionName = 'my_daily_budget'
 const collectionTransactionName = 'transactions_per_day'
 const FECHAMENTO_COMPETENCIA_COLLECTION = 'fechamento_competencia'
-const dailyBudgetGain = 152
+const dailyBudgetGain = 162
 const weekendBudgetGain = 655
 
 async function fillCategoriesIfNecessary() {

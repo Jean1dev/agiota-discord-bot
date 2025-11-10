@@ -4,7 +4,7 @@ const axios = require('axios')
 const captureException = require('../../observability/Sentry')
 
 function buscarDividasNaCaixinha(message) {
-  const url = `${CAIXINHA_SERVER_URL}/report-dividas-pendentes?code=Q47dylJAkJc3xSGB2RNiBkLzLms-lhvWFbyRE4qrlCriAzFuN_CxsA==&clientId=default`
+  const url = `${CAIXINHA_SERVER_URL}/report-dividas-pendentes?code=ZE1oGnOPHdf4QtEvPpILx97EPHvdjmpw9wbE9P4bvmr6AzFuIbaQtQ==`
   axios.default.get(url)
     .then(({ data }) => {
       data.forEach(item => {
