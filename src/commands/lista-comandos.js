@@ -26,7 +26,8 @@ const {
   changeAutoArbitragemHandler,
   assinaturasAtivasHandler,
   restartHandler,
-  dbCleanHandler
+  dbCleanHandler,
+  meconecteiHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -64,3 +65,4 @@ registrarComando('auto-arb', changeAutoArbitragemHandler, 'Altera o status da au
 registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')
 registrarComando('db-clean', dbCleanHandler, 'Executa migração de coleções e limpa o banco crypto2 (apenas JEAN)')
+registrarComando('meconectei', meconecteiHandler, 'Cria conta de admin no me-conectei :: args @email', true)
