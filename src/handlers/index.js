@@ -24,6 +24,7 @@ const changeAutoArbitragemHandler = require('./b3/change-auto-arbitragem')
 const assinaturasAtivasHandler = require('./assinaturas/assinaturas-ativas')
 const restartHandler = require('./restart')
 const dbCleanHandler = require('./admin/db-clean')
+const meconecteiHandler = require('./admin/meconectei')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -51,5 +52,6 @@ module.exports = {
   changeAutoArbitragemHandler,
   assinaturasAtivasHandler,
   restartHandler,
-  dbCleanHandler
+  dbCleanHandler,
+  meconecteiHandler
 }

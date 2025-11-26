@@ -27,8 +27,13 @@ async function handle(message) {
         const collections = await db.listCollections().toArray()
         message.reply(`📋 Encontradas ${collections.length} coleções no banco crypto2`)
         
+        const whitelist = new Set(['releases'])
+        
         for (const collection of collections) {
             const collectionName = collection.name
+            if (whitelist.has(collectionName)) {
+                continue
+            }
             await db.collection(collectionName).drop()
         }
         
