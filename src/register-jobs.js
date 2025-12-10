@@ -57,7 +57,7 @@ function registerJobs() {
     schedule('10 23 * * *', procedimentosDaMadruga)
 
     // “At 08:35 on Monday.”
-    schedule('35 8 * * 1', exibirRankingNoChat)
+    //schedule('35 8 * * 1', exibirRankingNoChat)
 
     // “At 11:15 on Monday.”
     schedule('15 11 * * 1', myDailyBudgetService.gerarReportDosGastosDoUltimoFinalDeSemana)
@@ -65,8 +65,8 @@ function registerJobs() {
     // “At 22:05.”
     schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
     
-    //“At minute 2 past every 3rd hour from 9 through 19 on every day-of-week from Monday through Thursday.”
-    schedule('2 9-19/3 * * 1-4', runQuizTask)
+    //“At minute 2 past every 3rd hour from 9 through 19 on every day-of-week from Monday through Wednesday.”
+    schedule('2 9-19/3 * * 1-3', runQuizTask)
 }
 
 module.exports = registerJobs
