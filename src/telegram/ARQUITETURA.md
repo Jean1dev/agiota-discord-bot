@@ -83,6 +83,7 @@
 - `TELEGRAM_API_KEY`: Token do bot
 - `AUTHORIZED_CHAT_ID`: ID do usuário autorizado (512142034)
 - `KEYBOARDS`: Definições de teclados customizados
+- `SUBSCRIPTION_PURCHASE_URL`: URL para compra/renovação de assinatura
 
 ### 3. `utils/telegram-utils.js`
 **Responsabilidade:** Funções utilitárias compartilhadas
@@ -137,6 +138,11 @@
   - Mantém no estado WAITING_EMAIL para retry
 
 **Estado COMPLETED:**
+- **Verificação Automática de Expiração:**
+  - Quando usuário interage, verifica se vigência está expirada
+  - Se expirada: consulta API Keycloak para verificar se assinatura foi renovada
+  - Se renovada: atualiza dados no MongoDB e cache, exibe informações atualizadas
+  - Se não renovada: informa link para compra/renovação
 - Exibe informações da assinatura
 - Mostra status (ativa/expirada)
 - Dias restantes ou mensagem de expiração
@@ -186,8 +192,13 @@
      * Informa erro
      * Mantém estado WAITING_EMAIL
 
-3. Mensagens subsequentes:
-   - Se já tem email cadastrado:
+3. Mensagens subsequentes (Estado COMPLETED):
+   - Verifica se vigência está expirada
+   - Se expirada:
+     * Consulta API Keycloak para verificar renovação
+     * Se renovada: atualiza MongoDB/cache e exibe informações atualizadas
+     * Se não renovada: informa link para compra/renovação
+   - Se ativa:
      * Exibe informações da assinatura
      * Status atualizado (ativa/expirada/expirando)
 ```
@@ -255,47 +266,47 @@ Limpa estados
     ┌───────────┴───────────┐
     │ SIM                   │ NÃO
     ↓                       ↓
-┌──────────────┐   ┌─────────────────────┐
-│ Exibe status │   │ Estado: INITIAL     │
-│ da assinatura│   │ - Salva no MongoDB  │
-│ - Email      │   │ - Notifica admin    │
-│ - Vigência   │   │ - Solicita email    │
-│ - Dias rest. │   │ - Estado→WAITING    │
-└──────────────┘   └──────────┬──────────┘
-                               ↓
-                    ┌────────────────────┐
-                    │ Usuário envia email│
-                    └──────────┬─────────┘
-                               ↓
-                    ┌──────────────────┐
-                    │ Valida email     │
-                    └──────┬───────────┘
-                           │
-                    ┌──────┴───────┐
-                    │ Válido?      │
-                    └──┬───────┬───┘
-                  SIM  │       │  NÃO
-                       ↓       ↓
-          ┌─────────────┐  ┌──────────┐
-          │ Busca API   │  │ Tenta    │
-          │ Keycloak    │  │ novamente│
-          └──────┬──────┘  └──────────┘
-                 │
-          ┌──────┴────────┐
-          │ Encontrou?    │
-          └──┬─────────┬──┘
-        SIM  │         │  NÃO
-             ↓         ↓
-    ┌────────────┐  ┌──────────┐
-    │ Salva DB:  │  │ Informa  │
-    │ - email    │  │ erro     │
-    │ - vigência │  │ - Retry  │
-    │ Exibe:     │  └──────────┘
-    │ - Status   │
-    │ - Dias     │
-    │ Estado→    │
-    │ COMPLETED  │
-    └────────────┘
+┌──────────────────┐   ┌─────────────────────┐
+│ Verifica vigência│   │ Estado: INITIAL     │
+│ expirada?        │   │ - Salva no MongoDB  │
+└────────┬─────────┘   │ - Notifica admin    │
+         │             │ - Solicita email    │
+    ┌────┴─────┐       │ - Estado→WAITING    │
+    │ SIM      │ NÃO   └──────────┬──────────┘
+    ↓          ↓                  ↓
+┌───────────┐  ┌──────────────┐   ┌────────────────────┐
+│ Busca API │  │ Exibe status │   │ Usuário envia email│
+│ Keycloak  │  │ da assinatura│   └──────────┬─────────┘
+└─────┬─────┘  │ - Email      │              ↓
+      │        │ - Vigência   │   ┌──────────────────┐
+  ┌───┴────┐   │ - Dias rest. │   │ Valida email     │
+  │        │   └──────────────┘   └──────┬───────────┘
+SIM│        │NÃO                         │
+  ↓        ↓                    ┌──────┴───────┐
+┌──────────┐  ┌──────────────┐  │ Válido?      │
+│ Atualiza │  │ Informa link │  └──┬───────┬───┘
+│ MongoDB  │  │ para compra  │ SIM │       │  NÃO
+│ e cache  │  └──────────────┘     ↓       ↓
+│ Exibe    │            ┌─────────────┐  ┌──────────┐
+│ status   │            │ Busca API   │  │ Tenta    │
+│ atualizado│           │ Keycloak    │  │ novamente│
+└──────────┘            └──────┬──────┘  └──────────┘
+                               │
+                        ┌──────┴────────┐
+                        │ Encontrou?    │
+                        └──┬─────────┬──┘
+                      SIM  │         │  NÃO
+                           ↓         ↓
+                  ┌────────────┐  ┌──────────┐
+                  │ Salva DB:  │  │ Informa  │
+                  │ - email    │  │ erro     │
+                  │ - vigência │  │ - Retry  │
+                  │ Exibe:     │  └──────────┘
+                  │ - Status   │
+                  │ - Dias     │
+                  │ Estado→    │
+                  │ COMPLETED  │
+                  └────────────┘
 ```
 
 ## Estrutura de Dados MongoDB
@@ -468,13 +479,14 @@ db.getCollection('telegram-users').find({}).sort({ lastInteraction: -1 }).limit(
 |------------|--------|-----------|
 | **Router (index.js)** | ✅ Completo | Roteamento entre authorized e public |
 | **Daily Budget Handler** | ✅ Completo | Funcionalidade preservada |
-| **Public Handler** | ✅ Completo | State machine + Validação de assinatura |
-| **Config** | ✅ Completo | AUTHORIZED_CHAT_ID configurado |
+| **Public Handler** | ✅ Completo | State machine + Validação de assinatura + Verificação de expiração |
+| **Config** | ✅ Completo | AUTHORIZED_CHAT_ID e SUBSCRIPTION_PURCHASE_URL configurados |
 | **Utils** | ✅ Completo | Funções compartilhadas |
 | **MongoDB Integration** | ✅ Completo | Collection telegram-users com email/vigência |
 | **Cache System** | ✅ Completo | Map em memória com API |
-| **Keycloak Integration** | ✅ Completo | Busca de assinaturas por email |
+| **Keycloak Integration** | ✅ Completo | Busca de assinaturas por email + Verificação de renovação |
 | **State Machine** | ✅ Completo | INITIAL → WAITING_EMAIL → COMPLETED |
+| **Expiration Check** | ✅ Completo | Verificação automática de assinaturas expiradas |
 | **Documentação** | ✅ Completo | Arquitetura completa documentada |
 
 ## Resumo da Arquitetura
@@ -490,7 +502,11 @@ Mensagem → Router → isAuthorizedUser()?
                     └─ NÃO → Public Handler → State Machine
                                            ├─ INITIAL: Solicita email
                                            ├─ WAITING_EMAIL: Valida + Busca API
-                                           └─ COMPLETED: Exibe status
+                                           └─ COMPLETED: Verifica expiração
+                                                         ├─ Expirada: Busca API
+                                                         │            ├─ Renovada: Atualiza + Exibe
+                                                         │            └─ Não renovada: Link compra
+                                                         └─ Ativa: Exibe status
 ```
 
 ### Estados do Public Handler:
@@ -512,4 +528,7 @@ Mensagem → Router → isAuthorizedUser()?
 - ✅ Validação de assinaturas
 - ✅ Integração com Keycloak
 - ✅ State machine para controle de fluxo
+- ✅ Verificação automática de assinaturas expiradas
+- ✅ Atualização automática quando assinatura é renovada
+- ✅ Link para compra/renovação quando assinatura expirada
 - ✅ Fácil manutenção
