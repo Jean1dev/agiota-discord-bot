@@ -21,9 +21,12 @@ const KEYBOARDS = {
     }
 }
 
+const SUBSCRIPTION_PURCHASE_URL = 'https://market.arbitragem-crypto.cloud/'
+
 module.exports = {
     TELEGRAM_API_KEY,
     AUTHORIZED_CHAT_ID,
-    KEYBOARDS
+    KEYBOARDS,
+    SUBSCRIPTION_PURCHASE_URL
 }
 

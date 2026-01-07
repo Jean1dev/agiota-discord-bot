@@ -13,7 +13,7 @@
   "author": "@jean",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.9.0",
+    "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.16.1",
     "@ffmpeg-installer/ffmpeg": "^1.0.13",
     "@langchain/core": "^0.3.57",
@@ -23,7 +23,7 @@
     "@sentry/tracing": "^6.19.7",
     "amqplib": "^0.10.3",
     "audioconcat": "^0.1.4",
-    "axios": "^1.6.8",
+    "axios": "^1.7.9",
     "cloudconvert": "^2.3.7",
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
@@ -49,5 +49,12 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "overrides": {
+    "form-data": "^4.0.5",
+    "cookie": "^0.7.2",
+    "cloudconvert": {
+      "axios": "^1.7.9"
+    }
   }
 }

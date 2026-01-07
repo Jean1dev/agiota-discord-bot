@@ -17,6 +17,8 @@ module.exports = {
 
   COMMUNICATION_SERVER_URL: 'https://communication-service-4f4f57e0a956.herokuapp.com',
 
+  SUBSCRIPTION_SERVER_URL: 'https://o-auth-managment-server-6d5834301f7a.herokuapp.com',
+
   AMQP_CONNECTION: process.env.AMQP_CONNECTION,
   
   FINANCE_API_AUTH: process.env.FINANCE_API_AUTH,

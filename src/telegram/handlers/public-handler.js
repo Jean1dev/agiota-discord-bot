@@ -1,8 +1,8 @@
 const { enviarMensagemParaMim, enviarMensagemParaUsuario } = require('../utils/telegram-utils')
 const { DbInstance } = require('../../repository/mongodb')
-const { getSubscriptionByEmail } = require('../../services/SubscriptionValidator')
+const { getSubscriptionByEmailAllTenants } = require('../../services/SubscriptionValidator')
 const { Markup } = require('telegraf')
-const { KEYBOARDS } = require('../config/telegram-config')
+const { KEYBOARDS, SUBSCRIPTION_PURCHASE_URL } = require('../config/telegram-config')
 
 const usersCache = new Map()
 const userStates = new Map()
@@ -218,6 +218,22 @@ function formatSubscriptionNotFoundMessage(email) {
     ].join('\n')
 }
 
+function formatExpiredSubscriptionMessage(purchaseUrl) {
+    return [
+        `❌ Sua assinatura está expirada.\n`,
+        `Para renovar ou adquirir uma nova assinatura, acesse:\n`,
+        `${purchaseUrl}\n\n`,
+        `Após a compra, envie uma mensagem novamente para atualizar seu status.`
+    ].join('\n')
+}
+
+function formatApiErrorMessage() {
+    return [
+        `⚠️ Não foi possível verificar o status da sua assinatura no momento.\n`,
+        `Por favor, tente novamente em alguns instantes.`
+    ].join('\n')
+}
+
 function formatNewUserNotification(userName, username, userId, messageText) {
     return [
         `Novo usuário acessou:`,
@@ -260,7 +276,63 @@ function userHasSubscription(user) {
     return user.email && user.vigenteAte
 }
 
+async function checkAndUpdateExpiredSubscription(user) {
+    if (!user.email || !user.vigenteAte) {
+        return { updated: false, hasError: false, subscription: null }
+    }
+
+    const vigenciaDate = new Date(user.vigenteAte)
+    if (!isSubscriptionExpired(vigenciaDate)) {
+        return { updated: false, hasError: false, subscription: null }
+    }
+
+    const subscription = await getSubscriptionByEmailAllTenants(user.email)
+    
+    if (subscription.error) {
+        return { updated: false, hasError: true, subscription: null }
+    }
+    
+    if (subscription.found) {
+        const newVigenciaDate = new Date(subscription.vigenteAte)
+        if (newVigenciaDate > vigenciaDate) {
+            await updateUserSubscription(
+                user.userId,
+                subscription.email,
+                subscription.vigenteAte,
+                subscription.isActive
+            )
+            return { updated: true, hasError: false, subscription }
+        }
+    }
+
+    return { updated: false, hasError: false, subscription: null }
+}
+
 async function handleCompletedState(ctx, user, userData) {
+    const expiredCheck = await checkAndUpdateExpiredSubscription(user)
+    
+    if (expiredCheck.updated) {
+        const updatedUser = await findUserInDatabase(userData.userId)
+        const message = formatUserInfoMessage(updatedUser, userData.userName, userData.userId)
+        await ctx.reply(
+            message,
+            Markup.keyboard(KEYBOARDS.publicUser.keyboard).resize()
+        )
+        return
+    }
+
+    if (expiredCheck.hasError) {
+        const errorMessage = formatApiErrorMessage()
+        await ctx.reply(errorMessage)
+        return
+    }
+
+    if (isSubscriptionExpired(new Date(user.vigenteAte))) {
+        const expiredMessage = formatExpiredSubscriptionMessage(SUBSCRIPTION_PURCHASE_URL)
+        await ctx.reply(expiredMessage)
+        return
+    }
+
     const message = formatUserInfoMessage(user, userData.userName, userData.userId)
     await ctx.reply(
         message,
@@ -286,7 +358,7 @@ async function handleInitialState(ctx, userData) {
 async function processValidEmail(ctx, email, userData) {
     await ctx.reply('🔍 Buscando sua assinatura...')
 
-    const subscription = await getSubscriptionByEmail(email)
+    const subscription = await getSubscriptionByEmailAllTenants(email)
 
     if (subscription.found) {
         await handleSubscriptionFound(ctx, subscription, userData)
@@ -440,7 +512,38 @@ function registerPublicHandlers(bot) {
             return
         }
 
+        const expiredCheck = await checkAndUpdateExpiredSubscription(user)
+        
+        if (expiredCheck.updated) {
+            const updatedUser = await findUserInDatabase(userId)
+            const vigenciaDate = new Date(updatedUser.vigenteAte)
+            const statusMessage = getSubscriptionStatusMessage(vigenciaDate)
+            
+            const message = [
+                '📊 Status da Assinatura\n',
+                `📧 Email: ${updatedUser.email}`,
+                `📅 Vigência: ${vigenciaDate.toLocaleDateString('pt-BR')}`,
+                `${statusMessage}`
+            ].join('\n')
+
+            await ctx.reply(message)
+            return
+        }
+
+        if (expiredCheck.hasError) {
+            const errorMessage = formatApiErrorMessage()
+            await ctx.reply(errorMessage)
+            return
+        }
+
         const vigenciaDate = new Date(user.vigenteAte)
+        
+        if (isSubscriptionExpired(vigenciaDate)) {
+            const expiredMessage = formatExpiredSubscriptionMessage(SUBSCRIPTION_PURCHASE_URL)
+            await ctx.reply(expiredMessage)
+            return
+        }
+
         const statusMessage = getSubscriptionStatusMessage(vigenciaDate)
         
         const message = [
@@ -462,7 +565,7 @@ function registerPublicHandlers(bot) {
 
         await ctx.reply(
             `${userName}, seu email foi removido.\n\n` +
-            `Vamos recadastrar! Por favor, envie seu novo email de cadastro:`,
+            `Vamos recadastrar! Por favor, envie qualquer mensagem para começar:`,
             Markup.removeKeyboard()
         )
     })
