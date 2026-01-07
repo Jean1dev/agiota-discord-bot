@@ -1,6 +1,6 @@
 const { enviarMensagemParaMim, enviarMensagemParaUsuario } = require('../utils/telegram-utils')
 const { DbInstance } = require('../../repository/mongodb')
-const { getSubscriptionByEmail } = require('../../services/SubscriptionValidator')
+const { getSubscriptionByEmailAllTenants } = require('../../services/SubscriptionValidator')
 const { Markup } = require('telegraf')
 const { KEYBOARDS, SUBSCRIPTION_PURCHASE_URL } = require('../config/telegram-config')
 
@@ -286,7 +286,7 @@ async function checkAndUpdateExpiredSubscription(user) {
         return { updated: false, hasError: false, subscription: null }
     }
 
-    const subscription = await getSubscriptionByEmail(user.email)
+    const subscription = await getSubscriptionByEmailAllTenants(user.email)
     
     if (subscription.error) {
         return { updated: false, hasError: true, subscription: null }
@@ -358,7 +358,7 @@ async function handleInitialState(ctx, userData) {
 async function processValidEmail(ctx, email, userData) {
     await ctx.reply('🔍 Buscando sua assinatura...')
 
-    const subscription = await getSubscriptionByEmail(email)
+    const subscription = await getSubscriptionByEmailAllTenants(email)
 
     if (subscription.found) {
         await handleSubscriptionFound(ctx, subscription, userData)
