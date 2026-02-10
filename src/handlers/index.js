@@ -25,6 +25,8 @@ const assinaturasAtivasHandler = require('./assinaturas/assinaturas-ativas')
 const restartHandler = require('./restart')
 const dbCleanHandler = require('./admin/db-clean')
 const meconecteiHandler = require('./admin/meconectei')
+const configWhatsAppHandler = require('./whatsapp/config-whatsapp')
+const clearWhatsAppHandler = require('./whatsapp/clear-whatsapp')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -53,5 +55,7 @@ module.exports = {
   assinaturasAtivasHandler,
   restartHandler,
   dbCleanHandler,
-  meconecteiHandler
+  meconecteiHandler,
+  configWhatsAppHandler,
+  clearWhatsAppHandler
 }
