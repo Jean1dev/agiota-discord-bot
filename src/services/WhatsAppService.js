@@ -1,5 +1,6 @@
 const QRCode = require('qrcode')
 const { readDoc, writeDoc, hasStoredAuth, clearSession } = require('./whatsapp/mongoAuthStore')
+const { handle: handlePlanFlow } = require('./whatsapp/planFlowHandler')
 const { MessageAttachment } = require('discord.js')
 
 let sock = null
@@ -90,13 +91,10 @@ async function startSocket(options = {}) {
 
   sock.ev.on('messages.upsert', async ({ messages }) => {
     for (const m of messages) {
-      if (m.key.fromMe) continue
-      const jid = m.key.remoteJid
-      if (!jid) continue
       try {
-        await sock.sendMessage(jid, { text: 'Hello World' })
+        await handlePlanFlow(sock, m)
       } catch (e) {
-        console.error('WhatsApp send error', e)
+        console.error('WhatsApp planFlow error', e)
       }
     }
   })
@@ -153,26 +151,31 @@ async function startPairing(discordChannel) {
   })
   sock.ev.on('messages.upsert', async ({ messages }) => {
     for (const m of messages) {
-      if (m.key.fromMe) continue
-      const jid = m.key.remoteJid
-      if (!jid) continue
       try {
-        await sock.sendMessage(jid, { text: 'Hello World' })
+        await handlePlanFlow(sock, m)
       } catch (e) {
-        console.error('WhatsApp send error', e)
+        console.error('WhatsApp planFlow error', e)
       }
     }
   })
 }
 
 async function init() {
-  const hasAuth = await hasStoredAuth()
-  if (hasAuth) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     try {
+      const hasAuth = await hasStoredAuth()
+      if (!hasAuth) return
       await startSocket()
       console.log('WhatsApp socket iniciado com credenciais salvas')
+      return
     } catch (e) {
+      const isMongoNotReady = e?.message === 'MongoDB not connected'
+      if (isMongoNotReady && attempt === 0) {
+        await new Promise(r => setTimeout(r, 2000))
+        continue
+      }
       console.error('Erro ao iniciar WhatsApp com credenciais salvas', e)
+      return
     }
   }
 }

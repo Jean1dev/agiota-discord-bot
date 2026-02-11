@@ -26,7 +26,8 @@ async function writeDoc(update) {
 
 async function hasStoredAuth() {
   const doc = await readDoc()
-  return !!(doc?.creds?.registered)
+  if (!doc?.creds) return false
+  return doc.creds.registered === true || !!doc.creds.me
 }
 
 async function clearSession() {

@@ -33,5 +33,7 @@ module.exports = {
 
   CLOUD_CONVERT_API: process.env.CLOUD_CONVERT_API,
 
-  CRYPTO_SERVICE_DB: process.env.CRYPTO_SERVICE_DB
+  CRYPTO_SERVICE_DB: process.env.CRYPTO_SERVICE_DB,
+
+  ME_CONECTEI_API_URL: process.env.ME_CONECTEI_API_URL
 }
