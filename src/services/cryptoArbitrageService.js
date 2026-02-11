@@ -81,7 +81,7 @@ function forceArbitrage(quantities, callback) {
         }
 
         count++;
-    }, 26000);
+    }, 28000);
 }
 
 async function getHighYieldStatistics() {

@@ -100,7 +100,7 @@ async function getInfoUltimoEmprestimo(username) {
 }
 
 function enviarAprovacao(caixinhaId, emprestimoUid) {
-    const url = `${CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=i-x47HUNDu2D5ovECdpSpjFxyXPhm49JmDcIlRdUoFN_AzFu40M8tQ==`
+    const url = `${CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=ZE1oGnOPHdf4QtEvPpILx97EPHvdjmpw9wbE9P4bvmr6AzFuIbaQtQ==`
     axios.default.post(url, {
         caixinhaId,
         emprestimoUid

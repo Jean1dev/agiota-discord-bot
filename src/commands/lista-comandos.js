@@ -27,7 +27,10 @@ const {
   assinaturasAtivasHandler,
   restartHandler,
   dbCleanHandler,
-  meconecteiHandler
+  meconecteiHandler,
+  configWhatsAppHandler,
+  clearWhatsAppHandler,
+  testWhatsAppHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -66,3 +69,6 @@ registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativa
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')
 registrarComando('db-clean', dbCleanHandler, 'Executa migração de coleções e limpa o banco crypto2 (apenas JEAN)')
 registrarComando('meconectei', meconecteiHandler, 'Cria conta de admin no me-conectei :: args @email', true)
+registrarComando('zap-config', configWhatsAppHandler, 'Inicia vinculação do WhatsApp (QR code no chat)')
+registrarComando('zap-clear', clearWhatsAppHandler, 'Remove sessão do WhatsApp (use após 401 para vincular de novo)')
+registrarComando('zap-test', testWhatsAppHandler, 'Envia mensagem de teste para  (testa conexão WhatsApp)')

@@ -12,8 +12,8 @@ async function connect() {
     DbInstance = client.db(DATABASE)
     console.log('mongo connected')
   } catch (error) {
-    captureException(reject)
-    throw reject
+    captureException(error)
+    throw error
   }
 }
 

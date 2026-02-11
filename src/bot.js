@@ -11,6 +11,7 @@ const { registrarEntradaTexto, listarAsUltimasFeatures, myDailyBudgetService } =
 const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
 const { connect } = require('./repository/mongodb')
 const { CHAT_GERAL } = require('./discord-constants')
+const { init: initWhatsApp } = require('./services/WhatsAppService')
 
 const client = new Client({
   partials: ["CHANNEL"],
@@ -44,6 +45,7 @@ function avisarQueEstaOnline() {
 
 client.on('ready', async () => {
   await connect()
+  initWhatsApp().catch(e => console.error('WhatsApp init', e))
   avisarQueEstaOnline()
 
   const context = createContext()

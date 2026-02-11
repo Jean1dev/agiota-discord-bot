@@ -1,0 +1,199 @@
+const QRCode = require('qrcode')
+const { readDoc, writeDoc, hasStoredAuth, clearSession } = require('./whatsapp/mongoAuthStore')
+const { handle: handlePlanFlow } = require('./whatsapp/planFlowHandler')
+const { MessageAttachment } = require('discord.js')
+
+let sock = null
+let pairingResolver = null
+
+async function useMongoDBAuthState(baileys) {
+  const { BufferJSON, initAuthCreds, proto } = baileys
+  const doc = await readDoc()
+  const creds = doc?.creds ? JSON.parse(JSON.stringify(doc.creds), BufferJSON.reviver) : initAuthCreds()
+  const keysStore = doc?.keys ? JSON.parse(JSON.stringify(doc.keys), BufferJSON.reviver) : {}
+
+  const keys = {
+    get: async (type, ids) => {
+      const data = {}
+      const category = keysStore[type] || {}
+      for (const id of ids) {
+        let value = category[id]
+        if (type === 'app-state-sync-key' && value) {
+          value = proto.Message.AppStateSyncKeyData.fromObject(value)
+        }
+        data[id] = value || undefined
+      }
+      return data
+    },
+    set: async (data) => {
+      for (const category in data) {
+        if (!keysStore[category]) keysStore[category] = {}
+        for (const id in data[category]) {
+          const value = data[category][id]
+          keysStore[category][id] = value || undefined
+          if (!value) delete keysStore[category][id]
+        }
+      }
+      const keysSerialized = JSON.parse(JSON.stringify(keysStore, BufferJSON.replacer))
+      await writeDoc({ keys: keysSerialized })
+    }
+  }
+
+  const saveCreds = async () => {
+    const credsJson = JSON.parse(JSON.stringify(creds, BufferJSON.replacer))
+    await writeDoc({ creds: credsJson })
+  }
+
+  return { state: { creds, keys }, saveCreds }
+}
+
+function registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOptions = {} }) {
+  const { DisconnectReason } = baileys
+  sock.ev.on('creds.update', saveCreds)
+  sock.ev.on('connection.update', async (update) => {
+    const { connection, qr } = update
+    if (qr && onQr) {
+      try {
+        await onQr(qr)
+      } catch (e) {
+        console.error('WhatsApp onQr error', e)
+      }
+    }
+    if (connection === 'open') {
+      onOpen && await onOpen()
+    }
+    if (connection === 'close') {
+      const statusCode = update.lastDisconnect?.error?.output?.statusCode
+      const isLoggedOut = statusCode === DisconnectReason?.loggedOut
+      if (isLoggedOut) {
+        sock = null
+        clearSession().catch(e => console.error('WhatsApp clearSession', e))
+      } else {
+        startSocket(socketOptions)
+      }
+    }
+  })
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+    for (const m of messages) {
+      try {
+        await handlePlanFlow(sock, m)
+      } catch (e) {
+        console.error('WhatsApp planFlow error', e)
+      }
+    }
+  })
+}
+
+async function startSocket(options = {}) {
+  const baileys = await import('@whiskeysockets/baileys')
+  const { makeWASocket } = baileys
+  const { state, saveCreds } = await useMongoDBAuthState(baileys)
+
+  const socketConfig = {
+    auth: state,
+    printQRInTerminal: true,
+    fireInitQueries: false,
+    ...options
+  }
+  sock = makeWASocket(socketConfig)
+
+  const onQr = options.onQr || (async (qr) => {
+    if (pairingResolver) {
+      try {
+        const qrBuffer = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
+        pairingResolver({ type: 'qr', buffer: qrBuffer })
+      } catch (e) {
+        pairingResolver({ type: 'error', error: e })
+      }
+    }
+  })
+  const onOpen = options.onOpen || (async () => {
+    pairingResolver && pairingResolver({ type: 'connected' })
+    pairingResolver = null
+  })
+
+  registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOptions: options })
+  return sock
+}
+
+async function startPairing(discordChannel) {
+  if (sock) {
+    await discordChannel.send('WhatsApp já está conectado.')
+    return
+  }
+  pairingResolver = null
+  const baileys = await import('@whiskeysockets/baileys')
+  const doc = await readDoc()
+  if (doc?.creds?.registered) {
+    await discordChannel.send('Já existem credenciais salvas. Iniciando conexão...')
+    await startSocket()
+    await discordChannel.send('Conexão WhatsApp restaurada.')
+    return
+  }
+  await discordChannel.send('Gerando QR code para vincular o WhatsApp. Escaneie com o app.')
+  const { makeWASocket } = baileys
+  const { state, saveCreds } = await useMongoDBAuthState(baileys)
+  sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: true,
+    fireInitQueries: false
+  })
+  const onQr = async (qr) => {
+    try {
+      const qrBuffer = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
+      const attachment = new MessageAttachment(qrBuffer, 'whatsapp-qr.png')
+      await discordChannel.send({ files: [attachment] })
+    } catch (e) {
+      await discordChannel.send('Erro ao gerar QR: ' + e.message).catch(() => {})
+    }
+  }
+  const onOpen = async () => {
+    await discordChannel.send('WhatsApp vinculado com sucesso. Conexão ativa.')
+  }
+  registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOptions: {} })
+}
+
+async function init() {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const hasAuth = await hasStoredAuth()
+      if (!hasAuth) return
+      await startSocket()
+      console.log('WhatsApp socket iniciado com credenciais salvas')
+      return
+    } catch (e) {
+      const isMongoNotReady = e?.message === 'MongoDB not connected'
+      if (isMongoNotReady && attempt === 0) {
+        await new Promise(r => setTimeout(r, 2000))
+        continue
+      }
+      console.error('Erro ao iniciar WhatsApp com credenciais salvas', e)
+      return
+    }
+  }
+}
+
+async function clearAndDisconnect() {
+  sock = null
+  return clearSession()
+}
+
+const TEST_PHONE_JID = '5548988685343@s.whatsapp.net'
+
+async function sendTestMessage() {
+  if (!sock) return { ok: false, error: 'WhatsApp não está conectado.' }
+  try {
+    await sock.sendMessage(TEST_PHONE_JID, { text: 'Teste de conexão WhatsApp - bot OK.' })
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e.message || String(e) }
+  }
+}
+
+module.exports = {
+  startPairing,
+  init,
+  hasStoredAuth,
+  clearAndDisconnect,
+  sendTestMessage
+}
