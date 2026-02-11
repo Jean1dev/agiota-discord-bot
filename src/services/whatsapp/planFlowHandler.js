@@ -39,7 +39,7 @@ const WELCOME_TEXT = [
 const ADDRESS_AGAIN_TEXT = 'Por favor, envie novamente seu endereço (localização ou texto com CEP/rua/cidade).'
 
 function formatPlanLine(index, plan) {
-  const price = typeof plan.price === 'number' ? `R$ ${plan.price}` : plan.price
+  const price = typeof plan.price === 'number' ? `R$ ${plan.price / 100}` : plan.price / 100
   return `${index} - ${plan.planName} (${plan.velocity} Mbps) - ${price}/mês`
 }
 

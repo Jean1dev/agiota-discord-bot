@@ -178,7 +178,7 @@ async function clearAndDisconnect() {
   return clearSession()
 }
 
-const TEST_PHONE_JID = '5548988685343@s.whatsapp.net'
+const TEST_PHONE_JID = '554888685343@s.whatsapp.net'
 
 async function sendTestMessage() {
   if (!sock) return { ok: false, error: 'WhatsApp não está conectado.' }
