@@ -47,48 +47,32 @@ async function useMongoDBAuthState(baileys) {
   return { state: { creds, keys }, saveCreds }
 }
 
-async function startSocket(options = {}) {
-  const baileys = await import('@whiskeysockets/baileys')
-  const { makeWASocket, DisconnectReason } = baileys
-  const { state, saveCreds } = await useMongoDBAuthState(baileys)
-
-  const socketConfig = {
-    auth: state,
-    printQRInTerminal: true,
-    fireInitQueries: false,
-    ...options
-  }
-
-  sock = makeWASocket(socketConfig)
-
+function registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOptions = {} }) {
+  const { DisconnectReason } = baileys
   sock.ev.on('creds.update', saveCreds)
-
   sock.ev.on('connection.update', async (update) => {
     const { connection, qr } = update
-    if (qr && pairingResolver) {
+    if (qr && onQr) {
       try {
-        const qrBuffer = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
-        pairingResolver({ type: 'qr', buffer: qrBuffer })
+        await onQr(qr)
       } catch (e) {
-        pairingResolver({ type: 'error', error: e })
+        console.error('WhatsApp onQr error', e)
       }
     }
     if (connection === 'open') {
-      pairingResolver && pairingResolver({ type: 'connected' })
-      pairingResolver = null
+      onOpen && await onOpen()
     }
     if (connection === 'close') {
       const statusCode = update.lastDisconnect?.error?.output?.statusCode
-      const isLoggedOut = statusCode === DisconnectReason.loggedOut
+      const isLoggedOut = statusCode === DisconnectReason?.loggedOut
       if (isLoggedOut) {
         sock = null
         clearSession().catch(e => console.error('WhatsApp clearSession', e))
       } else {
-        startSocket(options)
+        startSocket(socketOptions)
       }
     }
   })
-
   sock.ev.on('messages.upsert', async ({ messages }) => {
     for (const m of messages) {
       try {
@@ -98,7 +82,37 @@ async function startSocket(options = {}) {
       }
     }
   })
+}
 
+async function startSocket(options = {}) {
+  const baileys = await import('@whiskeysockets/baileys')
+  const { makeWASocket } = baileys
+  const { state, saveCreds } = await useMongoDBAuthState(baileys)
+
+  const socketConfig = {
+    auth: state,
+    printQRInTerminal: true,
+    fireInitQueries: false,
+    ...options
+  }
+  sock = makeWASocket(socketConfig)
+
+  const onQr = options.onQr || (async (qr) => {
+    if (pairingResolver) {
+      try {
+        const qrBuffer = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
+        pairingResolver({ type: 'qr', buffer: qrBuffer })
+      } catch (e) {
+        pairingResolver({ type: 'error', error: e })
+      }
+    }
+  })
+  const onOpen = options.onOpen || (async () => {
+    pairingResolver && pairingResolver({ type: 'connected' })
+    pairingResolver = null
+  })
+
+  registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOptions: options })
   return sock
 }
 
@@ -112,52 +126,31 @@ async function startPairing(discordChannel) {
   const doc = await readDoc()
   if (doc?.creds?.registered) {
     await discordChannel.send('Já existem credenciais salvas. Iniciando conexão...')
-    return startSocket().then(() => {
-      return discordChannel.send('Conexão WhatsApp restaurada.')
-    })
+    await startSocket()
+    await discordChannel.send('Conexão WhatsApp restaurada.')
+    return
   }
   await discordChannel.send('Gerando QR code para vincular o WhatsApp. Escaneie com o app.')
+  const { makeWASocket } = baileys
   const { state, saveCreds } = await useMongoDBAuthState(baileys)
-  sock = baileys.makeWASocket({
+  sock = makeWASocket({
     auth: state,
     printQRInTerminal: true,
     fireInitQueries: false
   })
-  sock.ev.on('creds.update', saveCreds)
-  sock.ev.on('connection.update', async (update) => {
-    const { connection, qr } = update
-    if (qr) {
-      try {
-        const qrBuffer = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
-        const attachment = new MessageAttachment(qrBuffer, 'whatsapp-qr.png')
-        await discordChannel.send({ files: [attachment] })
-      } catch (e) {
-        await discordChannel.send('Erro ao gerar QR: ' + e.message).catch(() => {})
-      }
+  const onQr = async (qr) => {
+    try {
+      const qrBuffer = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
+      const attachment = new MessageAttachment(qrBuffer, 'whatsapp-qr.png')
+      await discordChannel.send({ files: [attachment] })
+    } catch (e) {
+      await discordChannel.send('Erro ao gerar QR: ' + e.message).catch(() => {})
     }
-    if (connection === 'open') {
-      await discordChannel.send('WhatsApp vinculado com sucesso. Conexão ativa.')
-    }
-    if (connection === 'close') {
-      const statusCode = update.lastDisconnect?.error?.output?.statusCode
-      const isLoggedOut = statusCode === baileys.DisconnectReason?.loggedOut
-      if (isLoggedOut) {
-        sock = null
-        clearSession().catch(e => console.error('WhatsApp clearSession', e))
-      } else {
-        startSocket()
-      }
-    }
-  })
-  sock.ev.on('messages.upsert', async ({ messages }) => {
-    for (const m of messages) {
-      try {
-        await handlePlanFlow(sock, m)
-      } catch (e) {
-        console.error('WhatsApp planFlow error', e)
-      }
-    }
-  })
+  }
+  const onOpen = async () => {
+    await discordChannel.send('WhatsApp vinculado com sucesso. Conexão ativa.')
+  }
+  registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOptions: {} })
 }
 
 async function init() {
@@ -185,9 +178,22 @@ async function clearAndDisconnect() {
   return clearSession()
 }
 
+const TEST_PHONE_JID = '5548988685343@s.whatsapp.net'
+
+async function sendTestMessage() {
+  if (!sock) return { ok: false, error: 'WhatsApp não está conectado.' }
+  try {
+    await sock.sendMessage(TEST_PHONE_JID, { text: 'Teste de conexão WhatsApp - bot OK.' })
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e.message || String(e) }
+  }
+}
+
 module.exports = {
   startPairing,
   init,
   hasStoredAuth,
-  clearAndDisconnect
+  clearAndDisconnect,
+  sendTestMessage
 }

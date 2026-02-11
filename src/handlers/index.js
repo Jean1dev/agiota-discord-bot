@@ -27,6 +27,7 @@ const dbCleanHandler = require('./admin/db-clean')
 const meconecteiHandler = require('./admin/meconectei')
 const configWhatsAppHandler = require('./whatsapp/config-whatsapp')
 const clearWhatsAppHandler = require('./whatsapp/clear-whatsapp')
+const testWhatsAppHandler = require('./whatsapp/test-whatsapp')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -57,5 +58,6 @@ module.exports = {
   dbCleanHandler,
   meconecteiHandler,
   configWhatsAppHandler,
-  clearWhatsAppHandler
+  clearWhatsAppHandler,
+  testWhatsAppHandler
 }
