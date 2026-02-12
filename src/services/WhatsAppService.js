@@ -75,10 +75,19 @@ function registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOp
   })
   sock.ev.on('messages.upsert', async ({ messages }) => {
     for (const m of messages) {
+      if (!m.pushName) continue
+      console.log('WhatsApp message', m.pushName)
       try {
         await handlePlanFlow(sock, m)
       } catch (e) {
         console.error('WhatsApp planFlow error', e)
+      }
+    }
+  })
+  sock.ev.on('chats.upsert', async ({ chats }) => {
+    for (const c of chats) {
+      if (c.isGroup) {
+        console.log('WhatsApp group', c.id.user)
       }
     }
   })
@@ -91,7 +100,7 @@ async function startSocket(options = {}) {
 
   const socketConfig = {
     auth: state,
-    printQRInTerminal: true,
+    printQRInTerminal: false,
     fireInitQueries: false,
     ...options
   }
