@@ -67,12 +67,11 @@ async function notifyTelegramNewContact(jid, pushName, firstMessageText) {
 
 async function handle(sock, m) {
   const jid = m.key.remoteJid
-  if (!jid || m.key.fromMe) return
-  if (!jid.endsWith('@s.whatsapp.net')) return
 
   const pushName = m.pushName || ''
   const text = getMessageText(m)
   const location = getMessageLocation(m)
+  if (!location && !text) return
 
   let session = getSession(jid)
   const isFirstMessage = !session
