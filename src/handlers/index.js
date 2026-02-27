@@ -21,6 +21,7 @@ const airDropHandler = require('./web3/airdrop')
 const updateGastosCartaoHandler = require('./agiotagem/update-gastos-cartao')
 const arbitragemHandler = require('./b3/arbitragem')
 const changeAutoArbitragemHandler = require('./b3/change-auto-arbitragem')
+const crossingCountsHandler = require('./b3/crossing-counts')
 const assinaturasAtivasHandler = require('./assinaturas/assinaturas-ativas')
 const restartHandler = require('./restart')
 const dbCleanHandler = require('./admin/db-clean')
@@ -53,6 +54,7 @@ module.exports = {
   ultimoEmprestimoInfoHandler,
   arbitragemHandler,
   changeAutoArbitragemHandler,
+  crossingCountsHandler,
   assinaturasAtivasHandler,
   restartHandler,
   dbCleanHandler,

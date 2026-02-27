@@ -24,6 +24,7 @@ const {
   ultimoEmprestimoInfoHandler,
   arbitragemHandler,
   changeAutoArbitragemHandler,
+  crossingCountsHandler,
   assinaturasAtivasHandler,
   restartHandler,
   dbCleanHandler,
@@ -65,6 +66,7 @@ registrarComando('card', updateGastosCartaoHandler, 'Atualiza os gastos do carta
 registrarComando('up', ultimoEmprestimoInfoHandler, 'Mostra o ultimo emprestimo solicitado')
 registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem em exchanges :: args @quantidade_execucoes', true)
 registrarComando('auto-arb', changeAutoArbitragemHandler, 'Altera o status da auto arbitragem (apenas JEAN)')
+registrarComando('cr-counts', crossingCountsHandler, 'POST /v1/arbitrage/future/crossing-counts (apenas JEAN)')
 registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')
 registrarComando('db-clean', dbCleanHandler, 'Executa migração de coleções e limpa o banco crypto2 (apenas JEAN)')

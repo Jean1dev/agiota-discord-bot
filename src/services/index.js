@@ -14,7 +14,8 @@ const { addMusic, ramdomMusic } = require('./MusicManagerService')
 const { 
     processAMQPMessage: cryptoServiceProcessMessage, 
     forceArbitrage,
-    rotinaDiariaCrypto 
+    rotinaDiariaCrypto,
+    futureCrossingCounts
 } = require('./cryptoArbitrageService')
 const myDailyBudgetService = require('./myDailyBudget')
 const { broadcastDiscord } = require('./broadcast-discord')
@@ -41,6 +42,7 @@ module.exports = {
     gerarRelatorioFechamentoCompentencia,
     cryptoServiceProcessMessage,
     forceArbitrage,
+    futureCrossingCounts,
     broadcastDiscord,
     UploadService,
     runQuizTask,
