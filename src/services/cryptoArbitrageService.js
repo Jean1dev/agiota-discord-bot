@@ -46,7 +46,7 @@ function forceFutureArbitrage() {
         } catch (error) {
             console.log(error);
         }
-    }, 5000);
+    }, 7000);
 }
 
 async function futureCrossingCounts(data = null) {
