@@ -46,7 +46,12 @@ function forceFutureArbitrage() {
         } catch (error) {
             console.log(error);
         }
-    }, 5000);
+    }, 7000);
+}
+
+async function futureCrossingCounts(data = null) {
+    const response = await makeRequest('POST', '/v1/arbitrage/future/crossing-counts', data);
+    return response;
 }
 
 async function asyncArbitrage() {
@@ -280,5 +285,6 @@ module.exports = {
     forceArbitrage,
     rotinaDiariaCrypto,
     getHighYieldStatistics,
-    asyncArbitrage
+    asyncArbitrage,
+    futureCrossingCounts
 }

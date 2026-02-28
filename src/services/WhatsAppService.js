@@ -3,6 +3,13 @@ const { readDoc, writeDoc, hasStoredAuth, clearSession } = require('./whatsapp/m
 const { handle: handlePlanFlow } = require('./whatsapp/planFlowHandler')
 const { MessageAttachment } = require('discord.js')
 
+let enviarMensagemParaMim = null
+try {
+  enviarMensagemParaMim = require('../telegram/utils/telegram-utils').enviarMensagemParaMim
+} catch (e) {
+  console.warn('WhatsAppService: Telegram utils not available', e.message)
+}
+
 let sock = null
 let pairingResolver = null
 
@@ -63,8 +70,24 @@ function registerSocketEvents(sock, baileys, { saveCreds, onQr, onOpen, socketOp
       onOpen && await onOpen()
     }
     if (connection === 'close') {
-      const statusCode = update.lastDisconnect?.error?.output?.statusCode
+      const lastDisconnect = update.lastDisconnect
+      const statusCode = lastDisconnect?.error?.output?.statusCode
       const isLoggedOut = statusCode === DisconnectReason?.loggedOut
+      const errMsg = lastDisconnect?.error?.message || lastDisconnect?.error
+      console.log('[WhatsApp] disconnect', {
+        statusCode,
+        isLoggedOut,
+        error: errMsg ? String(errMsg) : undefined
+      })
+      if (enviarMensagemParaMim) {
+        const msg = [
+          '⚠️ WhatsApp desconectado',
+          `statusCode: ${statusCode ?? '?'}`,
+          isLoggedOut ? 'Sessão encerrada (logout).' : 'Reconectando...',
+          errMsg ? `Erro: ${String(errMsg).slice(0, 200)}` : ''
+        ].filter(Boolean).join('\n')
+        enviarMensagemParaMim(msg).catch(e => console.error('Telegram notify disconnect', e))
+      }
       if (isLoggedOut) {
         sock = null
         clearSession().catch(e => console.error('WhatsApp clearSession', e))
