@@ -11,14 +11,14 @@ module.exports = message => {
   }
 
   function askForToken(callback) {
-    message.reply('Estou sem o token, autoriza lá e me manda aqui')
-
-    message.reply(`Authorize this app by visiting this url: ${googleOAuthState.authUrl}`, { fetchReply: true })
+    const authUrl = googleOAuthState.getAuthUrl ? googleOAuthState.getAuthUrl() : googleOAuthState.authUrl
+    message.reply('Estou sem o token. Abra o link, autorize e cole aqui a URL inteira da barra de endereços (a página pode não carregar).')
+    message.reply(authUrl, { fetchReply: true })
       .then(() => {
-        message.channel.awaitMessages({ max: 1, time: 60000, errors: ['time'] })
+        message.channel.awaitMessages({ max: 1, time: 120000, errors: ['time'] })
           .then(collected => {
-            const code = collected.first().content
-            googleOAuthState.setAuthToken(code).then(callback)
+            const raw = collected.first().content
+            googleOAuthState.setAuthToken(raw).then(callback)
 
           })
           .catch(() => {

@@ -46,9 +46,42 @@ function save(object) {
   })
 }
 
+const YOUTUBE_RSS_COLLECTION = 'youtube_rss_videos'
+
+async function saveYoutubeVideos(videos) {
+  if (!videos || !videos.length) return
+  if (!DbInstance) return
+  const db = DbInstance
+  const savedAt = new Date()
+  const docs = videos.map((v) => ({
+    videoId: v.videoId,
+    thumb: v.thumb,
+    title: v.title,
+    link: v.url,
+    watchLater: true,
+    savedAt
+  }))
+  await db.collection(YOUTUBE_RSS_COLLECTION).insertMany(docs)
+}
+
+async function findYoutubeVideosWatchLater() {
+  if (!DbInstance) return []
+  return DbInstance.collection(YOUTUBE_RSS_COLLECTION)
+    .find({ watchLater: true })
+    .toArray()
+}
+
+async function deleteYoutubeVideosCollection() {
+  if (!DbInstance) return
+  await DbInstance.collection(YOUTUBE_RSS_COLLECTION).deleteMany({})
+}
+
 module.exports = {
   getDataFromMongo,
   save,
+  saveYoutubeVideos,
+  findYoutubeVideosWatchLater,
+  deleteYoutubeVideosCollection,
   connect,
   DbInstance: () => {return DbInstance}
 }

@@ -35,5 +35,11 @@ module.exports = {
 
   CRYPTO_SERVICE_DB: process.env.CRYPTO_SERVICE_DB,
 
-  ME_CONECTEI_API_URL: process.env.ME_CONECTEI_API_URL
+  ME_CONECTEI_API_URL: process.env.ME_CONECTEI_API_URL,
+
+  GOOGLE_OAUTH_REDIRECT_URI: process.env.GOOGLE_OAUTH_REDIRECT_URI || 'http://localhost:3131',
+
+  YOUTUBE_MAX_CHANNELS: process.env.YOUTUBE_MAX_CHANNELS ? parseInt(process.env.YOUTUBE_MAX_CHANNELS, 10) : 0,
+
+  FERIADOS_BR: process.env.FERIADOS_BR
 }
