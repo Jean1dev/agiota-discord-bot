@@ -10,6 +10,7 @@ const registerJobs = require('./register-jobs')
 const { registrarEntradaTexto, listarAsUltimasFeatures, myDailyBudgetService } = require('./services')
 const ConversationHistoryGpt = require('./services/ConversationHistoryGpt')
 const { connect } = require('./repository/mongodb')
+const googleOAuthState = require('./adapters/google-Oauth')
 const { CHAT_GERAL } = require('./discord-constants')
 const { init: initWhatsApp } = require('./services/WhatsAppService')
 
@@ -45,6 +46,7 @@ function avisarQueEstaOnline() {
 
 client.on('ready', async () => {
   await connect()
+  await googleOAuthState.loadTokenFromDb()
   initWhatsApp().catch(e => console.error('WhatsApp init', e))
   avisarQueEstaOnline()
 

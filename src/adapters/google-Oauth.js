@@ -3,8 +3,8 @@ const {
     GOOGLE_CLIENT_SECRET: client_secret,
     GOOGLE_OAUTH_REDIRECT_URI: redirect_uri
 } = require('../config')
-const fs = require('fs')
 const { google } = require('googleapis')
+const { getGoogleOAuthToken, saveGoogleOAuthToken } = require('../repository/mongodb')
 
 const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uri)
 
@@ -14,7 +14,6 @@ const SCOPES = [
     'https://www.googleapis.com/auth/youtube.readonly',
     'https://www.googleapis.com/auth/youtube'
 ]
-const TOKEN_PATH = 'token.json'
 
 function getAuthUrl() {
     return oAuth2Client.generateAuthUrl({
@@ -46,38 +45,39 @@ function setAuthToken(tokenOrUrl) {
             if (err) {
                 reject(err)
             } else {
-                oAuth2Client.setCredentials(token);
-
-                fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-                    if (err) {
-                        reject(err)
-                    } else {
+                oAuth2Client.setCredentials(token)
+                saveGoogleOAuthToken(token)
+                    .then(() => {
                         googleOAuthState.authorized = true
-                        console.log('Token stored to', TOKEN_PATH)
-                    }
-                })
-
-                resolve(oAuth2Client)
+                        console.log('Token Google salvo no banco (expira em 7 dias)')
+                        resolve(oAuth2Client)
+                    })
+                    .catch(reject)
             }
         })
     })
 }
 
-
 const googleOAuthState = {
     client: oAuth2Client,
     authorized: false,
-    authUrl: null,
+    authUrl: getAuthUrl(),
     setAuthToken,
     getAuthUrl
 }
 
-try {
-    const token = fs.readFileSync(TOKEN_PATH)
-    oAuth2Client.setCredentials(JSON.parse(token))
-    googleOAuthState.authorized = true
-} catch (error) {
-    googleOAuthState.authUrl = getAuthUrl()
+async function loadTokenFromDb() {
+    const token = await getGoogleOAuthToken()
+    if (token) {
+        oAuth2Client.setCredentials(token)
+        googleOAuthState.authorized = true
+        googleOAuthState.authUrl = null
+        console.log('Token Google carregado do banco')
+    } else {
+        googleOAuthState.authorized = false
+        googleOAuthState.authUrl = getAuthUrl()
+    }
 }
 
+googleOAuthState.loadTokenFromDb = loadTokenFromDb
 module.exports = googleOAuthState
