@@ -18,13 +18,14 @@ const {
     futureCrossingCounts
 } = require('./cryptoArbitrageService')
 const myDailyBudgetService = require('./myDailyBudget')
-const { broadcastDiscord } = require('./broadcast-discord')
+const { broadcastDiscord, sendToChannel } = require('./broadcast-discord')
 const UploadService = require('./UploadService')
 const runQuizTask = require('./quiz')
 const gastosCartao = require('./GastosCartaoService')
 const organizzeService = require('./OrganizzeService')
 const transactionCategorizationService = require('./TransactionCategorizationService')
 const { startAutoArbitrage } = require('./autoArbitrageService')
+const youtubeRssService = require('./youtubeRssService')
 
 module.exports = {
     listarAsUltimasFeatures,
@@ -44,11 +45,13 @@ module.exports = {
     forceArbitrage,
     futureCrossingCounts,
     broadcastDiscord,
+    sendToChannel,
     UploadService,
     runQuizTask,
     gastosCartao,
     organizzeService,
     transactionCategorizationService,
     rotinaDiariaCrypto,
-    startAutoArbitrage
+    startAutoArbitrage,
+    youtubeRssService
 }

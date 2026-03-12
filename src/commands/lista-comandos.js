@@ -31,7 +31,9 @@ const {
   meconecteiHandler,
   configWhatsAppHandler,
   clearWhatsAppHandler,
-  testWhatsAppHandler
+  testWhatsAppHandler,
+  youtubeAuthHandler,
+  youtubeWatchLaterHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -74,3 +76,5 @@ registrarComando('meconectei', meconecteiHandler, 'Cria conta de admin no me-con
 registrarComando('zap-config', configWhatsAppHandler, 'Inicia vinculação do WhatsApp (QR code no chat)')
 registrarComando('zap-clear', clearWhatsAppHandler, 'Remove sessão do WhatsApp (use após 401 para vincular de novo)')
 registrarComando('zap-test', testWhatsAppHandler, 'Envia mensagem de teste para  (testa conexão WhatsApp)')
+registrarComando('yt-auth', youtubeAuthHandler, 'Autoriza o bot a ler suas inscrições do YouTube (vídeos das últimas 24h)')
+registrarComando('yt-wl', youtubeWatchLaterHandler, 'Envia os vídeos do banco (watchLater: true) para a playlist Assistir mais tarde do YouTube e apaga a coleção')

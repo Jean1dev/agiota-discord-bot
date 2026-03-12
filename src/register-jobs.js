@@ -1,18 +1,21 @@
 /**
  * https://crontab.guru/
  */
-const { CHAT_GERAL, CANAIS_PARA_LIMPAR } = require('./discord-constants')
+const { CHAT_GERAL, CANAIS_PARA_LIMPAR, LIXO_CHANNEL } = require('./discord-constants')
 const { schedule } = require('./schedules/node-cron')
 const context = require('./context').contextInstance
-const { 
-    getRegistros, 
+const { isFeriadoHoje } = require('./utils/feriados-br')
+const { saveYoutubeVideos } = require('./repository/mongodb')
+const {
+    getRegistros,
     clearRegistros,
     rankearUso,
-    exibirRankingNoChat,
-    myDailyBudgetService, 
+    myDailyBudgetService,
     runQuizTask,
     rotinaDiariaCrypto,
-    startAutoArbitrage
+    startAutoArbitrage,
+    youtubeRssService,
+    sendToChannel
 } = require('./services')
 
 function limparCanais() {
@@ -65,8 +68,19 @@ function registerJobs() {
     // “At 22:05.”
     schedule('5 22 * * *', myDailyBudgetService.dailyHandles)
     
-    //“At minute 2 past every 3rd hour from 9 through 19 on every day-of-week from Monday through Wednesday.”
     schedule('2 9-19/3 * * 1-3', runQuizTask)
+
+    schedule('16 8 * * 1-6', async function youtubeRssJob() {
+        if (await isFeriadoHoje()) return
+        try {
+            const videos = await youtubeRssService.runAndNotify()
+            if (videos.length) await saveYoutubeVideos(videos)
+        } catch (err) {
+            const msg = `[YouTube RSS] Erro no processamento: ${err.message}`
+            console.error(msg, err)
+            sendToChannel(LIXO_CHANNEL, msg)
+        }
+    })
 }
 
 module.exports = registerJobs

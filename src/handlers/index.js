@@ -29,6 +29,8 @@ const meconecteiHandler = require('./admin/meconectei')
 const configWhatsAppHandler = require('./whatsapp/config-whatsapp')
 const clearWhatsAppHandler = require('./whatsapp/clear-whatsapp')
 const testWhatsAppHandler = require('./whatsapp/test-whatsapp')
+const youtubeAuthHandler = require('./youtube/youtube-auth')
+const youtubeWatchLaterHandler = require('./youtube/youtube-watch-later')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -61,5 +63,7 @@ module.exports = {
   meconecteiHandler,
   configWhatsAppHandler,
   clearWhatsAppHandler,
-  testWhatsAppHandler
+  testWhatsAppHandler,
+  youtubeAuthHandler,
+  youtubeWatchLaterHandler
 }
