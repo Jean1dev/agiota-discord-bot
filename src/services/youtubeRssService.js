@@ -174,15 +174,34 @@ async function runAndNotify() {
   }
 }
 
-const WATCH_LATER_PLAYLIST_ID = 'WL'
+function parsePlaylistId(value) {
+  if (!value || typeof value !== 'string') return null
+  const raw = value.trim()
+  if (raw === 'WL') return null
+  if (/^PL[\w-]+$/.test(raw)) return raw
+  try {
+    const url = new URL(raw)
+    const list = url.searchParams.get('list')
+    if (list && /^PL[\w-]+$/.test(list)) return list
+  } catch (_) {}
+  return null
+}
 
 async function addToWatchLaterPlaylist(videoId) {
+  const raw = config.YOUTUBE_WATCH_LATER_PLAYLIST_ID
+  const playlistId = parsePlaylistId(raw)
+  if (!playlistId || playlistId === 'WL') {
+    throw new Error(
+      'A API do YouTube não permite inserir na playlist oficial "Assistir mais tarde" (WL) desde 2016. ' +
+      'Use uma playlist sua: crie uma no YouTube, rode `npm run test:yt-playlists`, copie o ID (começa com PL) ou a URL da playlist e defina no .env: YOUTUBE_WATCH_LATER_PLAYLIST_ID=PLxxx'
+    )
+  }
   const youtube = getYoutubeClient()
   await youtube.playlistItems.insert({
     part: ['snippet'],
     requestBody: {
       snippet: {
-        playlistId: WATCH_LATER_PLAYLIST_ID,
+        playlistId,
         resourceId: {
           kind: 'youtube#video',
           videoId
@@ -192,11 +211,42 @@ async function addToWatchLaterPlaylist(videoId) {
   })
 }
 
+async function clearWatchLaterPlaylist() {
+  const raw = config.YOUTUBE_WATCH_LATER_PLAYLIST_ID
+  const playlistId = parsePlaylistId(raw)
+  if (!playlistId || playlistId === 'WL') {
+    throw new Error(
+      'Playlist não configurada. Defina no .env: YOUTUBE_WATCH_LATER_PLAYLIST_ID com o ID (PL...) ou a URL da playlist.'
+    )
+  }
+  const youtube = getYoutubeClient()
+  const itemIds = []
+  let pageToken = null
+  do {
+    const res = await youtube.playlistItems.list({
+      part: ['id'],
+      playlistId,
+      maxResults: 50,
+      pageToken: pageToken || undefined
+    })
+    const items = res.data.items || []
+    for (const item of items) {
+      if (item.id) itemIds.push(item.id)
+    }
+    pageToken = res.data.nextPageToken || null
+  } while (pageToken)
+  for (const id of itemIds) {
+    await youtube.playlistItems.delete({ id })
+  }
+  return itemIds.length
+}
+
 module.exports = {
   fetchVideosFromLast24Hours,
   runAndNotify,
   isAuthorized,
   getAuthUrl,
   setAuthToken: googleOAuthState.setAuthToken,
-  addToWatchLaterPlaylist
+  addToWatchLaterPlaylist,
+  clearWatchLaterPlaylist
 }

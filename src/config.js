@@ -41,5 +41,7 @@ module.exports = {
 
   YOUTUBE_MAX_CHANNELS: process.env.YOUTUBE_MAX_CHANNELS ? parseInt(process.env.YOUTUBE_MAX_CHANNELS, 10) : 0,
 
-  FERIADOS_BR: process.env.FERIADOS_BR
+  FERIADOS_BR: process.env.FERIADOS_BR,
+
+  YOUTUBE_WATCH_LATER_PLAYLIST_ID: process.env.YOUTUBE_WATCH_LATER_PLAYLIST_ID
 }

@@ -17,6 +17,7 @@ const {
     youtubeRssService,
     sendToChannel
 } = require('./services')
+const appEvents = require('./app-events')
 
 function limparCanais() {
     let channel = context().client.channels.cache.find(channel => channel.name === CHAT_GERAL)
@@ -75,6 +76,7 @@ function registerJobs() {
         try {
             const videos = await youtubeRssService.runAndNotify()
             if (videos.length) await saveYoutubeVideos(videos)
+            appEvents.emit('enviar-mensagem-telegram', `seus videos estao prontos https://my-youtube-manager.vercel.app/`)
         } catch (err) {
             const msg = `[YouTube RSS] Erro no processamento: ${err.message}`
             console.error(msg, err)

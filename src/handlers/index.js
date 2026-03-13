@@ -31,6 +31,7 @@ const clearWhatsAppHandler = require('./whatsapp/clear-whatsapp')
 const testWhatsAppHandler = require('./whatsapp/test-whatsapp')
 const youtubeAuthHandler = require('./youtube/youtube-auth')
 const youtubeWatchLaterHandler = require('./youtube/youtube-watch-later')
+const youtubeWatchLaterClearHandler = require('./youtube/youtube-watch-later-clear')
 
 module.exports = {
   addDailyBudgetHandler,
@@ -65,5 +66,6 @@ module.exports = {
   clearWhatsAppHandler,
   testWhatsAppHandler,
   youtubeAuthHandler,
-  youtubeWatchLaterHandler
+  youtubeWatchLaterHandler,
+  youtubeWatchLaterClearHandler
 }

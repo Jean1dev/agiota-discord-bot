@@ -33,7 +33,8 @@ const {
   clearWhatsAppHandler,
   testWhatsAppHandler,
   youtubeAuthHandler,
-  youtubeWatchLaterHandler
+  youtubeWatchLaterHandler,
+  youtubeWatchLaterClearHandler
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
@@ -78,3 +79,4 @@ registrarComando('zap-clear', clearWhatsAppHandler, 'Remove sessão do WhatsApp 
 registrarComando('zap-test', testWhatsAppHandler, 'Envia mensagem de teste para  (testa conexão WhatsApp)')
 registrarComando('yt-auth', youtubeAuthHandler, 'Autoriza o bot a ler suas inscrições do YouTube (vídeos das últimas 24h)')
 registrarComando('yt-wl', youtubeWatchLaterHandler, 'Envia os vídeos do banco (watchLater: true) para a playlist Assistir mais tarde do YouTube e apaga a coleção')
+registrarComando('yt-clear', youtubeWatchLaterClearHandler, 'Remove todos os vídeos da playlist configurada em YOUTUBE_WATCH_LATER_PLAYLIST_ID')
