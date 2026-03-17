@@ -24,5 +24,6 @@ function adicionarGasto(valor) {
 
 module.exports = {
     adicionarGasto,
-    atualizarTotalGasto
+    atualizarTotalGasto,
+    LIMIT
 }

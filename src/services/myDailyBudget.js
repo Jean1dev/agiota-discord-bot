@@ -281,53 +281,86 @@ function fecharCompetencia(ultimaData, dados, db) {
     })
 }
 
-function dailyHandles() {
-    let newBudget
-    const db = DbInstance()
-    if (hojeEhFimDeSemana()) {
-        newBudget = state.budget + weekendBudgetGain
-    } else {
-        newBudget = state.budget + dailyBudgetGain
+function hojeEhSextaFeira() {
+    return new Date().getDay() === 5
+}
+
+function calcularNovoBudget() {
+    return hojeEhFimDeSemana()
+        ? state.budget + weekendBudgetGain
+        : state.budget + dailyBudgetGain
+}
+
+function calcularDiasAteHoje(data) {
+    const umDiaMs = 24 * 60 * 60 * 1000
+    const dias = Math.floor((new Date() - data) / umDiaMs)
+    return dias === 0 ? 1 : dias
+}
+
+function processarHistoricoTransacoes(result, db) {
+    if (result.length === 0) return
+
+    console.log(`${collectionTransactionName} quantidade `, result.length)
+    const ultimoElemento = result[0]
+    const diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
+    const totalDespesas = result.map(it => Number(it.money)).reduce((sum, v) => sum + v, 0)
+    const media = totalDespesas / diasAteHoje
+    sendMessage(`Nos ultimos ${diasAteHoje} dias voce gastou em media R$${media.toFixed(2)} por dia`)
+
+    if (diasAteHoje > 30) {
+        fecharCompetencia(ultimoElemento.date, result, db)
     }
+}
+
+function filtrarTransacoesDaSemana(transacoes) {
+    const now = new Date()
+    const dayOfWeek = now.getDay()
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+    const monday = new Date(now)
+    monday.setDate(monday.getDate() - daysToMonday)
+    monday.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(now)
+    todayEnd.setHours(23, 59, 59, 999)
+    return transacoes.filter(it => {
+        const d = new Date(it.date)
+        return d >= monday && d <= todayEnd
+    })
+}
+
+function enviarResumoSemanalCartao(transacoes) {
+    const LIMIT = gastosCartao.LIMIT
+    const totalGastoCartao = contextInstance().totalGastoCartao
+    const restante = Math.max(0, LIMIT - totalGastoCartao)
+    const transacoesSemana = filtrarTransacoesDaSemana(transacoes)
+    const totalSemana = transacoesSemana
+        .map(it => Number(it.money))
+        .reduce((sum, value) => sum + value, 0)
+    const msg = [
+        'Resumo sexta-feira (segunda até hoje):',
+        `Total gasto na semana: R$ ${totalSemana.toFixed(2)}`,
+        `Total gasto no cartão: R$ ${Number(totalGastoCartao).toFixed(2)}`,
+        `Limite do cartão: R$ ${LIMIT.toFixed(2)}`,
+        `Faltam R$ ${restante.toFixed(2)} para atingir o limite.`
+    ].join('\n')
+    sendMessage(msg)
+}
+
+function dailyHandles() {
+    const newBudget = calcularNovoBudget()
+    const db = DbInstance()
 
     displayTransactionsToday()
 
-    searchTransactions()
-        .then(result => {
-            if (result.length === 0) {
-                return
+    searchTransactions().then(result => {
+        processarHistoricoTransacoes(result, db)
+        if (hojeEhSextaFeira()) {
+            try {
+                enviarResumoSemanalCartao(result)
+            } catch (err) {
+                captureException(err)
             }
-
-            console.log(`${collectionTransactionName} quantidade `, result.length)
-            const ultimoElemento = result[0]
-
-            function calcularDiasAteHoje(data) {
-                const dataAtual = new Date();
-                const diferencaEmMilissegundos = dataAtual - data;
-                const umDiaEmMilissegundos = 24 * 60 * 60 * 1000; // 1 dia em milissegundos
-
-                const diferencaEmDias = Math.floor(diferencaEmMilissegundos / umDiaEmMilissegundos);
-                return diferencaEmDias;
-            }
-
-            let diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
-            if (diasAteHoje == 0)
-                diasAteHoje = 1
-
-
-            const totalDespesas = result.map(it => Number(it.money)).reduce((sum, value) => sum + value, 0)
-            const media = totalDespesas / diasAteHoje
-            const message = `Nos ultimos ${diasAteHoje} dias voce gastou em media R$${media.toFixed(2)} por dia`
-            sendMessage(message)
-
-            if (diasAteHoje > 30) {
-                fecharCompetencia(
-                    ultimoElemento.date,
-                    result,
-                    db
-                )
-            }
-        })
+        }
+    })
 
     addNewBalance(newBudget)
 }
