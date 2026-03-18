@@ -54,39 +54,68 @@ async function futureCrossingCounts(data = null) {
     return response;
 }
 
+let pendingArbitrageCount = 0;
+let arbitrageIntervalId = null;
+let lastArbitrageCallback = null;
+let lastArbitrageThreshold = 0;
+
 async function asyncArbitrage() {
     await makeRequest('POST', '/v1/arbitrage');
     forceFutureArbitrage();
 }
 
+function finishArbitrageQueue() {
+    if (arbitrageIntervalId !== null) {
+        clearInterval(arbitrageIntervalId);
+        arbitrageIntervalId = null;
+    }
+    if (lastArbitrageCallback) {
+        lastArbitrageCallback(`Arbitragem concluida ultimo treshhold ${lastArbitrageThreshold}`);
+        lastArbitrageCallback = null;
+    }
+    getMediaSpread();
+    getHighYieldStatistics();
+}
+
+async function executeSingleArbitrage() {
+    try {
+        const response = await makeRequest('POST', '/v1/arbitrage');
+        const threshold = response.data?.threshold;
+        lastArbitrageThreshold = threshold ?? lastArbitrageThreshold;
+        if (threshold && lastArbitrageCallback) {
+            lastArbitrageCallback(`Arbitrage executed successfully. Threshold: ${threshold}`);
+        }
+        forceFutureArbitrage();
+    } catch (error) {
+        console.log('Error during arbitrage execution:', error.message);
+    }
+}
+
+async function runArbitrageTick() {
+    if (pendingArbitrageCount <= 0) {
+        finishArbitrageQueue();
+        return;
+    }
+
+    console.log(`Executando arbitragem (${pendingArbitrageCount} restantes na fila)`);
+    await executeSingleArbitrage();
+    pendingArbitrageCount--;
+
+    if (pendingArbitrageCount <= 0) {
+        finishArbitrageQueue();
+    }
+}
+
 function forceArbitrage(quantities, callback) {
-    let count = 0;
-    let lastTreshhold = 0;
-    
-    const interval = setInterval(async () => {
-        if (count >= quantities) {
-            clearInterval(interval);
-            callback(`Arbitragem concluida ultimo treshhold ${lastTreshhold}`);
-            getMediaSpread();
-            getHighYieldStatistics();
-            return;
-        }
+    if (quantities <= 0) return;
 
-        console.log(`Executando arbitragem ${count + 1} de ${quantities}`);
-        try {
-            const response = await makeRequest('POST', '/v1/arbitrage');
-            const threshold = response.data?.threshold;
-            lastTreshhold = threshold;
-            if (threshold) {
-                callback(`Arbitrage executed successfully. Threshold: ${threshold}`);
-            }
-            forceFutureArbitrage();
-        } catch (error) {
-            console.log('Error during arbitrage execution:', error.message);
-        }
+    pendingArbitrageCount += quantities;
+    lastArbitrageCallback = callback;
 
-        count++;
-    }, 28000);
+    if (arbitrageIntervalId === null) {
+        runArbitrageTick();
+        arbitrageIntervalId = setInterval(runArbitrageTick, 28000);
+    }
 }
 
 async function getHighYieldStatistics() {
