@@ -58,6 +58,7 @@ let pendingArbitrageCount = 0;
 let arbitrageIntervalId = null;
 let lastArbitrageCallback = null;
 let lastArbitrageThreshold = 0;
+let finalCallback = null;
 
 async function asyncArbitrage() {
     await makeRequest('POST', '/v1/arbitrage');
@@ -70,7 +71,7 @@ function finishArbitrageQueue() {
         arbitrageIntervalId = null;
     }
     if (lastArbitrageCallback) {
-        lastArbitrageCallback(`Arbitragem concluida ultimo treshhold ${lastArbitrageThreshold}`);
+        finalCallback(`Arbitragem concluida ultimo treshhold ${lastArbitrageThreshold}`);
         lastArbitrageCallback = null;
     }
     getMediaSpread();
@@ -106,11 +107,12 @@ async function runArbitrageTick() {
     }
 }
 
-function forceArbitrage(quantities, callback) {
+function forceArbitrage(quantities, callback, finalCallbackFn = () => {}) {
     if (quantities <= 0) return;
 
     pendingArbitrageCount += quantities;
     lastArbitrageCallback = callback;
+    finalCallback = finalCallbackFn;
 
     if (arbitrageIntervalId === null) {
         runArbitrageTick();
