@@ -7,7 +7,6 @@ const financeServices = require('./FinanceServices')
 const sendEmail = require('./EmailService')
 const { CAIXINHA_CHANNEL, LIXO_CHANNEL } = require('../discord-constants')
 const { addSubcriptionByEvent, addProtestByEvent } = require('./SubscriptionService')
-const appEvents = require('../app-events')
 const { forceArbitrage } = require('./cryptoArbitrageService')
 
 const state = {
@@ -313,6 +312,7 @@ function emprestimoAprovado(payload) {
 }
 
 function userLogged(payload) {
+    const appEvents = require('../app-events')
     appEvents.emit('enviar-mensagem-telegram', `Usuario ${payload.email} logado`)
     forceArbitrage(100, () => {
         appEvents.emit('enviar-mensagem-telegram', `Arbitragem concluida`)
