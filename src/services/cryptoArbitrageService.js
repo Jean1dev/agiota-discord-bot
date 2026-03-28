@@ -233,13 +233,23 @@ async function consultar(id) {
 }
 
 function enviarMensagemDiscord(message) {
-    contextInstance().emitEvent('enviar-mensagem-discord', {
+    const ctx = contextInstance();
+    if (!ctx) {
+        console.warn('[Discord] Context ainda não inicializado, mensagem ignorada.');
+        return;
+    }
+    ctx.emitEvent('enviar-mensagem-discord', {
         message: message
     })
 }
 
 function enviarMensagemTelegram(message) {
-    contextInstance().emitEvent('enviar-mensagem-telegram', {
+    const ctx = contextInstance();
+    if (!ctx) {
+        console.warn('[Telegram] Context ainda não inicializado, mensagem ignorada.');
+        return;
+    }
+    ctx.emitEvent('enviar-mensagem-telegram', {
         message: message,
         chatId: GROUP_ID
     })
