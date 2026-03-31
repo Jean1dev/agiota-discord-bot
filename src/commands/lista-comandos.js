@@ -1,9 +1,13 @@
 const comandos = require('./comandos-struct')
 
+// Handlers de dívida migrados para TypeScript
 const {
   addDividaHandler,
-  cobrarDividaHandler,
   pagarDividaHandler,
+  cobrarDividaHandler,
+} = require('../discord/commands/debt')
+
+const {
   helpHandler,
   recordHandler,
   uploadRecords,
