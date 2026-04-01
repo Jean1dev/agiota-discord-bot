@@ -120,22 +120,22 @@
 
 ---
 
-## ⬜ Fase 8 — Serviços Independentes (sem context)
+## ✅ Fase 8 — Serviços Independentes (sem context)
 
 **Objetivo:** Migrar services que não dependem do God object `context.js`.
 
 **Arquivos alvo (sem dependência de context):**
-- [ ] `src/services/EmailService.js` → `src/services/email/EmailService.ts`
-- [ ] `src/services/GerarPDF.js` → `src/services/pdf/PdfService.ts`
-- [ ] `src/services/UploadService.js` → `src/services/upload/UploadService.ts`
-- [ ] `src/services/cloud-convert.js` → `src/services/upload/CloudConvertService.ts`
-- [ ] `src/services/githubOperations.js` → `src/services/github/GithubService.ts`
-- [ ] `src/services/KeycloakService.js` → `src/services/auth/KeycloakService.ts`
-- [ ] `src/services/SubscriptionValidator.js` → `src/services/subscription/SubscriptionValidator.ts`
-- [ ] `src/services/youtubeRssService.js` → `src/services/youtube/YoutubeRssService.ts`
-- [ ] `src/services/MeConecteiService.js` → `src/services/meconectei/MeConecteiService.ts`
-- [ ] `src/services/TransactionCategorizationService.js` → finance domain
-- [ ] `src/services/OrganizzeService.js` → finance domain
+- [x] `src/services/EmailService.js` → `src/services/email/EmailService.ts`
+- [x] `src/services/GerarPDF.js` → `src/services/pdf/PdfService.ts`
+- [x] `src/services/UploadService.js` → `src/services/upload/UploadService.ts`
+- [x] `src/services/cloud-convert.js` → `src/services/upload/CloudConvertService.ts`
+- [x] `src/services/githubOperations.js` → `src/services/github/GithubService.ts`
+- [x] `src/services/KeycloakService.js` → `src/services/auth/KeycloakService.ts`
+- [x] `src/services/SubscriptionValidator.js` → `src/services/subscription/SubscriptionValidator.ts`
+- [x] `src/services/youtubeRssService.js` → `src/services/youtube/YoutubeRssService.ts`
+- [x] `src/services/MeConecteiService.js` → `src/services/meconectei/MeConecteiService.ts`
+- [x] `src/services/TransactionCategorizationService.js` → `src/services/finance/TransactionCategorizationService.ts`
+- [x] `src/services/OrganizzeService.js` → `src/services/finance/OrganizzeService.ts`
 
 **Critério de conclusão:** Services deste grupo totalmente tipados e testados.
 
@@ -265,8 +265,8 @@
 
 | Métrica | Início | Atual | Meta |
 |---|---|---|---|
-| Arquivos TypeScript em `src/` | 0 | 29 | 135 |
-| Arquivos JavaScript em `src/` | 135 | 106 | 0 |
+| Arquivos TypeScript em `src/` | 0 | 40 | 135 |
+| Arquivos JavaScript em `src/` | 135 | 95 | 0 |
 | Cobertura de testes (arquivos TS) | 0% | 97.91% | ≥ 80% |
 | Testes automatizados | 0 | 76 | ≥ 150 |
 | `allowJs` no tsconfig | `true` | `true` | `false` |
