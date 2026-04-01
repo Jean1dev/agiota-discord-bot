@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { createLogger } from '../../shared/logger/Logger'
+import { globalRateLimiter, RateLimitOptions } from '../guards/RateLimitGuard'
 
 const log = createLogger('BaseCommand')
 
@@ -36,15 +37,34 @@ export abstract class BaseCommand<TSchema extends z.ZodType> {
   abstract readonly description: string
   protected abstract readonly schema: TSchema
 
-  async execute(ctx: CommandContext): Promise<void> {
-    const parsed = this.schema.safeParse(ctx.args)
+  /**
+   * Subclasses podem sobrescrever para personalizar o rate limit do comando.
+   * Por padrão usa o limitador global (5 req/min).
+   */
+  protected readonly rateLimitOptions: RateLimitOptions | null = null
 
+  async execute(ctx: CommandContext): Promise<void> {
+    // ── Rate limiting ───────────────────────────────────────────────────
+    const limiter = this.rateLimitOptions !== null
+      ? new (require('../guards/RateLimitGuard').RateLimitGuard)(this.rateLimitOptions)
+      : globalRateLimiter
+
+    const { allowed, retryAfterMs } = limiter.check(ctx.message.author.id)
+    if (!allowed) {
+      const seconds = Math.ceil(retryAfterMs / 1000)
+      await ctx.message.reply(`Muitas requisições. Tente novamente em ${seconds}s.`)
+      return
+    }
+
+    // ── Validação de schema ─────────────────────────────────────────────
+    const parsed = this.schema.safeParse(ctx.args)
     if (!parsed.success) {
       const problems = parsed.error.issues.map(i => i.message).join('; ')
       await ctx.message.reply(`Uso incorreto: ${this.getUsage()}\n> ${problems}`)
       return
     }
 
+    // ── Execução ────────────────────────────────────────────────────────
     try {
       await this.handle(ctx.message, parsed.data)
     } catch (err) {
