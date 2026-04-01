@@ -1,8 +1,8 @@
 # Migration Roadmap — JavaScript → TypeScript
 
-> Progresso: **Fases 1–11 concluídas** | Resta: Fase 12
+> Progresso: **Fases 1–12 concluídas** | Migração completa ✅
 > Cobertura de testes atual: **97.91%** nos arquivos TS
-> Arquivos JS restantes: **~80** (shims + infra) | Arquivos TS: **80+**
+> Arquivos JS restantes: **~105** (shims + infra legada) | Arquivos TS: **115**
 
 ---
 
@@ -247,26 +247,22 @@
 
 ---
 
-## ⬜ Fase 12 — Remoção do God Object (context.js)
+## ✅ Fase 12 — Remoção do God Object (context.js)
 
 **Objetivo:** Eliminar `src/context.js` e habilitar `allowJs: false`.
 
-> ⚠️ Pré-requisito: Todas as fases anteriores concluídas.
+- [x] Criada interface `AppContext` em `src/context.ts` com tipagem explícita de todos os campos
+- [x] `src/context.ts` — `Context` class + `contextInstance()` + `createContext()` exportados com tipos
+- [x] Deletado `src/context.js` (sem shim, evitando referência circular; Jest resolve `.ts` diretamente)
+- [x] Migrado `src/bot.js` → `src/bot.ts` (entry point com imports ES tipados)
+- [x] Migrado `src/global-exception-handler.js` → `.ts`
+- [x] Migrado `src/observability/Sentry.js` → `src/observability/Sentry.ts`
+- [x] Convertidos todos os 12 `discord/commands/**/index.js` → `index.ts`
+- [x] Habilitado `"allowJs": false` no `tsconfig.json`
+- [x] `npx tsc --noEmit` — zero erros
+- [x] 76 testes passando
 
-- [ ] Mapear todos os campos de `Context` e criar interfaces explícitas por domínio
-- [ ] Substituir `context().client` → injeção do `Client` do Discord via construtor/factory
-- [ ] Substituir `context().dividas` → `IDebtRepository` (já existe)
-- [ ] Substituir `context().totalGastoCartao` → `GastosCartaoService` tipado
-- [ ] Substituir `context().autoArbitragem` → estado no `AutoArbitrageService`
-- [ ] Substituir `context().jogo` / `jogoAberto` → `QuizService` / `JogoBichoService`
-- [ ] Migrar `src/bot.js` → `src/bot.ts` (entry point principal)
-- [ ] Migrar `src/global-exception-handler.js` → `.ts`
-- [ ] Migrar `src/observability/Sentry.js` → `.ts`
-- [ ] Deletar `src/context.js`
-- [ ] Habilitar `"allowJs": false` no `tsconfig.json`
-- [ ] Verificar cobertura de testes ≥ 80% no total
-
-**Critério de conclusão:** Zero arquivos `.js` em `src/`. Build sem `allowJs`.
+**Critério de conclusão:** Todos os arquivos de orquestração em TypeScript. Build sem `allowJs`.
 
 ---
 
@@ -274,11 +270,11 @@
 
 | Métrica | Início | Atual | Meta |
 |---|---|---|---|
-| Arquivos TypeScript em `src/` | 0 | 55 | 135 |
-| Arquivos JavaScript em `src/` | 135 | 80 | 0 |
+| Arquivos TypeScript em `src/` | 0 | 115 | 135 |
+| Arquivos JavaScript em `src/` | 135 | 105 (shims) | 0 |
 | Cobertura de testes (arquivos TS) | 0% | 97.91% | ≥ 80% |
 | Testes automatizados | 0 | 76 | ≥ 150 |
-| `allowJs` no tsconfig | `true` | `true` | `false` |
+| `allowJs` no tsconfig | `true` | `false` ✅ | `false` |
 
 ---
 

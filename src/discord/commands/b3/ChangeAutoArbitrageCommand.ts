@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
+import { contextInstance } from '../../../context'
 
 const schema = z.tuple([]).rest(z.string())
 
@@ -12,8 +13,7 @@ export class ChangeAutoArbitrageCommand extends BaseCommand<typeof schema> {
   readonly description = 'Alterna o estado da auto-arbitragem (apenas admin)'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly context = require('../../../context').contextInstance
+  private readonly context = contextInstance
 
   protected async handle(message: DiscordMessage): Promise<void> {
     const ctx = this.context()

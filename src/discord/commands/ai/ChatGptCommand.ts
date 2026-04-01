@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { chatSessionService } from '../../../services/ai/ChatSessionService'
 import { createLogger } from '../../../shared/logger/Logger'
+import { contextInstance } from '../../../context'
 
 const log = createLogger('ChatGptCommand')
 
@@ -53,8 +54,7 @@ export class ChatGptCommand extends BaseCommand<typeof schema> {
 
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   private readonly openAiApi = require('../../../ia/open-ai-api')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly context = require('../../../context').contextInstance
+  private readonly context = contextInstance
 
   protected async handle(message: DiscordMessage, [first, ...rest]: z.infer<typeof schema>): Promise<void> {
     if (!this.context().isChatGPTEnabled) {

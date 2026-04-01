@@ -9,7 +9,7 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,
