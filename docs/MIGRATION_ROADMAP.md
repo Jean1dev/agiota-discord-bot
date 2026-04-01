@@ -1,8 +1,8 @@
 # Migration Roadmap — JavaScript → TypeScript
 
-> Progresso: **Fases 1–6 concluídas** | Restam: Fases 7–12
+> Progresso: **Fases 1–10 concluídas** | Restam: Fases 11–12
 > Cobertura de testes atual: **97.91%** nos arquivos TS
-> Arquivos JS restantes: **113** | Arquivos TS: **22**
+> Arquivos JS restantes: **~80** (shims) | Arquivos TS: **60+**
 
 ---
 
@@ -162,27 +162,26 @@
 
 ---
 
-## ⬜ Fase 10 — Serviços com Dependência de Context
+## ✅ Fase 10 — Serviços com Dependência de Context
 
 **Objetivo:** Migrar services que usam o God object, preparando para sua remoção.
 
-> ⚠️ Esta fase exige criar interfaces explícitas para o que cada service precisa do context,
-> em vez de passar o objeto inteiro. Padrão: injeção de dependência via construtor.
+> Padrão aplicado: context bridge via lazy require — `function getContext() { return require('../../context').contextInstance() }`
 
 **Arquivos alvo:**
-- [ ] `src/services/RankingService.js` → `src/services/ranking/RankingService.ts`
-- [ ] `src/services/broadcast-discord.js` → `src/services/discord/BroadcastService.ts`
-- [ ] `src/services/analiseDadosUsuarios.js` → `src/services/analytics/UserAnalyticsService.ts`
-- [ ] `src/services/quiz.js` → `src/services/quiz/QuizService.ts`
-- [ ] `src/services/myDailyBudget.js` → `src/services/finance/DailyBudgetService.ts`
-- [ ] `src/services/FinanceServices.js` → `src/services/finance/FinanceService.ts`
-- [ ] `src/services/GastosCartaoService.js` → `src/services/finance/GastosCartaoService.ts`
-- [ ] `src/services/CaixinhaService.js` → `src/services/finance/CaixinhaService.ts`
-- [ ] `src/services/SubscriptionService.js` → `src/services/subscription/SubscriptionService.ts`
-- [ ] `src/services/autoArbitrageService.js` → `src/services/b3/AutoArbitrageService.ts`
-- [ ] `src/services/cryptoArbitrageService.js` → `src/services/b3/CryptoArbitrageService.ts`
-- [ ] `src/services/MusicManagerService.js` → `src/services/music/MusicManagerService.ts`
-- [ ] `src/services/ConversationHistoryGpt.js` → substituído por `ChatSessionService.ts` (já feito)
+- [x] `src/services/RankingService.js` → `src/services/ranking/RankingService.ts`
+- [x] `src/services/broadcast-discord.js` → `src/services/discord/BroadcastService.ts`
+- [x] `src/services/analiseDadosUsuarios.js` → `src/services/analytics/UserAnalyticsService.ts`
+- [x] `src/services/quiz.js` → `src/services/quiz/QuizService.ts`
+- [x] `src/services/myDailyBudget.js` → `src/services/finance/DailyBudgetService.ts`
+- [x] `src/services/FinanceServices.js` → `src/services/finance/FinanceService.ts`
+- [x] `src/services/GastosCartaoService.js` → `src/services/finance/GastosCartaoService.ts`
+- [x] `src/services/CaixinhaService.js` → `src/services/finance/CaixinhaService.ts`
+- [x] `src/services/SubscriptionService.js` → `src/services/subscription/SubscriptionService.ts`
+- [x] `src/services/autoArbitrageService.js` → `src/services/b3/AutoArbitrageService.ts`
+- [x] `src/services/cryptoArbitrageService.js` → `src/services/b3/CryptoArbitrageService.ts`
+- [x] `src/services/MusicManagerService.js` → `src/services/music/MusicManagerService.ts`
+- [x] `src/services/ConversationHistoryGpt.js` → substituído por `ChatSessionService.ts` (já feito)
 
 **Critério de conclusão:** Todos os services tipados com dependências explícitas (sem `context()` direto).
 
