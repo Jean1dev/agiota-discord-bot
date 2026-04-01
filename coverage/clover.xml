@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1775043311201" clover="3.2.0">
+  <project timestamp="1775043311201" name="All files">
+    <metrics statements="179" coveredstatements="176" conditionals="68" coveredconditionals="61" methods="52" coveredmethods="49" elements="299" coveredelements="286" complexity="0" loc="179" ncloc="179" packages="7" files="11" classes="11"/>
+    <package name="application.debt">
+      <metrics statements="22" coveredstatements="22" conditionals="6" coveredconditionals="6" methods="6" coveredmethods="6"/>
+      <file name="AddDebtUseCase.ts" path="/home/user/agiota-discord-bot/src/application/debt/AddDebtUseCase.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="11" type="stmt"/>
+        <line num="18" count="12" type="stmt"/>
+        <line num="19" count="12" type="stmt"/>
+        <line num="20" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="12" type="stmt"/>
+        <line num="22" count="10" type="stmt"/>
+        <line num="23" count="10" type="stmt"/>
+      </file>
+      <file name="PayDebtUseCase.ts" path="/home/user/agiota-discord-bot/src/application/debt/PayDebtUseCase.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="4" coveredconditionals="4" methods="3" coveredmethods="3"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="6" type="stmt"/>
+        <line num="15" count="7" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
+        <line num="18" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="26" count="5" type="stmt"/>
+        <line num="27" count="4" type="stmt"/>
+        <line num="28" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="discord.commands">
+      <metrics statements="24" coveredstatements="24" conditionals="6" coveredconditionals="5" methods="6" coveredmethods="6"/>
+      <file name="BaseCommand.ts" path="/home/user/agiota-discord-bot/src/discord/commands/BaseCommand.ts">
+        <metrics statements="24" coveredstatements="24" conditionals="6" coveredconditionals="5" methods="6" coveredmethods="6"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="44" count="15" type="stmt"/>
+        <line num="48" count="15" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="15" type="stmt"/>
+        <line num="53" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="60" count="14" type="stmt"/>
+        <line num="61" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="68" count="13" type="stmt"/>
+        <line num="69" count="13" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="94" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="discord.guards">
+      <metrics statements="55" coveredstatements="55" conditionals="25" coveredconditionals="22" methods="13" coveredmethods="13"/>
+      <file name="AdminGuard.ts" path="/home/user/agiota-discord-bot/src/discord/guards/AdminGuard.ts">
+        <metrics statements="28" coveredstatements="28" conditionals="12" coveredconditionals="12" methods="5" coveredmethods="5"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
+        <line num="21" count="7" type="stmt"/>
+        <line num="23" count="7" type="stmt"/>
+        <line num="24" count="6" type="stmt"/>
+        <line num="25" count="6" type="stmt"/>
+        <line num="27" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
+        <line num="36" count="7" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="65" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="66" count="2" type="stmt"/>
+        <line num="67" count="2" type="stmt"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="72" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="73" count="5" type="stmt"/>
+        <line num="75" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="76" count="3" type="stmt"/>
+        <line num="77" count="3" type="stmt"/>
+        <line num="80" count="3" type="stmt"/>
+        <line num="83" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+      </file>
+      <file name="AuthorizationService.ts" path="/home/user/agiota-discord-bot/src/discord/guards/AuthorizationService.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="22" count="13" type="stmt"/>
+        <line num="25" count="20" type="stmt"/>
+        <line num="31" count="19" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+      </file>
+      <file name="RateLimitGuard.ts" path="/home/user/agiota-discord-bot/src/discord/guards/RateLimitGuard.ts">
+        <metrics statements="22" coveredstatements="22" conditionals="13" coveredconditionals="10" methods="4" coveredmethods="4"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="35" count="11" type="stmt"/>
+        <line num="38" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="47" count="33" type="stmt"/>
+        <line num="48" count="33" type="stmt"/>
+        <line num="50" count="33" type="cond" truecount="4" falsecount="0"/>
+        <line num="51" count="21" type="stmt"/>
+        <line num="52" count="21" type="stmt"/>
+        <line num="55" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="56" count="5" type="stmt"/>
+        <line num="57" count="5" type="stmt"/>
+        <line num="58" count="5" type="stmt"/>
+        <line num="61" count="7" type="stmt"/>
+        <line num="62" count="7" type="stmt"/>
+        <line num="67" count="2" type="stmt"/>
+        <line num="68" count="2" type="stmt"/>
+        <line num="69" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="75" count="3" type="stmt"/>
+        <line num="80" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="domain.debt">
+      <metrics statements="35" coveredstatements="32" conditionals="10" coveredconditionals="9" methods="17" coveredmethods="14"/>
+      <file name="Debt.ts" path="/home/user/agiota-discord-bot/src/domain/debt/Debt.ts">
+        <metrics statements="18" coveredstatements="16" conditionals="6" coveredconditionals="5" methods="6" coveredmethods="4"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="22" count="23" type="stmt"/>
+        <line num="23" count="23" type="stmt"/>
+        <line num="24" count="23" type="stmt"/>
+        <line num="25" count="23" type="stmt"/>
+        <line num="26" count="23" type="stmt"/>
+        <line num="30" count="28" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="24" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="23" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="57" count="3" type="stmt"/>
+        <line num="63" count="11" type="stmt"/>
+        <line num="64" count="11" type="stmt"/>
+        <line num="65" count="11" type="stmt"/>
+        <line num="69" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="71" count="11" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+      </file>
+      <file name="DebtUser.ts" path="/home/user/agiota-discord-bot/src/domain/debt/DebtUser.ts">
+        <metrics statements="17" coveredstatements="16" conditionals="4" coveredconditionals="4" methods="11" coveredmethods="10"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="12" count="62" type="stmt"/>
+        <line num="13" count="62" type="stmt"/>
+        <line num="14" count="62" type="stmt"/>
+        <line num="16" count="62" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="28" count="29" type="stmt"/>
+        <line num="32" count="30" type="stmt"/>
+        <line num="39" count="28" type="stmt"/>
+        <line num="43" count="13" type="stmt"/>
+        <line num="50" count="28" type="stmt"/>
+        <line num="51" count="23" type="stmt"/>
+        <line num="58" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="11" type="stmt"/>
+        <line num="60" count="11" type="stmt"/>
+      </file>
+    </package>
+    <package name="domain.shared">
+      <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+      <file name="Result.ts" path="/home/user/agiota-discord-bot/src/domain/shared/Result.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="3"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="27" count="17" type="stmt"/>
+        <line num="31" count="9" type="stmt"/>
+        <line num="42" count="22" type="stmt"/>
+        <line num="43" count="22" type="stmt"/>
+        <line num="45" count="7" type="cond" truecount="2" falsecount="0"/>
+      </file>
+    </package>
+    <package name="services.ai">
+      <metrics statements="32" coveredstatements="32" conditionals="15" coveredconditionals="15" methods="6" coveredmethods="6"/>
+      <file name="ChatSessionService.ts" path="/home/user/agiota-discord-bot/src/services/ai/ChatSessionService.ts">
+        <metrics statements="32" coveredstatements="32" conditionals="15" coveredconditionals="15" methods="6" coveredmethods="6"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="13" type="stmt"/>
+        <line num="32" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="10" type="stmt"/>
+        <line num="42" count="10" type="stmt"/>
+        <line num="43" count="10" type="stmt"/>
+        <line num="44" count="10" type="stmt"/>
+        <line num="49" count="5" type="stmt"/>
+        <line num="50" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="4" type="stmt"/>
+        <line num="52" count="4" type="stmt"/>
+        <line num="60" count="7" type="stmt"/>
+        <line num="61" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="63" count="6" type="stmt"/>
+        <line num="66" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="70" count="6" type="stmt"/>
+        <line num="71" count="6" type="stmt"/>
+        <line num="72" count="6" type="stmt"/>
+        <line num="73" count="6" type="stmt"/>
+        <line num="78" count="3" type="stmt"/>
+        <line num="79" count="3" type="stmt"/>
+        <line num="80" count="3" type="stmt"/>
+        <line num="81" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="82" count="2" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+        <line num="86" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="87" count="3" type="stmt"/>
+        <line num="91" count="4" type="stmt"/>
+        <line num="96" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="shared.logger">
+      <metrics statements="5" coveredstatements="5" conditionals="4" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <file name="Logger.ts" path="/home/user/agiota-discord-bot/src/shared/logger/Logger.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="4" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="39" count="4" type="stmt"/>
+        <line num="40" count="7" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

@@ -1,4 +1,4 @@
-import { AdminGuard } from '../../../../src/discord/guards/AdminGuard'
+import { AdminGuard, requireAdminById } from '../../../../src/discord/guards/AdminGuard'
 import { ConfigAuthorizationService } from '../../../../src/discord/guards/AuthorizationService'
 import { BaseCommand, CommandContext, DiscordMessage } from '../../../../src/discord/commands/BaseCommand'
 import { z } from 'zod'
@@ -93,5 +93,68 @@ describe('AdminGuard', () => {
       await protected_.execute({ message: makeMessage(adminId), args: [] })
       expect(cmd.executed).toBe(true)
     }
+  })
+})
+
+// ── requireAdminById ──────────────────────────────────────────────────────
+
+describe('requireAdminById', () => {
+  const ADMIN_ID = 'admin-standalone'
+
+  beforeEach(() => {
+    process.env['ADMIN_DISCORD_USER_IDS'] = ADMIN_ID
+  })
+
+  afterEach(() => {
+    delete process.env['ADMIN_DISCORD_USER_IDS']
+  })
+
+  it('chama next(message) quando admin — overload sem args', async () => {
+    const message = makeMessage(ADMIN_ID)
+    let called = false
+    const next = async (_msg: DiscordMessage) => { called = true }
+
+    await requireAdminById(message, next)
+
+    expect(called).toBe(true)
+    expect(message.replies).toHaveLength(0)
+  })
+
+  it('bloqueia e responde quando não-admin — overload sem args', async () => {
+    const message = makeMessage('outsider')
+    let called = false
+    await requireAdminById(message, async () => { called = true })
+
+    expect(called).toBe(false)
+    expect(message.replies[0]).toMatch('não tem permissão')
+  })
+
+  it('chama next(args, message) quando admin — overload com args', async () => {
+    const message = makeMessage(ADMIN_ID)
+    let receivedArgs: string[] | undefined
+    const next = async (args: string[], _msg: DiscordMessage) => { receivedArgs = args }
+
+    await requireAdminById(['foo', 'bar'], message, next)
+
+    expect(receivedArgs).toEqual(['foo', 'bar'])
+    expect(message.replies).toHaveLength(0)
+  })
+
+  it('bloqueia e responde quando não-admin — overload com args', async () => {
+    const message = makeMessage('outsider')
+    let called = false
+    await requireAdminById(['foo'], message, async () => { called = true })
+
+    expect(called).toBe(false)
+    expect(message.replies[0]).toMatch('não tem permissão')
+  })
+
+  it('bloqueia quando ADMIN_DISCORD_USER_IDS não está definido', async () => {
+    delete process.env['ADMIN_DISCORD_USER_IDS']
+    const message = makeMessage(ADMIN_ID)
+    let called = false
+    await requireAdminById(message, async () => { called = true })
+
+    expect(called).toBe(false)
   })
 })
