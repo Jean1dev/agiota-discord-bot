@@ -1,11 +1,11 @@
 const context = require('../context').contextInstance
 const LIMIT = 8400
 
+// CORRIGIDO: setTimeout removido — não havia justificativa para o delay de 5s,
+// e causava race conditions + fire-and-forget no save().
 function atualizarTotalGasto(valor) {
-    setTimeout(() => {
-        context().totalGastoCartao = valor
-        context().save()
-    }, 5000)
+    context().totalGastoCartao = valor
+    context().save()
 }
 
 function verificarLimiteEstourado() {
@@ -15,11 +15,9 @@ function verificarLimiteEstourado() {
 }
 
 function adicionarGasto(valor) {
-    setTimeout(() => {
-        context().totalGastoCartao += valor
-        context().save()
-        verificarLimiteEstourado()
-    }, 5000)
+    context().totalGastoCartao += valor
+    context().save()
+    verificarLimiteEstourado()
 }
 
 module.exports = {

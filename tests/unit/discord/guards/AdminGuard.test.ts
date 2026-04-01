@@ -8,7 +8,7 @@ import { z } from 'zod'
 function makeMessage(userId: string): DiscordMessage & { replies: string[] } {
   const replies: string[] = []
   return {
-    author: { id: userId, username: 'testuser' },
+    author: { id: userId, username: 'testuser', send: async () => undefined },
     channel: { send: async () => undefined },
     reply: async (text: string) => { replies.push(text) },
     replies,

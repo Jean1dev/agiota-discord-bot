@@ -1,86 +1,68 @@
 const comandos = require('./comandos-struct')
 
-// Handlers de dívida migrados para TypeScript
-const {
-  addDividaHandler,
-  pagarDividaHandler,
-  cobrarDividaHandler,
-} = require('../discord/commands/debt')
+// ── Domínios migrados para TypeScript ─────────────────────────────────────
+const { addDividaHandler, pagarDividaHandler, cobrarDividaHandler } = require('../discord/commands/debt')
+const { addDailyBudgetHandler, updateGastosCartaoHandler, relatorioMensalDeGastosHandler, buscarGastoNoDiaHandler } = require('../discord/commands/finance')
+const { jogoBixoHandler, estatisticasJogoBixoHandler } = require('../discord/commands/game')
+const { chatGpt, changeIaMode } = require('../discord/commands/ai')
+const { arbitragemHandler, changeAutoArbitragemHandler, crossingCountsHandler, atualizarCotacaoHandler } = require('../discord/commands/b3')
+const { restartHandler, dbCleanHandler, meconecteiHandler } = require('../discord/commands/admin')
+const { assinaturasHandler, assinaturasAtivasHandler } = require('../discord/commands/subscriptions')
 
+// ── Handlers JS ainda não migrados ────────────────────────────────────────
 const {
   helpHandler,
   recordHandler,
   uploadRecords,
-  changeIaMode,
-  jogoBixoHandler,
-  estatisticasJogoBixoHandler,
-  musicPlayerHanlder,
-  atualizarCotacaoHandler,
-  chatGpt,
   imgur,
-  addDailyBudgetHandler,
-  relatorioMensalDeGastosHandler,
-  buscarGastoNoDiaHandler,
-  assinaturasHandler,
   realTimeConversaGpt,
   airDropHandler,
-  updateGastosCartaoHandler,
   ultimoEmprestimoInfoHandler,
-  arbitragemHandler,
-  changeAutoArbitragemHandler,
-  crossingCountsHandler,
-  assinaturasAtivasHandler,
-  restartHandler,
-  dbCleanHandler,
-  meconecteiHandler,
   configWhatsAppHandler,
   clearWhatsAppHandler,
   testWhatsAppHandler,
   youtubeAuthHandler,
   youtubeWatchLaterHandler,
-  youtubeWatchLaterClearHandler
+  youtubeWatchLaterClearHandler,
+  musicPlayerHanlder,
 } = require('../handlers')
 
 function registrarComando(comando, handler, descricao, needArgs = false) {
-  comandos.push({
-    comando,
-    handler,
-    descricao,
-    needArgs
-  })
+  comandos.push({ comando, handler, descricao, needArgs })
 }
 
-registrarComando('help', helpHandler, 'lista os comandos disponiveis')
-registrarComando('add-divida', addDividaHandler, 'Adicionar uma divida para um usuario :: args @valor @usuario @descricao', true)
-registrarComando('cobrar', cobrarDividaHandler, 'Lista os usuarios que possuem debitos')
-registrarComando('pagar', pagarDividaHandler, 'Paga a divida :: args @valorPago', true)
-registrarComando('rec', recordHandler, 'grava audio por X tempo em segundos :: args @tempo', true)
-registrarComando('uprec', uploadRecords, 'faz upload das gravações para o google drive')
-registrarComando('ia', changeIaMode, 'liga ou desliga a inteligencia artifical')
-registrarComando('bixo', jogoBixoHandler, 'aposta em um bixo no jogo do bixo :: args @numero', true)
-registrarComando('bixo-data', estatisticasJogoBixoHandler, 'gera as estatisticas do bixo')
-registrarComando('p', musicPlayerHanlder, 'Liga o player de musica')
-registrarComando('acao', atualizarCotacaoHandler, 'atualizar cotacoes no app da carteira')
-registrarComando('gpt', chatGpt, 'Tire suas dúvidas com o chatgpt', true)
-registrarComando('imgur', imgur, 'Busca 5 imagens aleatorias do imgur')
-registrarComando('budget', addDailyBudgetHandler, 'Adiciona um valor no orcamento diario de gastos', true)
-registrarComando('relatorio', relatorioMensalDeGastosHandler, 'Gera o relatorio mensal de gastos do Jean')
-registrarComando('bg', buscarGastoNoDiaHandler, 'Busca as transacoes do dia enviado por parametro no formato DD/MM', true)
-registrarComando('sub', assinaturasHandler, 'Cria uma nova assinatura de 30 dias :: args @email', true)
-registrarComando('conversa', realTimeConversaGpt, 'Converse com o chat gpt')
-registrarComando('ad', airDropHandler, 'Faz um airdrop de SOL para os usuarios :: @args @valor @carteira, @cluster', true)
-registrarComando('card', updateGastosCartaoHandler, 'Atualiza os gastos do cartao de credito :: args @valor', true)
-registrarComando('up', ultimoEmprestimoInfoHandler, 'Mostra o ultimo emprestimo solicitado')
-registrarComando('arb', arbitragemHandler, 'Verifica oportunidades de arbitragem em exchanges :: args @quantidade_execucoes', true)
-registrarComando('auto-arb', changeAutoArbitragemHandler, 'Altera o status da auto arbitragem (apenas JEAN)')
-registrarComando('cr-counts', crossingCountsHandler, 'POST /v1/arbitrage/future/crossing-counts (apenas JEAN)')
-registrarComando('ass', assinaturasAtivasHandler, 'Verifica as assinaturas ativas')
-registrarComando('rs', restartHandler, 'Reinicia a aplicação (apenas JEAN)')
-registrarComando('db-clean', dbCleanHandler, 'Executa migração de coleções e limpa o banco crypto2 (apenas JEAN)')
-registrarComando('meconectei', meconecteiHandler, 'Cria conta de admin no me-conectei :: args @email', true)
-registrarComando('zap-config', configWhatsAppHandler, 'Inicia vinculação do WhatsApp (QR code no chat)')
-registrarComando('zap-clear', clearWhatsAppHandler, 'Remove sessão do WhatsApp (use após 401 para vincular de novo)')
-registrarComando('zap-test', testWhatsAppHandler, 'Envia mensagem de teste para  (testa conexão WhatsApp)')
-registrarComando('yt-auth', youtubeAuthHandler, 'Autoriza o bot a ler suas inscrições do YouTube (vídeos das últimas 24h)')
-registrarComando('yt-wl', youtubeWatchLaterHandler, 'Envia os vídeos do banco (watchLater: true) para a playlist Assistir mais tarde do YouTube e apaga a coleção')
-registrarComando('yt-clear', youtubeWatchLaterClearHandler, 'Remove todos os vídeos da playlist configurada em YOUTUBE_WATCH_LATER_PLAYLIST_ID')
+// ── Registro de todos os comandos ─────────────────────────────────────────
+registrarComando('help',        helpHandler,                    'lista os comandos disponíveis')
+registrarComando('add-divida',  addDividaHandler,               'Adicionar uma dívida :: $add-divida <valor> <@usuario> [descrição]', true)
+registrarComando('cobrar',      cobrarDividaHandler,            'Lista usuários com débitos em aberto')
+registrarComando('pagar',       pagarDividaHandler,             'Registra um pagamento :: $pagar <valor>', true)
+registrarComando('budget',      addDailyBudgetHandler,          'Adiciona valor ao orçamento diário :: $budget <valor>', true)
+registrarComando('relatorio',   relatorioMensalDeGastosHandler, 'Gera relatório mensal de gastos')
+registrarComando('bg',          buscarGastoNoDiaHandler,        'Busca transações do dia :: $bg <DD/MM>', true)
+registrarComando('card',        updateGastosCartaoHandler,      'Atualiza gastos do cartão :: $card <valor>', true)
+registrarComando('bixo',        jogoBixoHandler,                'Aposta no jogo do bixo :: $bixo <0-99>', true)
+registrarComando('bixo-data',   estatisticasJogoBixoHandler,    'Estatísticas do jogo do bixo')
+registrarComando('gpt',         chatGpt,                        'Tire dúvidas com o ChatGPT :: $gpt <pergunta>', true)
+registrarComando('ia',          changeIaMode,                   'Liga ou desliga a IA')
+registrarComando('arb',         arbitragemHandler,              'Executa rounds de arbitragem :: $arb <quantidade>', true)
+registrarComando('auto-arb',    changeAutoArbitragemHandler,    'Alterna auto-arbitragem (admin)')
+registrarComando('cr-counts',   crossingCountsHandler,          'POST crossing-counts (admin)')
+registrarComando('acao',        atualizarCotacaoHandler,        'Atualiza cotações da carteira')
+registrarComando('rs',          restartHandler,                 'Reinicia a aplicação (admin)')
+registrarComando('db-clean',    dbCleanHandler,                 'Limpa banco crypto (admin)')
+registrarComando('meconectei',  meconecteiHandler,              'Cria conta admin no Me Conectei :: $meconectei <email> (admin)', true)
+registrarComando('sub',         assinaturasHandler,             'Cria assinatura de 30 dias :: $sub <email> (admin)', true)
+registrarComando('ass',         assinaturasAtivasHandler,       'Lista assinaturas ativas (admin)')
+registrarComando('rec',         recordHandler,                  'Grava áudio :: $rec <segundos>', true)
+registrarComando('uprec',       uploadRecords,                  'Upload das gravações para o Google Drive')
+registrarComando('imgur',       imgur,                          'Busca 5 imagens aleatórias do Imgur')
+registrarComando('conversa',    realTimeConversaGpt,            'Conversa em tempo real com o ChatGPT')
+registrarComando('ad',          airDropHandler,                 'Airdrop de SOL :: $ad <valor> <carteira> <cluster>', true)
+registrarComando('up',          ultimoEmprestimoInfoHandler,    'Mostra o último empréstimo')
+registrarComando('p',           musicPlayerHanlder,             'Liga o player de música')
+registrarComando('zap-config',  configWhatsAppHandler,          'Inicia vinculação do WhatsApp (QR code)')
+registrarComando('zap-clear',   clearWhatsAppHandler,           'Remove sessão do WhatsApp')
+registrarComando('zap-test',    testWhatsAppHandler,            'Envia mensagem de teste via WhatsApp')
+registrarComando('yt-auth',     youtubeAuthHandler,             'Autoriza o bot no YouTube')
+registrarComando('yt-wl',       youtubeWatchLaterHandler,       'Envia vídeos para a playlist Watch Later')
+registrarComando('yt-clear',    youtubeWatchLaterClearHandler,  'Remove todos os vídeos da playlist configurada')

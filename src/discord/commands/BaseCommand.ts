@@ -6,7 +6,7 @@ const log = createLogger('BaseCommand')
 
 // Tipos mínimos do Discord.js v13 para não criar dependência pesada nos testes
 export interface DiscordMessage {
-  author: { id: string; username: string }
+  author: { id: string; username: string; send(text: string): Promise<unknown> }
   channel: { send(text: string): Promise<unknown> }
   reply(text: string): Promise<unknown>
 }
