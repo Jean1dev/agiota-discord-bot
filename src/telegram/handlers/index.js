@@ -1,8 +1,2 @@
-const { registerDailyBudgetHandlers } = require('./daily-budget-handler')
-const { registerPublicHandlers } = require('./public-handler')
-
-module.exports = {
-    registerDailyBudgetHandlers,
-    registerPublicHandlers
-}
-
+// Migrado para TypeScript — src/telegram/handlers/index.ts
+module.exports = require('./index')

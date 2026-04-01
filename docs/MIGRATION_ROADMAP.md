@@ -141,22 +141,22 @@
 
 ---
 
-## ⬜ Fase 9 — Telegram e WhatsApp
+## ✅ Fase 9 — Telegram e WhatsApp
 
 **Objetivo:** Migrar integrações de mensageria isoladas.
 
 **Arquivos alvo:**
-- [ ] `src/telegram/config/telegram-config.js` → `src/telegram/TelegramConfig.ts`
-- [ ] `src/telegram/utils/telegram-utils.js` → `src/telegram/TelegramUtils.ts`
-- [ ] `src/telegram/handlers/index.js` → `src/telegram/TelegramRouter.ts`
-- [ ] `src/telegram/handlers/daily-budget-handler.js` → `src/telegram/handlers/DailyBudgetHandler.ts`
-- [ ] `src/telegram/handlers/public-handler.js` → `src/telegram/handlers/PublicHandler.ts`
-- [ ] `src/telegram/index.js` → `src/telegram/index.ts`
-- [ ] `src/services/WhatsAppService.js` → `src/services/whatsapp/WhatsAppService.ts`
-- [ ] `src/services/whatsapp/mongoAuthStore.js` → typed
-- [ ] `src/services/whatsapp/planFlowHandler.js` → typed
-- [ ] `src/services/whatsapp/planSessionStore.js` → typed
-- [ ] `src/handlers/whatsapp/*.js` → `src/discord/commands/whatsapp/`
+- [x] `src/telegram/config/telegram-config.js` → `src/telegram/TelegramConfig.ts`
+- [x] `src/telegram/utils/telegram-utils.js` → `src/telegram/TelegramUtils.ts`
+- [x] `src/telegram/handlers/index.js` → `src/telegram/handlers/index.ts`
+- [x] `src/telegram/handlers/daily-budget-handler.js` → `src/telegram/handlers/DailyBudgetHandler.ts`
+- [x] `src/telegram/handlers/public-handler.js` → `src/telegram/handlers/PublicHandler.ts`
+- [x] `src/telegram/index.js` → `src/telegram/index.ts`
+- [x] `src/services/WhatsAppService.js` → `src/services/WhatsAppService.ts`
+- [x] `src/services/whatsapp/mongoAuthStore.js` → `src/services/whatsapp/MongoAuthStore.ts`
+- [x] `src/services/whatsapp/planFlowHandler.js` → `src/services/whatsapp/PlanFlowHandler.ts`
+- [x] `src/services/whatsapp/planSessionStore.js` → `src/services/whatsapp/PlanSessionStore.ts`
+- [x] `src/services/whatsapp/addressExtractionService.js` → `src/services/whatsapp/AddressExtractionService.ts`
 
 **Critério de conclusão:** Integrações Telegram e WhatsApp totalmente tipadas.
 
@@ -265,8 +265,8 @@
 
 | Métrica | Início | Atual | Meta |
 |---|---|---|---|
-| Arquivos TypeScript em `src/` | 0 | 40 | 135 |
-| Arquivos JavaScript em `src/` | 135 | 95 | 0 |
+| Arquivos TypeScript em `src/` | 0 | 55 | 135 |
+| Arquivos JavaScript em `src/` | 135 | 80 | 0 |
 | Cobertura de testes (arquivos TS) | 0% | 97.91% | ≥ 80% |
 | Testes automatizados | 0 | 76 | ≥ 150 |
 | `allowJs` no tsconfig | `true` | `true` | `false` |
