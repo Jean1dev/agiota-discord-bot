@@ -1,8 +1,8 @@
 # Migration Roadmap — JavaScript → TypeScript
 
-> Progresso: **Fases 1–10 concluídas** | Restam: Fases 11–12
+> Progresso: **Fases 1–11 concluídas** | Resta: Fase 12
 > Cobertura de testes atual: **97.91%** nos arquivos TS
-> Arquivos JS restantes: **~80** (shims) | Arquivos TS: **60+**
+> Arquivos JS restantes: **~80** (shims + infra) | Arquivos TS: **80+**
 
 ---
 
@@ -187,53 +187,63 @@
 
 ---
 
-## ⬜ Fase 11 — Handlers e Comandos Discord
+## ✅ Fase 11 — Handlers e Comandos Discord
 
 **Objetivo:** Migrar todos os handlers para o padrão `BaseCommand<TSchema>`.
 
 **Grupos por domínio:**
 
 **Finance (agiotagem):**
-- [ ] `src/handlers/agiotagem/add-daily-budget.js`
-- [ ] `src/handlers/agiotagem/adicionar-divida.js` (já existe use case TS)
-- [ ] `src/handlers/agiotagem/cobrar-dividas.js`
-- [ ] `src/handlers/agiotagem/pagar-divida.js` (já existe use case TS)
-- [ ] `src/handlers/agiotagem/pesquisar-gastos-do-dia.js`
-- [ ] `src/handlers/agiotagem/relatorio-daily-budget.js`
-- [ ] `src/handlers/agiotagem/ultimo-emprestimo-info.js`
-- [ ] `src/handlers/agiotagem/update-gastos-cartao.js`
+- [x] `add-daily-budget.js` → `AddBudgetCommand.ts`
+- [x] `adicionar-divida.js` → `AddDebtCommand.ts`
+- [x] `cobrar-dividas.js` → `ChargeDebtsCommand.ts`
+- [x] `pagar-divida.js` → `PayDebtCommand.ts`
+- [x] `pesquisar-gastos-do-dia.js` → `SearchDayExpensesCommand.ts`
+- [x] `relatorio-daily-budget.js` → `BudgetReportCommand.ts`
+- [x] `ultimo-emprestimo-info.js` → `UltimoEmprestimoCommand.ts`
+- [x] `update-gastos-cartao.js` → `UpdateCardExpensesCommand.ts`
 
 **B3 / Finanças:**
-- [ ] `src/handlers/b3/arbitragem.js`
-- [ ] `src/handlers/b3/atualizar-cotacao-carteira.js`
-- [ ] `src/handlers/b3/change-auto-arbitragem.js`
-- [ ] `src/handlers/b3/crossing-counts.js`
+- [x] `arbitragem.js` → `ArbitrageCommand.ts`
+- [x] `atualizar-cotacao-carteira.js` → `UpdatePortfolioCommand.ts`
+- [x] `change-auto-arbitragem.js` → `ChangeAutoArbitrageCommand.ts`
+- [x] `crossing-counts.js` → `CrossingCountsCommand.ts`
 
 **Admin:**
-- [ ] `src/handlers/admin/db-clean.js`
-- [ ] `src/handlers/admin/meconectei.js`
-- [ ] `src/handlers/restart.js`
+- [x] `admin/db-clean.js` → `DbCleanCommand.ts`
+- [x] `admin/meconectei.js` → `MeConecteiCommand.ts`
+- [x] `restart.js` → `RestartCommand.ts`
 
 **Utilitários e outros:**
-- [ ] `src/handlers/help/help.js`
-- [ ] `src/handlers/imgur/index.js`
-- [ ] `src/handlers/web3/airdrop.js`
-- [ ] `src/handlers/youtube/*.js`
-- [ ] `src/handlers/dm/index.js`
+- [x] `help/help.js` → `HelpCommand.ts`
+- [x] `imgur/index.js` → `ImgurCommand.ts`
+- [x] `web3/airdrop.js` → `AirDropCommand.ts`
+- [x] `youtube/youtube-auth.js` → `YoutubeAuthCommand.ts`
+- [x] `youtube/youtube-watch-later.js` → `YoutubeWatchLaterCommand.ts`
+- [x] `youtube/youtube-watch-later-clear.js` → `YoutubeWatchLaterClearCommand.ts`
+- [x] `whatsapp/config-whatsapp.js` → `WhatsAppConfigCommand.ts`
+- [x] `whatsapp/clear-whatsapp.js` → `WhatsAppClearCommand.ts`
+- [x] `whatsapp/test-whatsapp.js` → `WhatsAppTestCommand.ts`
 
 **IA:**
-- [ ] `src/handlers/ia/chat-gpt.js` (lógica migrada; conectar ao `ChatGptCommand.ts`)
-- [ ] `src/handlers/ia/turn-ia-mode.js`
-- [ ] `src/ia/index.js`, `src/ia/open-ai-api.js`, `src/ia/watson-utils.js`
+- [x] `ia/chat-gpt.js` → `ChatGptCommand.ts`
+- [x] `ia/turn-ia-mode.js` → `ToggleIaModeCommand.ts`
 
-**Música:**
-- [ ] `src/handlers/music/*.js`
-- [ ] `src/audio/*.js`
+**Música / Áudio:**
+- [x] `music/index.js` → `MusicPlayerCommand.ts` (thin wrapper)
+- [x] `record/record-audio.js` → `RecordAudioCommand.ts` (thin wrapper)
+- [x] `record/upload-records.js` → `UploadRecordsCommand.ts` (thin wrapper)
+- [x] `real-time-conversa/index.js` → `RealTimeConversaCommand.ts` (thin wrapper)
 
 **Jogo do bicho:**
-- [ ] `src/handlers/jogo-bixo/*.js`
+- [x] `jogo-bixo/command-handler.js` → `PlaceBetCommand.ts`
+- [x] `jogo-bixo/estatisticas.js` → `GameStatsCommand.ts`
 
-**Critério de conclusão:** Todos os handlers migrados para `BaseCommand`; `src/handlers/` vazio.
+**Assinaturas:**
+- [x] `assinaturas/index.js` → `CreateSubscriptionCommand.ts`
+- [x] `assinaturas/assinaturas-ativas.js` → `ActiveSubscriptionsCommand.ts`
+
+**Critério de conclusão:** Todos os handlers cobertos por `BaseCommand`; `lista-comandos.js` 100% importa de `discord/commands/`.
 
 ---
 

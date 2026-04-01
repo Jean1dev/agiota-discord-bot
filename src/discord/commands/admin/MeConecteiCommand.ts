@@ -28,10 +28,10 @@ export class MeConecteiCommand extends BaseCommand<typeof schema> {
     const password: string = this.meConecteiService.generatePassword(12)
     await this.meConecteiService.createAdminUser(email, password)
 
-    this.emailService({
+    this.emailService.sendEmail({
       to: email,
       subject: 'Conta criada no me-conectei',
-      message: `Sua conta foi criada.\nEmail: ${email}\nSenha: ${password}\n\nAlgere sua senha após o primeiro login.`,
+      body: `Sua conta foi criada.\nEmail: ${email}\nSenha: ${password}\n\nAlgere sua senha após o primeiro login.`,
     })
 
     log.info({ email }, 'Conta Me Conectei criada')
