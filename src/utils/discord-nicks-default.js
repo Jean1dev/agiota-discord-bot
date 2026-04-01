@@ -1,12 +1,2 @@
-const JEANLUCAFP_NICK = 'jeanlucafp'
-
-module.exports = {
-    JEANLUCAFP_NICK,
-    formatDate: (data) => {
-        const dia = String(data.getDate()).padStart(2, '0');
-        const mes = String(data.getMonth() + 1).padStart(2, '0');
-        const ano = data.getFullYear();
-      
-        return `${dia}/${mes}/${ano}`;
-    }
-}
+// Migrado para TypeScript — src/shared/utils/discord-nicks-default.ts
+module.exports = require('../shared/utils/discord-nicks-default')

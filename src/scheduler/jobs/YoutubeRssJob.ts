@@ -1,8 +1,6 @@
 import { IJob } from '../IJob'
-import { LIXO_CHANNEL } from '../../discord-constants'
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { isFeriadoHoje } = require('../../utils/feriados-br')
+import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
+import { isFeriadoHoje } from '../../shared/utils/feriados-br'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { saveYoutubeVideos } = require('../../repository/mongodb')
 // eslint-disable-next-line @typescript-eslint/no-require-imports

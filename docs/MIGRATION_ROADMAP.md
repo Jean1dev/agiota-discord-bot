@@ -102,19 +102,19 @@
 
 ---
 
-## ⬜ Fase 7 — Repositório e Utilitários
+## ✅ Fase 7 — Repositório e Utilitários
 
 **Objetivo:** Migrar camada de acesso a dados e helpers sem dependência do context.
 
 **Arquivos alvo:**
-- [ ] `src/repository/mongodb.js` → `src/infrastructure/database/MongoRepository.ts`
-- [ ] `src/repository/operations.js` → `src/infrastructure/database/OperationsRepository.ts`
-- [ ] `src/discord-constants.js` → `src/discord/DiscordConstants.ts` (const enum ou object as const)
-- [ ] `src/utils/utils.js` → `src/shared/utils/utils.ts`
-- [ ] `src/utils/feriados-br.js` → `src/shared/utils/feriados-br.ts`
-- [ ] `src/utils/discord-nicks-default.js` → `src/shared/utils/discord-nicks-default.ts`
-- [ ] `src/app-events.js` → `src/shared/events/AppEvents.ts` (typed EventEmitter)
-- [ ] `src/config.js` → mesclar com `src/config/env.ts` (já existe validação Zod)
+- [x] `src/repository/mongodb.js` → `src/infrastructure/database/MongoRepository.ts`
+- [x] `src/repository/operations.js` → shim (delega para MongoRepository.ts)
+- [x] `src/discord-constants.js` → `src/discord/DiscordConstants.ts`
+- [x] `src/utils/utils.js` → `src/shared/utils/utils.ts`
+- [x] `src/utils/feriados-br.js` → `src/shared/utils/feriados-br.ts`
+- [x] `src/utils/discord-nicks-default.js` → `src/shared/utils/discord-nicks-default.ts`
+- [x] `src/app-events.js` → `src/shared/events/AppEvents.ts` (typed EventEmitter; listeners AMQP permanecem em JS)
+- [x] `src/config.js` → shim mapeando `src/config/env.ts` para nomes legados
 
 **Critério de conclusão:** Nenhum arquivo TS importando `.js` para funções utilitárias.
 
@@ -265,8 +265,8 @@
 
 | Métrica | Início | Atual | Meta |
 |---|---|---|---|
-| Arquivos TypeScript em `src/` | 0 | 22 | 135 |
-| Arquivos JavaScript em `src/` | 135 | 113 | 0 |
+| Arquivos TypeScript em `src/` | 0 | 29 | 135 |
+| Arquivos JavaScript em `src/` | 135 | 106 | 0 |
 | Cobertura de testes (arquivos TS) | 0% | 97.91% | ≥ 80% |
 | Testes automatizados | 0 | 76 | ≥ 150 |
 | `allowJs` no tsconfig | `true` | `true` | `false` |

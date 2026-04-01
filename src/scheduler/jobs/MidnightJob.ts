@@ -1,5 +1,5 @@
 import { IJob } from '../IJob'
-import { CHAT_GERAL, CANAIS_PARA_LIMPAR } from '../../discord-constants'
+import { CHAT_GERAL, CANAIS_PARA_LIMPAR } from '../../discord/DiscordConstants'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { rankearUso, rotinaDiariaCrypto } = require('../../services')
