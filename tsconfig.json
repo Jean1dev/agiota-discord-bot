@@ -16,7 +16,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
       "@config/*": ["src/config/*"],
       "@domain/*": ["src/domain/*"],
