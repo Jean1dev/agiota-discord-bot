@@ -1,18 +1,13 @@
 import axios from 'axios'
 import { MessageEmbed, MessageButton, MessageActionRow } from 'discord.js'
+import appConfig from '../../config'
+import { contextInstance } from '../../context'
 import captureException from '../../observability/Sentry'
 import { CAIXINHA_CHANNEL, LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { sendEmail } from '../email/EmailService'
 import { addSubcriptionByEvent, addProtestByEvent } from '../subscription/SubscriptionService'
 import { forceArbitrage } from '../b3/CryptoArbitrageService'
-
-function getContext() {
-    return require('../../context').contextInstance()
-}
-
-function getConfig() {
-    return require('../../config')
-}
+import { appEvents } from '../../shared/events/AppEvents'
 
 function getFinanceService() {
     return require('./FinanceService').default ?? require('./FinanceService')
@@ -36,7 +31,7 @@ function sendSmsToCaixinhaMembers(message: string): void {
 
 async function notifySms(payload: { message: string; phone?: string }): Promise<void> {
     const { message, phone } = payload
-    const baseUrl = `${getConfig().COMMUNICATION_SERVER_URL}/notificacao`
+    const baseUrl = `${appConfig.COMMUNICATION_SERVER_URL}/notificacao`
 
     try {
         if (phone) {
@@ -75,7 +70,7 @@ export async function getInfoUltimoEmprestimo(
         }
     }
 
-    const url = `${getConfig().CAIXINHA_SERVER_URL}/get-ultimo-emprestimo-pendente?email=${user.email}&name=${user.name}`
+    const url = `${appConfig.CAIXINHA_SERVER_URL}/get-ultimo-emprestimo-pendente?email=${user.email}&name=${user.name}`
     const response = await axios.get(url)
     const data = response.data
     if (data.error || !data?.exists) {
@@ -93,7 +88,7 @@ export async function getInfoUltimoEmprestimo(
 }
 
 function enviarAprovacao(caixinhaId: string, emprestimoUid: string): void {
-    const url = `${getConfig().CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=ZE1oGnOPHdf4QtEvPpILx97EPHvdjmpw9wbE9P4bvmr6AzFuIbaQtQ==`
+    const url = `${appConfig.CAIXINHA_SERVER_URL}/discord-aprovar-emprestimo?code=ZE1oGnOPHdf4QtEvPpILx97EPHvdjmpw9wbE9P4bvmr6AzFuIbaQtQ==`
     axios
         .post(url, { caixinhaId, emprestimoUid })
         .then(() => {
@@ -137,11 +132,11 @@ function adicionarAprovacao(interaction: any, caixinhaId: string, emprestimoUid:
 
 function getChannelCaixinha(): any {
     if (process.env.NODE_ENV === 'dev') {
-        return getContext().client.channels.cache.find(
+        return contextInstance().client.channels.cache.find(
             (channel: any) => channel.name === LIXO_CHANNEL
         )
     }
-    return getContext().client.channels.cache.find(
+    return contextInstance().client.channels.cache.find(
         (channel: any) => channel.name === CAIXINHA_CHANNEL
     )
 }
@@ -270,7 +265,7 @@ function notifyEmail(messageInput: any): void {
 function emprestimoAprovado(payload: any): void {
     const channel = getChannelCaixinha()
     channel.send(`Emprestimo aprovado para ${payload.memberName}`)
-    const url = `${getConfig().CAIXINHA_SERVER_URL}/solicitar-envio-emprestimo`
+    const url = `${appConfig.CAIXINHA_SERVER_URL}/solicitar-envio-emprestimo`
 
     axios
         .post(url, {
@@ -306,13 +301,12 @@ function emprestimoAprovado(payload: any): void {
 }
 
 function userLogged(payload: any): void {
-    const { appEvents: events } = require('../../shared/events/AppEvents')
-    events.emit('enviar-mensagem-telegram', `Usuario ${payload.email} logado`)
+    appEvents.emit('enviar-mensagem-telegram', `Usuario ${payload.email} logado`)
     forceArbitrage(
         100,
         () => {},
         () => {
-            events.emit('enviar-mensagem-telegram', 'Arbitragem concluida')
+            appEvents.emit('enviar-mensagem-telegram', 'Arbitragem concluida')
         }
     )
 }

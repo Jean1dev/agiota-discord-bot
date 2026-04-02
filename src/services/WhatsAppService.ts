@@ -1,19 +1,11 @@
+import { MessageAttachment } from 'discord.js'
 import QRCode from 'qrcode'
 import { readDoc, writeDoc, hasStoredAuth, clearSession } from './whatsapp/MongoAuthStore'
 import { handle as handlePlanFlow } from './whatsapp/PlanFlowHandler'
 import { createLogger } from '../shared/logger/Logger'
+import { enviarMensagemParaMim } from '../telegram/TelegramUtils'
 
 const log = createLogger('WhatsAppService')
-
-// TelegramUtils opcional — pode não estar disponível
-let enviarMensagemParaMim: ((msg: string) => void) | null = null
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  enviarMensagemParaMim = require('../telegram/TelegramUtils').enviarMensagemParaMim
-} catch { /* telegram opcional */ }
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { MessageAttachment } = require('discord.js')
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let sock: any = null
@@ -83,10 +75,8 @@ function registerSocketEvents(s: any, baileys: any, { saveCreds, onQr, onOpen, s
       const isLoggedOut = statusCode === DisconnectReason?.loggedOut
       const errMsg = (lastDisconnect?.error as Error | undefined)?.message
       log.warn({ statusCode, isLoggedOut, error: errMsg }, 'WhatsApp disconnect')
-      if (enviarMensagemParaMim) {
-        const msg = ['⚠️ WhatsApp desconectado', `statusCode: ${statusCode ?? '?'}`, isLoggedOut ? 'Sessão encerrada.' : 'Reconectando...', errMsg ? `Erro: ${String(errMsg).slice(0, 200)}` : ''].filter(Boolean).join('\n')
-        enviarMensagemParaMim(msg)
-      }
+      const msg = ['⚠️ WhatsApp desconectado', `statusCode: ${statusCode ?? '?'}`, isLoggedOut ? 'Sessão encerrada.' : 'Reconectando...', errMsg ? `Erro: ${String(errMsg).slice(0, 200)}` : ''].filter(Boolean).join('\n')
+      enviarMensagemParaMim(msg)
       if (isLoggedOut) { sock = null; clearSession().catch(e => log.error({ err: e }, 'clearSession')) }
       else { startSocket(socketOptions) }
     }

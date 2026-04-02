@@ -1,7 +1,5 @@
 import { IJob } from '../IJob'
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { runQuizTask } = require('../../services')
+import { runQuizTask } from '../../services'
 
 /**
  * Runs at 9:02, 12:02, 15:02, 18:02 on Monday, Tuesday, Wednesday.

@@ -1,4 +1,6 @@
+import type { Message } from 'discord.js'
 import { z } from 'zod'
+import estatisticas from '../../../handlers/jogo-bixo/estatisticas'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -14,13 +16,9 @@ export class GameStatsCommand extends BaseCommand<typeof schema> {
   readonly description = 'Exibe as estatísticas do jogo do bixo'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly statsHandler = require('../../../handlers/jogo-bixo/estatisticas')
-
   protected async handle(message: DiscordMessage): Promise<void> {
     try {
-      // O handler legado usa callback — mantemos compatibilidade
-      await this.statsHandler(message)
+      await estatisticas(message as unknown as Message)
     } catch (err) {
       log.error({ err }, 'Falha ao gerar estatísticas do jogo')
       await message.reply('Erro ao buscar estatísticas.')

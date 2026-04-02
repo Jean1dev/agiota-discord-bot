@@ -2,15 +2,9 @@ import { getOrCreateSession, getSession, setStep, updateSession, STEPS } from '.
 import { extractAddressFromText } from './AddressExtractionService'
 import * as MeConecteiService from '../meconectei/MeConecteiService'
 import { createLogger } from '../../shared/logger/Logger'
+import { enviarMensagemParaMim } from '../../telegram/TelegramUtils'
 
 const log = createLogger('PlanFlowHandler')
-
-// TelegramUtils ainda pode não estar disponível em todos os contextos
-let enviarMensagemParaMim: ((msg: string) => void) | null = null
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  enviarMensagemParaMim = require('../../telegram/TelegramUtils').enviarMensagemParaMim
-} catch { /* telegram opcional */ }
 
 // ── Tipos mínimos para Baileys ────────────────────────────────────────────
 
@@ -82,7 +76,6 @@ function formatPlansMessage(plans: Plan[]): string {
 }
 
 async function notifyTelegramNewContact(jid: string, pushName: string, firstMsg: string): Promise<void> {
-  if (!enviarMensagemParaMim) return
   const phone = jid.replace('@s.whatsapp.net', '')
   const text = ['📱 *Novo contato - Plano de Internet*', '', `Número: ${phone}`, `Nome: ${pushName || '(não informado)'}`, `Primeira mensagem: ${firstMsg || '(vazio)'}`].join('\n')
   try { enviarMensagemParaMim(text) } catch (e) { log.error({ err: e }, 'Telegram notify error') }

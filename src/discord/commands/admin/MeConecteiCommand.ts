@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { sendEmail } from '../../../services/email/EmailService'
+import { createAdminUser, generatePassword } from '../../../services/meconectei/MeConecteiService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -17,18 +19,13 @@ export class MeConecteiCommand extends BaseCommand<typeof schema> {
   readonly description = 'Cria conta admin no Me Conectei :: $meconectei <email>'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly meConecteiService = require('../../../services/MeConecteiService')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly emailService = require('../../../services/EmailService')
-
   protected async handle(message: DiscordMessage, [email]: z.infer<typeof schema>): Promise<void> {
     await message.reply('Criando conta de admin no Me Conectei...')
 
-    const password: string = this.meConecteiService.generatePassword(12)
-    await this.meConecteiService.createAdminUser(email, password)
+    const password: string = generatePassword(12)
+    await createAdminUser(email, password)
 
-    this.emailService.sendEmail({
+    sendEmail({
       to: email,
       subject: 'Conta criada no me-conectei',
       body: `Sua conta foi criada.\nEmail: ${email}\nSenha: ${password}\n\nAlgere sua senha após o primeiro login.`,

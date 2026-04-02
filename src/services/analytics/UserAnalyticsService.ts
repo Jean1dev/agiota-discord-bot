@@ -1,3 +1,4 @@
+import { contextInstance } from '../../context'
 import { MongoConnection } from '../../infrastructure/database/MongoConnection'
 import { CHAT_GERAL } from '../../discord/DiscordConstants'
 import { rankingService } from '../ranking/RankingService'
@@ -6,8 +7,9 @@ import type { Client } from 'discord.js'
 
 const log = createLogger('UserAnalyticsService')
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-function getClient(): Client { return require('../../context').contextInstance().client }
+function getClient(): Client {
+  return contextInstance().client
+}
 
 const ANALISE_DADOS_COLLECTION = 'analise_dados_usuarios'
 

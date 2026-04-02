@@ -1,11 +1,12 @@
 import { Markup } from 'telegraf'
 import { message } from 'telegraf/filters'
 import type { Context } from 'telegraf'
+import {
+  batchInsert,
+  getMyDailyBudget,
+  spentMoney,
+} from '../../services/finance/DailyBudgetService'
 import { KEYBOARDS } from '../TelegramConfig'
-
-// myDailyBudgetService ainda em JS — será migrado na Fase 10
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { myDailyBudgetService } = require('../../services')
 
 const state = {
   awaitResponseSpentMoney: false,
@@ -17,7 +18,7 @@ function handleBatchResponse(ctx: Context, content: [string, string]) {
   if (content[0]?.toLowerCase() === 'fim') {
     state.awaitResponseSpentMoney = false
     state.batchResponse = false
-    const budget = myDailyBudgetService.batchInsert(state.batchInserts)
+    const budget = batchInsert(state.batchInserts)
     const summary = state.batchInserts.map(i => `- R$ ${i.money}: ${i.description}`).join('\n')
     ctx.reply(`Batch summary:\n${summary}`)
     ctx.reply(`your new daily budget is R$ ${budget}`)
@@ -40,7 +41,7 @@ export function registerDailyBudgetHandlers(bot: any): void {
   })
 
   bot.hears('My Daily budget', async (ctx: Context) => {
-    const budget = await myDailyBudgetService.getMyDailyBudget()
+    const budget = getMyDailyBudget()
     ctx.reply(`R$ ${budget}`)
   })
 
@@ -67,7 +68,7 @@ export function registerDailyBudgetHandlers(bot: any): void {
     const [money, description] = text.split(',') as [string, string]
     if (state.batchResponse) { handleBatchResponse(ctx, [money, description]); return }
     try {
-      const budget = await myDailyBudgetService.spentMoney({ money, description })
+      const budget = await spentMoney({ money, description })
       ctx.reply(`your new daily budget is R$ ${budget}`)
     } catch (err) {
       console.error('Error processing spent money:', err)

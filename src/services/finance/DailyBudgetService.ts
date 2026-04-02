@@ -1,13 +1,10 @@
+import { contextInstance } from '../../context'
 import captureException from '../../observability/Sentry'
 import { MongoConnection } from '../../infrastructure/database/MongoConnection'
 import { formatDate } from '../../shared/utils/discord-nicks-default'
 import { sleep, nowInSaoPaulo } from '../../shared/utils/utils'
 import { sendEmail } from '../email/EmailService'
 import { adicionarGasto, LIMIT } from './GastosCartaoService'
-
-function getContextInstance() {
-    return require('../../context').contextInstance()
-}
 
 function getOrganizzeService() {
     return require('../finance/OrganizzeService').default ?? require('../finance/OrganizzeService')
@@ -18,11 +15,13 @@ function getTransactionCategorizationService() {
 }
 
 function getGeraPDF() {
-    return require('../pdf/PdfService').default ?? require('../pdf/PdfService')
+    const m = require('../pdf/PdfService') as typeof import('../pdf/PdfService')
+    return m.criarPDFRetornarCaminho
 }
 
 function getUpload() {
-    return require('../upload/UploadService').default ?? require('../upload/UploadService')
+    const m = require('../upload/UploadService') as typeof import('../upload/UploadService')
+    return m.upload
 }
 
 const state: {
@@ -273,7 +272,7 @@ function hojeEhFimDeSemana(): boolean {
 }
 
 function sendMessage(message: string): void {
-    getContextInstance().emitEvent('enviar-mensagem-telegram', message)
+    contextInstance().emitEvent('enviar-mensagem-telegram', message)
 }
 
 function displayTransactionsToday(): void {
@@ -354,7 +353,7 @@ function filtrarTransacoesDaSemana(transacoes: any[]): any[] {
 }
 
 function enviarResumoSemanalCartao(transacoes: any[]): void {
-    const totalGastoCartao = getContextInstance().totalGastoCartao
+    const totalGastoCartao = contextInstance().totalGastoCartao
     const restante = Math.max(0, LIMIT - totalGastoCartao)
     const transacoesSemana = filtrarTransacoesDaSemana(transacoes)
     const totalSemana = transacoesSemana

@@ -1,4 +1,8 @@
 import { z } from 'zod'
+import { gerarRelatorioFechamentoCompentencia } from '../../../services/finance/DailyBudgetService'
+import { sendEmail } from '../../../services/email/EmailService'
+import { criarPDFRetornarCaminho } from '../../../services/pdf/PdfService'
+import { upload } from '../../../services/upload/UploadService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -14,18 +18,9 @@ export class BudgetReportCommand extends BaseCommand<typeof schema> {
   readonly description = 'Gera o relatório mensal de gastos'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly budgetService = require('../../../services/myDailyBudget')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly pdfService = require('../../../services/GerarPDF')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly uploadService = require('../../../services/UploadService')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly emailService = require('../../../services/EmailService')
-
   protected async handle(message: DiscordMessage): Promise<void> {
     try {
-      const result: string[] = await this.budgetService.gerarRelatorioFechamentoCompentencia()
+      const result: string[] = await gerarRelatorioFechamentoCompentencia()
 
       if (!result || result.length === 0) {
         await message.reply('Não há dados para o relatório mensal.')
@@ -49,14 +44,14 @@ export class BudgetReportCommand extends BaseCommand<typeof schema> {
   }
 
   private async generateAndSendPdf(items: string[]): Promise<void> {
-    const path: string = this.pdfService('Relatorio de despesas', items)
+    const pdfPath = criarPDFRetornarCaminho(items, 'Relatorio de despesas')
     await new Promise(r => setTimeout(r, 1000))
-    const url: string = await this.uploadService(path)
+    const url = await upload(pdfPath)
     if (url) {
-      this.emailService({
+      sendEmail({
         to: 'jeanlucafp@gmail.com',
         subject: 'Relatorio de despesas',
-        message: 'Segue em anexo',
+        body: 'Segue em anexo',
         attachmentLink: url,
       })
     }

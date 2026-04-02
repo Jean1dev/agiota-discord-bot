@@ -3,16 +3,10 @@ import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
 import { z } from 'zod'
 import { MessageEmbed, MessageButton, MessageActionRow } from 'discord.js'
+import { env } from '../../config/env'
+import { contextInstance } from '../../context'
 import { CHAT_GERAL } from '../../discord/DiscordConstants'
 import { rankingService } from '../ranking/RankingService'
-
-function getContext() {
-    return require('../../context').contextInstance()
-}
-
-function getConfig() {
-    return require('../../config')
-}
 
 const SYSTEM_PROMPT_TEMPLATE = [
     'Você é um gerador de quiz técnico sobre tecnologia e desenvolvimento de software.',
@@ -45,7 +39,7 @@ function createModel() {
     return new ChatOpenAI({
         modelName: 'gpt-3.5-turbo',
         temperature: 0.7,
-        apiKey: getConfig().KEY_OPEN_AI
+        apiKey: env.KEY_OPEN_AI
     })
 }
 
@@ -109,9 +103,10 @@ function publishAndListening(
     { embed, actionRow }: { embed: MessageEmbed; actionRow: MessageActionRow },
     quiz: QuizResult
 ): void {
-    const channel = getContext().client.channels.cache.find(
-        (ch: any) => ch.name === CHAT_GERAL
+    const channel: any = contextInstance().client.channels.cache.find(
+        (ch: any) => ch.name === CHAT_GERAL,
     )
+    if (!channel) return
     channel
         .send({ embeds: [embed], components: [actionRow] })
         .then((message: any) => {

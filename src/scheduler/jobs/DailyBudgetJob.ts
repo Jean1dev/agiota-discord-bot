@@ -1,7 +1,5 @@
 import { IJob } from '../IJob'
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { myDailyBudgetService } = require('../../services')
+import { myDailyBudgetService } from '../../services'
 
 /**
  * Runs daily at 22:05.

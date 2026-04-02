@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+const DEFAULT_COMMUNICATION_SERVER_URL =
+  'https://communication-service-4f4f57e0a956.herokuapp.com'
+
 /**
  * Schema de validação de todas as variáveis de ambiente.
  * O processo falha imediatamente no startup se algo estiver ausente
@@ -50,6 +53,14 @@ const envSchema = z.object({
   // ── Comunicação ────────────────────────────────────────────────────────
   TELEGRAM_API_KEY: z.string().optional(),
   AMQP_CONNECTION: z.string().optional(),
+  COMMUNICATION_SERVER_URL: z.preprocess(
+    val => {
+      if (val === undefined || val === null) return DEFAULT_COMMUNICATION_SERVER_URL
+      const s = String(val).trim()
+      return s === '' ? DEFAULT_COMMUNICATION_SERVER_URL : s
+    },
+    z.string().url('COMMUNICATION_SERVER_URL deve ser uma URL http(s) válida'),
+  ),
 
   // ── Keycloak ───────────────────────────────────────────────────────────
   ADMIN_KEYCLOACK_USERNAME: z.string().optional(),

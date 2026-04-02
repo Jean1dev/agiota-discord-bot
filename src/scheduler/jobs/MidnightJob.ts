@@ -1,6 +1,7 @@
 import { IJob } from '../IJob'
 import { CHAT_GERAL, CANAIS_PARA_LIMPAR } from '../../discord/DiscordConstants'
 import { contextInstance } from '../../context'
+import { rankearUso, rotinaDiariaCrypto } from '../../services'
 
 /**
  * Runs daily at 23:10.
@@ -13,8 +14,6 @@ export class MidnightJob implements IJob {
 
   async run(): Promise<void> {
     this.limparCanais()
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { rankearUso, rotinaDiariaCrypto } = require('../../services')
     rankearUso()
     rotinaDiariaCrypto()
   }

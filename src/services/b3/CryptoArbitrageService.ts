@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { contextInstance } from '../../context'
 import { enviarAlertaParaUsuario } from '../../telegram/handlers/PublicHandler'
 import { sendEmail } from '../email/EmailService'
 
@@ -9,10 +10,6 @@ const URLS = {
 
 let currentUrl = URLS.primary
 const GROUP_ID = -1002156828677
-
-function getContext() {
-    return require('../../context').contextInstance()
-}
 
 async function makeRequest(
     method: string,
@@ -256,7 +253,7 @@ async function consultar(id: string): Promise<void> {
 }
 
 function enviarMensagemDiscord(message: string): void {
-    const ctx = getContext()
+    const ctx = contextInstance()
     if (!ctx) {
         console.warn('[Discord] Context ainda não inicializado, mensagem ignorada.')
         return
@@ -265,7 +262,7 @@ function enviarMensagemDiscord(message: string): void {
 }
 
 function enviarMensagemTelegram(message: string): void {
-    const ctx = getContext()
+    const ctx = contextInstance()
     if (!ctx) {
         console.warn('[Telegram] Context ainda não inicializado, mensagem ignorada.')
         return

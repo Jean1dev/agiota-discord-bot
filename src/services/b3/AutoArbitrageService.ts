@@ -1,8 +1,5 @@
+import { contextInstance } from '../../context'
 import { asyncArbitrage, forceArbitrage } from './CryptoArbitrageService'
-
-function getContext() {
-    return require('../../context').contextInstance()
-}
 
 const state = {
     isRunning: false,
@@ -37,7 +34,7 @@ async function execute(count: number): Promise<void> {
 }
 
 export function startAutomateAfterNewSubscription(): void {
-    if (getContext().autoArbitragem) {
+    if (contextInstance().autoArbitragem) {
         return
     }
 
@@ -47,7 +44,7 @@ export function startAutomateAfterNewSubscription(): void {
 }
 
 export function startAutoArbitrage(): void {
-    if (!getContext().autoArbitragem) {
+    if (!contextInstance().autoArbitragem) {
         return
     }
 

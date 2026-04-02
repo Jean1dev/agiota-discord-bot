@@ -1,17 +1,11 @@
 import axios from 'axios'
+import appConfig from '../../config'
+import { contextInstance } from '../../context'
 import { getKeycloakToken } from '../auth/KeycloakService'
 import { sendEmail } from '../email/EmailService'
 import captureException from '../../observability/Sentry'
 import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { startAutomateAfterNewSubscription } from '../b3/AutoArbitrageService'
-
-function getContext() {
-    return require('../../context').contextInstance()
-}
-
-function getConfig() {
-    return require('../../config')
-}
 
 async function migrateCollections(token: string): Promise<{ message: string; total: number }> {
     const config = {
@@ -53,7 +47,7 @@ export function notifySms(fone: string): Promise<any> {
         recipients: [fone],
     }
 
-    return axios.post(`${getConfig().COMMUNICATION_SERVER_URL}/notificacao/sms`, body)
+    return axios.post(`${appConfig.COMMUNICATION_SERVER_URL}/notificacao/sms`, body)
 }
 
 export function notifySuccessWithEmail(email: string): void {
@@ -168,9 +162,10 @@ export async function addSubcriptionByEvent(event: any): Promise<void> {
     const { name, email, product, status } = event
 
     await createSubscription(email, null)
-    const channel = getContext().client.channels.cache.find(
-        (ch: any) => ch.name === LIXO_CHANNEL
+    const channel: any = contextInstance().client.channels.cache.find(
+        (ch: any) => ch.name === LIXO_CHANNEL,
     )
+    if (!channel) return
     channel.send(`Novo plano de assinatura: ${product} - ${status} - ${name} - ${email}`)
 
     startAutomateAfterNewSubscription()
@@ -213,8 +208,8 @@ function sendCancellationEmail(name: string, email: string): void {
 }
 
 function notifyDiscordCancellation(name: string, email: string): void {
-    const channel = getContext().client.channels.cache.find(
-        (ch: any) => ch.name === LIXO_CHANNEL
+    const channel: any = contextInstance().client.channels.cache.find(
+        (ch: any) => ch.name === LIXO_CHANNEL,
     )
     if (channel) {
         channel.send(`🚫 Protesto registrado e assinatura cancelada para: ${name} (${email})`)

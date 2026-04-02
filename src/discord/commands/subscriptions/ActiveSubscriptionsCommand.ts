@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { getActiveSubscriptions } from '../../../services/subscription/SubscriptionService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -17,11 +18,8 @@ export class ActiveSubscriptionsCommand extends BaseCommand<typeof schema> {
   readonly description = 'Verifica as assinaturas ativas (apenas admin)'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly subscriptionService = require('../../../services/SubscriptionService')
-
   protected async handle(message: DiscordMessage): Promise<void> {
-    const data = await this.subscriptionService.getActiveSubscriptions() as SubscriptionsResult
+    const data = (await getActiveSubscriptions()) as SubscriptionsResult
     log.info({ total: data.totalActive }, 'Assinaturas consultadas')
     await message.reply(`Total de assinaturas ativas: ${data.totalActive}`)
     for (const sub of data.expiringSoon) {

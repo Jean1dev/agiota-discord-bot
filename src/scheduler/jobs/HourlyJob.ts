@@ -1,7 +1,5 @@
 import { IJob } from '../IJob'
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { startAutoArbitrage, getRegistros, clearRegistros } = require('../../services')
+import { startAutoArbitrage, getRegistros, clearRegistros } from '../../services'
 
 /**
  * Runs every hour at minute 0.

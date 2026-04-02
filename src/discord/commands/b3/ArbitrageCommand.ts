@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { forceArbitrage } from '../../../services/b3/CryptoArbitrageService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 
 const schema = z.tuple([
@@ -17,11 +18,8 @@ export class ArbitrageCommand extends BaseCommand<typeof schema> {
   readonly description = 'Verifica oportunidades de arbitragem :: $arb <quantidade>'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly cryptoService = require('../../../services/cryptoArbitrageService')
-
   protected async handle(message: DiscordMessage, [quantities]: z.infer<typeof schema>): Promise<void> {
-    this.cryptoService.forceArbitrage(quantities, (response: string) => {
+    forceArbitrage(quantities, (response: string) => {
       void message.reply(response)
     })
   }

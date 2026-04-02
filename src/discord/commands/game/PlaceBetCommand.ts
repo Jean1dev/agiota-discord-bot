@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import * as gameFunctions from '../../../handlers/jogo-bixo/game-functions'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 
 const betNumberSchema = z.string()
@@ -17,14 +18,11 @@ export class PlaceBetCommand extends BaseCommand<typeof schema> {
   readonly description = 'Aposta em um bicho no jogo do bixo :: $bixo <número> [segundo_número]'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly gameFunctions = require('../../../handlers/jogo-bixo/game-functions')
-
   protected async handle(message: DiscordMessage, [numero, ...rest]: z.infer<typeof schema>): Promise<void> {
     const segundoNumero = rest[0] ?? 0
     const aposta = { numero, segundoNumero, autor: message.author.id }
 
-    const retorno = this.gameFunctions.registrarAposta(aposta) as { status: boolean; message: string | null }
+    const retorno = gameFunctions.registrarAposta(aposta)
 
     if (retorno.status) {
       await message.reply('Aposta realizada com sucesso!')
@@ -35,8 +33,8 @@ export class PlaceBetCommand extends BaseCommand<typeof schema> {
 
     if (retorno.message === 'Não existe um jogo aberto') {
       await message.reply('Não se preocupe, vou criar um jogo e registrar sua aposta!')
-      setTimeout(() => this.gameFunctions.criarNovoJogo(), 10_000)
-      setTimeout(() => this.gameFunctions.registrarAposta(aposta), 15_000)
+      setTimeout(() => gameFunctions.criarNovoJogo(), 10_000)
+      setTimeout(() => gameFunctions.registrarAposta(aposta), 15_000)
     }
   }
 

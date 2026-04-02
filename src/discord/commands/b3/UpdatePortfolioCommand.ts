@@ -1,4 +1,6 @@
+import type { Message } from 'discord.js'
 import { z } from 'zod'
+import atualizarCotacaoCarteira from '../../../handlers/b3/atualizar-cotacao-carteira'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -14,12 +16,9 @@ export class UpdatePortfolioCommand extends BaseCommand<typeof schema> {
   readonly description = 'Atualiza cotações na carteira'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly handler = require('../../../handlers/b3/atualizar-cotacao-carteira')
-
   protected async handle(message: DiscordMessage): Promise<void> {
     try {
-      await this.handler(message)
+      await atualizarCotacaoCarteira(message as unknown as Message)
     } catch (err) {
       log.error({ err }, 'Falha ao atualizar carteira')
       await message.reply('Erro ao atualizar cotações.')

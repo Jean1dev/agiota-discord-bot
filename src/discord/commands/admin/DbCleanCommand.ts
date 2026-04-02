@@ -1,4 +1,8 @@
+import { MongoClient } from 'mongodb'
 import { z } from 'zod'
+import { env } from '../../../config/env'
+import { getKeycloakToken } from '../../../services/auth/KeycloakService'
+import { migrateCollections } from '../../../services/subscription/SubscriptionService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -14,26 +18,23 @@ export class DbCleanCommand extends BaseCommand<typeof schema> {
   readonly description = 'Executa migração e limpa o banco crypto (apenas admin)'
   protected readonly schema = schema
 
-  // Importa serviços JS existentes
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly keycloakService = require('../../../services/KeycloakService')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly subscriptionService = require('../../../services/SubscriptionService')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly config = require('../../../config')
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly MongoClient = require('mongodb').MongoClient
-
   protected async handle(message: DiscordMessage): Promise<void> {
     await message.reply('Iniciando limpeza do banco de dados...')
 
-    const token: string = await this.keycloakService.getKeycloakToken()
+    const token: string = await getKeycloakToken()
     await message.reply('Token obtido.')
 
-    const result = await this.subscriptionService.migrateCollections(token) as { message: string; total: number }
+    const result = await migrateCollections(token)
     await message.reply(`Migração concluída: ${result.message} (${result.total} docs)`)
 
-    const cryptoClient = new this.MongoClient(this.config.CRYPTO_SERVICE_DB as string)
+    const dbUrl = env.CRYPTO_SERVICE_DB
+    if (!dbUrl) {
+      await message.reply('CRYPTO_SERVICE_DB não configurado; pulando limpeza do banco crypto.')
+      log.warn('db-clean: CRYPTO_SERVICE_DB ausente')
+      return
+    }
+
+    const cryptoClient = new MongoClient(dbUrl)
     await cryptoClient.connect()
 
     const db = cryptoClient.db('crypto')

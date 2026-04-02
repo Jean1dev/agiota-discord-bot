@@ -16,8 +16,11 @@ export class YoutubeRssJob implements IJob {
     if (await isFeriadoHoje()) return
     try {
       const videos = await youtubeRssService.runAndNotify() as any[]
-      if (videos.length) await saveYoutubeVideos(videos)
-      appEvents.emit('enviar-mensagem-telegram', `seus videos estao prontos https://my-youtube-manager.vercel.app/`)
+      if (videos.length) {
+        await saveYoutubeVideos(videos)
+        appEvents.emit('enviar-mensagem-telegram', `seus videos estao prontos https://my-youtube-manager.vercel.app/`)
+      }
+      
     } catch (err) {
       const msg = `[YouTube RSS] Erro no processamento: ${(err as Error).message}`
       console.error(msg, err)

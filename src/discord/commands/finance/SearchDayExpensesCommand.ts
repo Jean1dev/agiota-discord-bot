@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { consultarTransacoesDoDia } from '../../../services/finance/DailyBudgetService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -30,9 +31,6 @@ export class SearchDayExpensesCommand extends BaseCommand<typeof schema> {
   readonly description = 'Busca transações do dia :: $bg <DD/MM> ou $bg <DD/MM/AAAA>'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly budgetService = require('../../../services/myDailyBudget')
-
   protected async handle(message: DiscordMessage, [dateStr]: z.infer<typeof schema>): Promise<void> {
     let date: Date
     try {
@@ -43,7 +41,7 @@ export class SearchDayExpensesCommand extends BaseCommand<typeof schema> {
     }
 
     try {
-      const transactions: string[] = await this.budgetService.consultarTransacoesDoDia(date)
+      const transactions: string[] = await consultarTransacoesDoDia(date)
       if (transactions.length === 0) {
         await message.reply('Não há transações para esta data.')
         return

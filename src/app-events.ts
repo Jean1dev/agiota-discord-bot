@@ -1,52 +1,90 @@
-import { appEvents } from './shared/events/AppEvents'
-import { updateStateAfterDataLoad } from './handlers/jogo-bixo/game-functions'
+import * as amqp from 'amqplib/callback_api'
+import type { Message } from 'amqplib'
+
 import { env } from './config/env'
+import { updateStateAfterDataLoad } from './handlers/jogo-bixo/game-functions'
 import { notificacaoCaixinha, cryptoServiceProcessMessage, broadcastDiscord } from './services'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const amqp = require('amqplib/callback_api')
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { enviarMensagemParaMim, enviarMensagemHTML } = require('./telegram')
+import { createLogger } from './shared/logger/Logger'
+import { appEvents } from './shared/events/AppEvents'
+import { enviarMensagemParaMim, enviarMensagemHTML } from './telegram'
+
+const log = createLogger('AppEvents')
 
 appEvents.on('update-state-jogo-bixo', () => {
   updateStateAfterDataLoad()
 })
 
 appEvents.on('notification-emprestimo', () => {
-  console.info('event::', 'notification-emprestimo')
+  log.info('notification-emprestimo')
 })
 
-appEvents.on('enviar-mensagem-telegram', (payload: any) => {
-  if (typeof payload === 'string' || payload instanceof String) {
+appEvents.on('enviar-mensagem-telegram', payload => {
+  if (typeof payload === 'string') {
     enviarMensagemParaMim(payload)
     return
   }
   enviarMensagemHTML(payload.message, payload.chatId)
 })
 
-appEvents.on('enviar-mensagem-discord', ({ message }: { message: string }) => {
+appEvents.on('enviar-mensagem-discord', ({ message }) => {
   broadcastDiscord(message)
 })
 
-amqp.connect(env.AMQP_CONNECTION, (error0: Error | null, connection: any) => {
-  if (error0) throw error0
+function dispatchAmqpPayload(queue: string, msg: Message, kind: 'caixinha' | 'crypto'): void {
+  const preview = msg.content.toString().slice(0, 200)
+  log.info({ queue, kind, preview }, 'AMQP mensagem recebida')
+  if (kind === 'caixinha') {
+    notificacaoCaixinha(msg.content.toString())
+    return
+  }
+  cryptoServiceProcessMessage(msg, msg.fields.routingKey ?? '')
+}
 
-  connection.createChannel((error1: Error | null, channel: any) => {
-    if (error1) throw error1
+function startAmqpConsumers(): void {
+  const url = env.AMQP_CONNECTION
+  if (!url) {
+    log.warn('AMQP_CONNECTION ausente — consumidores não iniciados')
+    return
+  }
 
-    const queue = 'caixinha-serverless'
-    channel.assertQueue(queue, { durable: false })
-    channel.consume(queue, (msg: any) => {
-      console.log(' [x] Received %s', msg.content.toString())
-      notificacaoCaixinha(msg.content.toString())
-    }, { noAck: true })
+  amqp.connect(url, (errConn, connection) => {
+    if (errConn) {
+      log.error({ err: errConn }, 'AMQP connect falhou')
+      return
+    }
 
-    const queue2 = 'crypto.arbitragem.queue'
-    channel.assertQueue(queue2, { durable: true })
-    channel.consume(queue2, (msg: any) => {
-      console.log(' [x] Received %s', msg.content.toString())
-      cryptoServiceProcessMessage(msg, msg.fields.routingKey)
-    }, { noAck: true })
+    connection.createChannel((errCh, channel) => {
+      if (errCh) {
+        log.error({ err: errCh }, 'AMQP createChannel falhou')
+        connection.close(() => undefined)
+        return
+      }
+
+      const queueCaixinha = 'caixinha-serverless'
+      channel.assertQueue(queueCaixinha, { durable: false })
+      channel.consume(
+        queueCaixinha,
+        (msg: Message | null) => {
+          if (!msg) return
+          dispatchAmqpPayload(queueCaixinha, msg, 'caixinha')
+        },
+        { noAck: true },
+      )
+
+      const queueCrypto = 'crypto.arbitragem.queue'
+      channel.assertQueue(queueCrypto, { durable: true })
+      channel.consume(
+        queueCrypto,
+        (msg: Message | null) => {
+          if (!msg) return
+          dispatchAmqpPayload(queueCrypto, msg, 'crypto')
+        },
+        { noAck: true },
+      )
+    })
   })
-})
+}
+
+startAmqpConsumers()
 
 export { appEvents }

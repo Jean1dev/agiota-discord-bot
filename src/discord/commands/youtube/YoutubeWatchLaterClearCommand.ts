@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { env } from '../../../config/env'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -20,9 +21,7 @@ export class YoutubeWatchLaterClearCommand extends BaseCommand<typeof schema> {
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const config = require('../../../config')
-    const raw: string = config.YOUTUBE_WATCH_LATER_PLAYLIST_ID
+    const raw = env.YOUTUBE_WATCH_LATER_PLAYLIST_ID ?? ''
     if (!raw || typeof raw !== 'string' || !raw.trim() || raw.trim() === 'WL') {
       await message.reply(
         'Playlist não configurada. Defina no .env `YOUTUBE_WATCH_LATER_PLAYLIST_ID` com o ID (PL...) ou a URL da playlist.'

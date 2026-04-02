@@ -1,15 +1,9 @@
 import axios, { AxiosInstance } from 'axios'
 import { MessageEmbed } from 'discord.js'
+import { env } from '../../config/env'
+import { contextInstance } from '../../context'
 import captureException from '../../observability/Sentry'
 import { CAIXINHA_CHANNEL } from '../../discord/DiscordConstants'
-
-function getContext() {
-    return require('../../context').contextInstance()
-}
-
-function getConfig() {
-    return require('../../config')
-}
 
 const MAX_RETRY_TENTATIVES = 10
 
@@ -18,14 +12,14 @@ function createApiCall(): AxiosInstance {
         baseURL: 'https://caixinha-financeira-9a2031b303cc.herokuapp.com',
         timeout: 40000,
         headers: {
-            'X-API-KEY': getConfig().FINANCE_API_AUTH,
+            'X-API-KEY': env.FINANCE_API_AUTH,
             'client-info': 'discord-bot'
         }
     })
 }
 
 function getChannelCaixinha(): any {
-    return getContext().client.channels.cache.find(
+    return contextInstance().client.channels.cache.find(
         (channel: any) => channel.name === CAIXINHA_CHANNEL
     )
 }

@@ -5,8 +5,7 @@ import { MusicSubscription } from './subcription'
 import { contextInstance } from '../../context'
 import { textToSpeech } from '../../ia/open-ai-api'
 import { runMusicBuffer } from './play-resource-buffer'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { addMusic, ramdomMusic } = require('../../services')
+import { addMusic, ramdomMusic } from '../../services'
 
 const subscriptions = new Map<string, MusicSubscription>()
 let playerLigado = false

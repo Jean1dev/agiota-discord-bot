@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { atualizarTotalGasto } from '../../../services/finance/GastosCartaoService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 
 const schema = z.tuple([
@@ -16,11 +17,8 @@ export class UpdateCardExpensesCommand extends BaseCommand<typeof schema> {
   readonly description = 'Atualiza os gastos do cartão de crédito :: $card <valor>'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly cardService = require('../../../services/GastosCartaoService')
-
   protected async handle(message: DiscordMessage, [value]: z.infer<typeof schema>): Promise<void> {
-    this.cardService.atualizarTotalGasto(value)
+    atualizarTotalGasto(value)
     await message.reply('Gastos do cartão atualizados.')
   }
 

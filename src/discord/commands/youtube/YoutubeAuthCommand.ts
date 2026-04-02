@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { env } from '../../../config/env'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -36,9 +37,7 @@ export class YoutubeAuthCommand extends BaseCommand<typeof schema> {
     }
 
     const authUrl = svc.getAuthUrl()
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const config = require('../../../config')
-    if (!authUrl || !config.GOOGLE_CLIENT_ID || !config.GOOGLE_CLIENT_SECRET) {
+    if (!authUrl || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
       await message.reply('Google OAuth não configurado (GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no .env).')
       return
     }

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { env } from '../../../config/env'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -25,9 +26,7 @@ export class YoutubeWatchLaterCommand extends BaseCommand<typeof schema> {
       return
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const config = require('../../../config')
-    const raw: string = config.YOUTUBE_WATCH_LATER_PLAYLIST_ID
+    const raw = env.YOUTUBE_WATCH_LATER_PLAYLIST_ID ?? ''
     if (!raw || raw.trim() === 'WL') {
       await message.reply(WL_NOT_SUPPORTED_MSG)
       return

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { futureCrossingCounts } from '../../../services/b3/CryptoArbitrageService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -14,12 +15,9 @@ export class CrossingCountsCommand extends BaseCommand<typeof schema> {
   readonly description = 'POST crossing-counts (apenas admin)'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly cryptoService = require('../../../services/cryptoArbitrageService')
-
   protected async handle(message: DiscordMessage): Promise<void> {
     try {
-      const response = await this.cryptoService.futureCrossingCounts()
+      const response = await futureCrossingCounts()
       const data = response.data as unknown
       const body = typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data)
       await message.reply(`crossing-counts:\n\`\`\`${body}\`\`\``)

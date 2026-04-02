@@ -1,9 +1,10 @@
+import { contextInstance } from '../../context'
 import { ALERT_CHANNEL } from '../../discord/DiscordConstants'
 import type { Client } from 'discord.js'
 
-// context ainda é JS — será removido na Fase 12
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-function getClient(): Client { return require('../../context').contextInstance().client }
+function getClient(): Client {
+  return contextInstance().client
+}
 
 export function sendToChannel(channelName: string, message: string): void {
   const client = getClient()

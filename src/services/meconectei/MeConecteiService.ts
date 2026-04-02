@@ -1,12 +1,10 @@
+import axios from 'axios'
 import { env } from '../../config/env'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('MeConecteiService')
 
 const BASE_URL = env.ME_CONECTEI_API_URL ?? 'https://me-conectei-svc-temp-4f6577936f24.herokuapp.com'
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const axios = require('axios')
 
 const client = axios.create({
   baseURL: BASE_URL,
