@@ -1,6 +1,7 @@
 import { z } from 'zod'
-import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { MessageEmbed } from 'discord.js'
+import comandos from '../../../commands/comandos-struct'
+import { BaseCommand, DiscordMessage } from '../BaseCommand'
 
 const schema = z.tuple([]).rest(z.string())
 
@@ -16,9 +17,6 @@ export class HelpCommand extends BaseCommand<typeof schema> {
   private readonly LIMITE_EMBEDS_DISCORD = 10
 
   protected async handle(message: DiscordMessage): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const comandos: Array<{ comando: string; descricao: string }> = require('../../../commands/comandos-struct')
-
     const embeds = comandos.map(cmd =>
       new MessageEmbed()
         .setTitle(cmd.comando)
