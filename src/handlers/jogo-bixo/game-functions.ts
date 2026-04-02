@@ -2,8 +2,7 @@ import { contextInstance } from '../../context'
 import { JOGO_BIXO_CHANNEL } from '../../discord/DiscordConstants'
 import bichos from './bicho'
 import { Jogo, Aposta } from './jogo'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { DbInstance: MongoClient } = require('../../repository/mongodb')
+import { MongoConnection } from '../../infrastructure/database/MongoConnection'
 
 interface GameState {
   jogoAberto: boolean
@@ -96,7 +95,7 @@ function finalizarJogo(message: string): void {
   mandarMensagemNoChatGeral(message)
   const vencedor = calcularVencedores(contextInstance().jogo.apostas)
 
-  MongoClient().collection('jogo_bixo_registros')
+  MongoConnection.getCollection('jogo_bixo_registros')
     .insertOne({ vencedor, ...contextInstance().jogo })
     .then(() => {
       contextInstance().jogoAberto = false

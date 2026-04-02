@@ -11,8 +11,7 @@ import { registrarEntradaTexto, listarAsUltimasFeatures, myDailyBudgetService } 
 import conversationHistoryGpt from './services/ConversationHistoryGpt'
 import { googleOAuthState } from './adapters/google-Oauth'
 import { init as initWhatsApp } from './services/WhatsAppService'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { connect } = require('./repository/mongodb')
+import { MongoConnection } from './infrastructure/database/MongoConnection'
 
 const client = new Client({
   partials: ['CHANNEL'],
@@ -42,7 +41,7 @@ function avisarQueEstaOnline(): void {
 
 client.on('ready', async () => {
   try {
-    await connect()
+    await MongoConnection.connect(env.MONGO_URL)
     await googleOAuthState.loadTokenFromDb()
     initWhatsApp().catch((e: Error) => console.error('WhatsApp init', e))
     avisarQueEstaOnline()

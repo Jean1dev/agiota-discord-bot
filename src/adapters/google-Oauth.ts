@@ -1,7 +1,6 @@
 import { google } from 'googleapis'
 import { env } from '../config/env'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { getGoogleOAuthToken, saveGoogleOAuthToken } = require('../repository/mongodb')
+import { getGoogleOAuthToken, saveGoogleOAuthToken } from '../infrastructure/database/MongoRepository'
 
 const oAuth2Client = new google.auth.OAuth2(
   env.GOOGLE_CLIENT_ID,
@@ -46,7 +45,7 @@ function setAuthToken(tokenOrUrl: unknown): Promise<typeof oAuth2Client> {
       if (err) {
         reject(err)
       } else {
-        oAuth2Client.setCredentials(token)
+        oAuth2Client.setCredentials(token as any)
         saveGoogleOAuthToken(token)
           .then(() => {
             googleOAuthState.authorized = true
@@ -71,7 +70,7 @@ export const googleOAuthState = {
 async function loadTokenFromDb(): Promise<void> {
   const token = await getGoogleOAuthToken()
   if (token) {
-    oAuth2Client.setCredentials(token)
+    oAuth2Client.setCredentials(token as any)
     googleOAuthState.authorized = true
     googleOAuthState.authUrl = null
     console.log('Token Google carregado do banco')

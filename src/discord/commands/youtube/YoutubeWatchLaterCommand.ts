@@ -15,9 +15,8 @@ export class YoutubeWatchLaterCommand extends BaseCommand<typeof schema> {
   protected readonly schema = schema
 
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private get youtubeService() { return require('../../../services/youtubeRssService') }
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private get mongoRepo() { return require('../../../repository/mongodb') }
+  private get youtubeService() { return require('../../../services/youtube/YoutubeRssService') }
+  private get mongoRepo() { return require('../../../infrastructure/database/MongoRepository') }
 
   protected async handle(message: DiscordMessage): Promise<void> {
     const svc = this.youtubeService

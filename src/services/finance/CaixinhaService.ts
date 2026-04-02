@@ -306,13 +306,13 @@ function emprestimoAprovado(payload: any): void {
 }
 
 function userLogged(payload: any): void {
-    const appEvents = require('../../app-events')
-    appEvents.emit('enviar-mensagem-telegram', `Usuario ${payload.email} logado`)
+    const { appEvents: events } = require('../../shared/events/AppEvents')
+    events.emit('enviar-mensagem-telegram', `Usuario ${payload.email} logado`)
     forceArbitrage(
         100,
         () => {},
         () => {
-            appEvents.emit('enviar-mensagem-telegram', 'Arbitragem concluida')
+            events.emit('enviar-mensagem-telegram', 'Arbitragem concluida')
         }
     )
 }

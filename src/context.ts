@@ -1,7 +1,6 @@
 import { Client } from 'discord.js'
 import { appEvents } from './shared/events/AppEvents'
-
-const repository = require('./repository/operations')
+import { getContextState, saveContextState } from './infrastructure/database/MongoRepository'
 
 export interface AppContext {
     dividas: any[]
@@ -52,8 +51,8 @@ class Context implements AppContext {
 
     async fillState(): Promise<void> {
         try {
-            const data = await repository.getData()
-            this.dividas = data?.dividas
+            const data = await getContextState()
+            this.dividas = data?.dividas as any[]
             this.jogoAberto = data?.jogoAberto
             this.jogo = data?.jogo
             this.totalGastoCartao = data?.totalGastoCartao || 0
@@ -66,7 +65,7 @@ class Context implements AppContext {
     }
 
     save(): void {
-        repository.save({
+        saveContextState({
             dividas: this.dividas,
             jogoAberto: this.jogoAberto,
             jogo: this.jogo,

@@ -4,8 +4,7 @@ import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { contextInstance } from '../../context'
 import { speechToText, textCompletion, textToSpeech } from '../../ia/open-ai-api'
 import { runMusicBuffer } from '../music/play-resource-buffer'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { convertOggToMp3 } = require('../../services/cloud-convert')
+import { convertOggToMp3 } from '../../services/upload/CloudConvertService'
 
 const listeningUsersId = new Set<string>()
 let channelRef: any = null

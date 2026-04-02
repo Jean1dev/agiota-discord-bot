@@ -11,7 +11,7 @@ export class YoutubeWatchLaterClearCommand extends BaseCommand<typeof schema> {
   protected readonly schema = schema
 
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private get youtubeService() { return require('../../../services/youtubeRssService') }
+  private get youtubeService() { return require('../../../services/youtube/YoutubeRssService') }
 
   protected async handle(message: DiscordMessage): Promise<void> {
     const svc = this.youtubeService

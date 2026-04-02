@@ -1,12 +1,9 @@
 import { IJob } from '../IJob'
 import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { isFeriadoHoje } from '../../shared/utils/feriados-br'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { saveYoutubeVideos } = require('../../repository/mongodb')
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { youtubeRssService, sendToChannel } = require('../../services')
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const appEvents = require('../../app-events')
+import { saveYoutubeVideos } from '../../infrastructure/database/MongoRepository'
+import { youtubeRssService, sendToChannel } from '../../services'
+import { appEvents } from '../../shared/events/AppEvents'
 
 /**
  * Runs daily at 08:16, Monday to Saturday. Skips Brazilian holidays.
@@ -18,7 +15,7 @@ export class YoutubeRssJob implements IJob {
   async run(): Promise<void> {
     if (await isFeriadoHoje()) return
     try {
-      const videos = await youtubeRssService.runAndNotify() as unknown[]
+      const videos = await youtubeRssService.runAndNotify() as any[]
       if (videos.length) await saveYoutubeVideos(videos)
       appEvents.emit('enviar-mensagem-telegram', `seus videos estao prontos https://my-youtube-manager.vercel.app/`)
     } catch (err) {
