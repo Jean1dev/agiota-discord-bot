@@ -7,7 +7,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node -r ts-node/register index.js",
     "dev": "nodemon",
     "build": "tsc --noEmit",
     "test": "jest",
@@ -65,6 +65,7 @@
     "jest": "^30.3.0",
     "nodemon": "^3.0.1",
     "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   },
