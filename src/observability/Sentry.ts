@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node'
+import { env } from '../config/env'
 
-const SENTRY_DNS: string | undefined = require('../config').SENTRY_DNS
+const SENTRY_DNS: string | undefined = env.SENTRY_DNS
 
 if (SENTRY_DNS) {
     Sentry.init({
