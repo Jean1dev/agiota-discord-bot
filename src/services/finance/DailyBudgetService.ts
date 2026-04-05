@@ -389,7 +389,10 @@ export function dailyHandles(): void {
 }
 
 export function getMyDailyBudget(): string {
-    return state.budget!.toFixed(2)
+    if (state.budget === null) {
+        return 'N/A (state not loaded yet)'
+    }
+    return state.budget.toFixed(2)
 }
 
 function bulkAddTransaction(newBudget: number, items: Array<{ money: number; description: string }>): void {
