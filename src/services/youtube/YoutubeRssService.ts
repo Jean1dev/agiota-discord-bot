@@ -3,9 +3,8 @@ import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('YoutubeRssService')
 
-// google-Oauth ainda é JS — será migrado na Fase 9
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const googleOAuthState = require('../../adapters/google-Oauth')
+const { googleOAuthState } = require('../../adapters/google-Oauth')
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { google } = require('googleapis')
 
