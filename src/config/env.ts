@@ -36,8 +36,8 @@ const envSchema = z.object({
   ASSISTANT_IAM_APIKEY: z.string().optional(),
 
   // ── Google ─────────────────────────────────────────────────────────────
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+  GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
   GOOGLE_OAUTH_REDIRECT_URI: z.string().default('http://localhost:3131'),
   YOUTUBE_WATCH_LATER_PLAYLIST_ID: z.string().optional(),
   YOUTUBE_MAX_CHANNELS: z
@@ -89,7 +89,13 @@ function loadEnv(): Env {
     process.exit(1)
   }
 
-  return result.data
+  const data = result.data
+  console.log('[env] Variáveis de ambiente carregadas:')
+  console.log(`  NODE_ENV              = ${data.NODE_ENV}`)
+  console.log(`  GOOGLE_CLIENT_ID      = ${data.GOOGLE_CLIENT_ID ? '✓ configurado' : '✗ ausente'}`)
+  console.log(`  GOOGLE_CLIENT_SECRET  = ${data.GOOGLE_CLIENT_SECRET ? '✓ configurado' : '✗ ausente'}`)
+  console.log(`  YOUTUBE_WATCH_LATER_PLAYLIST_ID = ${data.YOUTUBE_WATCH_LATER_PLAYLIST_ID ? '✓ configurado' : '✗ ausente'}`)
+  return data
 }
 
 export const env = loadEnv()
