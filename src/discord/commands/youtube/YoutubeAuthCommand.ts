@@ -38,7 +38,14 @@ export class YoutubeAuthCommand extends BaseCommand<typeof schema> {
 
     const authUrl = svc.getAuthUrl()
     if (!authUrl || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-      await message.reply('Google OAuth não configurado (GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no .env).')
+      const missing = [
+        !env.GOOGLE_CLIENT_ID && 'GOOGLE_CLIENT_ID',
+        !env.GOOGLE_CLIENT_SECRET && 'GOOGLE_CLIENT_SECRET',
+      ].filter(Boolean).join(', ')
+      await message.reply(
+        `Google OAuth não configurado — variável(is) ausente(s): **${missing || 'authUrl inválido'}**.\n` +
+        'Configure nas **Config Vars** do Heroku (ou no arquivo .env em dev).'
+      )
       return
     }
 
