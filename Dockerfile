@@ -1,4 +1,4 @@
-FROM node:21
+FROM node:23
 
 # Instalar o yt-dlp usando o Python no contêiner
 RUN apt-get update && apt-get install -y python3 && \

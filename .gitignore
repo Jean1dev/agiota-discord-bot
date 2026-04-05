@@ -16,3 +16,5 @@ data.json
 credentials.json
 token.json
 youtube-credentials.json
+coverage/
+dist/
