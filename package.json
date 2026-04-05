@@ -16,6 +16,8 @@
   "author": "@jean",
   "license": "ISC",
   "dependencies": {
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.16.1",
     "@ffmpeg-installer/ffmpeg": "^1.0.13",
@@ -66,8 +68,6 @@
     "jest": "^30.3.0",
     "nodemon": "^3.0.1",
     "ts-jest": "^29.4.6",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   },
   "overrides": {
