@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
+import musicHandler from '../../../handlers/music'
 
 const log = createLogger('MusicPlayerCommand')
 const schema = z.tuple([]).rest(z.string())
@@ -14,8 +15,7 @@ export class MusicPlayerCommand extends BaseCommand<typeof schema> {
   readonly description = 'Liga o player de música'
   protected readonly schema = schema
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  private readonly handler = require('../../../handlers/music')
+  private readonly handler = musicHandler
 
   protected async handle(message: DiscordMessage): Promise<void> {
     try {
