@@ -19,6 +19,9 @@ const state = {
     reprovado: false
 }
 
+const USER_LOGGED_TELEGRAM_COOLDOWN_MS = 3 * 60 * 1000
+const lastUserLoggedTelegramAtByEmail = new Map<string, number>()
+
 function sendSmsToCaixinhaMembers(message: string): void {
     ;[
         { message, phone: process.env.ARNALDO_NUMBER },
@@ -301,6 +304,15 @@ function emprestimoAprovado(payload: any): void {
 }
 
 function userLogged(payload: any): void {
+    const email = typeof payload?.email === 'string' ? payload.email : ''
+    const now = Date.now()
+    if (email) {
+        const lastAt = lastUserLoggedTelegramAtByEmail.get(email)
+        if (lastAt !== undefined && now - lastAt < USER_LOGGED_TELEGRAM_COOLDOWN_MS) {
+            return
+        }
+        lastUserLoggedTelegramAtByEmail.set(email, now)
+    }
     appEvents.emit('enviar-mensagem-telegram', `Usuario ${payload.email} logado`)
     forceArbitrage(
         100,
