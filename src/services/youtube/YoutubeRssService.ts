@@ -18,6 +18,7 @@ export interface YoutubeVideo {
   thumb: string
   published: Date
   channelId: string
+  channelName: string
 }
 
 // ── Auth helpers ──────────────────────────────────────────────────────────
@@ -65,6 +66,7 @@ function mapActivityToVideo(item: Record<string, unknown>, channelId: string): Y
     thumb: `${YOUTUBE_THUMB_URL}/${videoId}/mqdefault.jpg`,
     published,
     channelId: channelId || (sn.channelId as string) || '',
+    channelName: (sn.channelTitle as string) || '',
   }
 }
 
