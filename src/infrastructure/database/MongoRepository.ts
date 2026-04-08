@@ -49,6 +49,7 @@ export interface YoutubeVideo {
   thumb: string
   title: string
   url: string
+  channelName: string
 }
 
 export interface YoutubeVideoDoc {
@@ -57,6 +58,7 @@ export interface YoutubeVideoDoc {
   title: string
   link: string
   savedAt: Date
+  channelName: string
   watchLater?: boolean
 }
 
@@ -65,7 +67,7 @@ export async function saveYoutubeVideos(videos: YoutubeVideo[]): Promise<void> {
   const col = MongoConnection.getCollection<YoutubeVideoDoc>(YOUTUBE_RSS_COLLECTION)
   const savedAt = new Date()
   await col.insertMany(
-    videos.map(v => ({ videoId: v.videoId, thumb: v.thumb, title: v.title, link: v.url, savedAt }))
+    videos.map(v => ({ videoId: v.videoId, thumb: v.thumb, title: v.title, link: v.url, channelName: v.channelName, savedAt }))
   )
 }
 
