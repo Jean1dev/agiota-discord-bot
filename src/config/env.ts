@@ -10,7 +10,7 @@ const DEFAULT_COMMUNICATION_SERVER_URL =
  */
 const envSchema = z.object({
   // ── Core ───────────────────────────────────────────────────────────────
-  NODE_ENV: z.enum(['dev', 'prod', 'test', 'production']).default('dev'),
+  NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
 
   // ── Discord ────────────────────────────────────────────────────────────
   BOT_TOKEN: z.string().min(1, 'BOT_TOKEN é obrigatório'),
