@@ -1,6 +1,6 @@
 import pino from 'pino'
 
-const isProd = process.env.NODE_ENV === 'prod'
+const isProd = process.env.NODE_ENV === 'production'
 
 /**
  * Logger centralizado com níveis e formato estruturado.

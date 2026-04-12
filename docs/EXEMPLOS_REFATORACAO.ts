@@ -329,7 +329,7 @@ module.exports = {
 const envSchema = z.object({
   BOT_TOKEN:        z.string().min(1, 'BOT_TOKEN é obrigatório'),
   MONGO_URL:        z.string().url('MONGO_URL deve ser uma URL válida'),
-  NODE_ENV:         z.enum(['dev', 'prod', 'test']).default('dev'),
+  NODE_ENV:         z.enum(['dev', 'test', 'production']).default('dev'),
   OPEN_AI_KEY:      z.string().min(1, 'OPEN_AI_KEY é obrigatório'),
   FINANCE_API_AUTH: z.string().min(1, 'FINANCE_API_AUTH é obrigatório'),
   ADMIN_USER_IDS:   z.string().min(1, 'ADMIN_USER_IDS é obrigatório'),
@@ -368,8 +368,8 @@ console.log('nao consegui enviar mensagem ::', channel)
 // import pino from 'pino'
 //
 // export const logger = pino({
-//   level: process.env.NODE_ENV === 'prod' ? 'info' : 'debug',
-//   transport: process.env.NODE_ENV !== 'prod'
+//   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+//   transport: process.env.NODE_ENV !== 'production'
 //     ? { target: 'pino-pretty' }
 //     : undefined,
 // })
