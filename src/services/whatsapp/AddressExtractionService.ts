@@ -3,6 +3,9 @@ import { StructuredOutputParser } from 'langchain/output_parsers'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { z } from 'zod'
 import { env } from '../../config/env'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('AddressExtractionService')
 
 export const AddressSchema = z.object({
   cep: z.string().optional().describe('CEP quando mencionado'),
@@ -43,7 +46,7 @@ export async function extractAddressFromText(text: string): Promise<Address | nu
     })
     return result as Address
   } catch (e) {
-    console.error('addressExtractionService error', e)
+    log.error({ err: e }, 'addressExtractionService error')
     return null
   }
 }

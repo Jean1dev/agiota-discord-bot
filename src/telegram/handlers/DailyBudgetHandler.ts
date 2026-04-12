@@ -7,6 +7,9 @@ import {
   spentMoney,
 } from '../../services/finance/DailyBudgetService'
 import { KEYBOARDS } from '../TelegramConfig'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('DailyBudgetHandler')
 
 const state = {
   awaitResponseSpentMoney: false,
@@ -71,7 +74,7 @@ export function registerDailyBudgetHandlers(bot: any): void {
       const budget = await spentMoney({ money, description })
       ctx.reply(`your new daily budget is R$ ${budget}`)
     } catch (err) {
-      console.error('Error processing spent money:', err)
+      log.error({ err }, 'Error processing spent money')
       ctx.reply('An error occurred. Please try again.')
     } finally {
       state.awaitResponseSpentMoney = false

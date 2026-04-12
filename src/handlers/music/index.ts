@@ -6,6 +6,9 @@ import { contextInstance } from '../../context'
 import { textToSpeech } from '../../ia/open-ai-api'
 import { runMusicBuffer } from './play-resource-buffer'
 import { addMusic, ramdomMusic } from '../../services'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('MusicHandler')
 
 const subscriptions = new Map<string, MusicSubscription>()
 let playerLigado = false
@@ -28,7 +31,7 @@ async function playSong(
           adapterCreator: channel.guild.voiceAdapterCreator,
         })
       )
-      subscription.voiceConnection.on('error', console.warn)
+      subscription.voiceConnection.on('error', (err) => log.warn({ err }, 'Voice connection error'))
       subs.set(interaction.guildId, subscription)
     }
   }
@@ -41,24 +44,24 @@ async function playSong(
   try {
     await entersState(subscription.voiceConnection, VoiceConnectionStatus.Ready, 20e3)
   } catch (error) {
-    console.warn(error)
+    log.warn({ err: error }, 'Failed to join voice channel within 20 seconds')
     await interaction.followUp('Failed to join voice channel within 20 seconds, reiniciando processo')
     process.exit(0)
   }
 
   try {
     const track = await Track.from(url, {
-      onStart() { interaction.followUp({ content: 'Now playing!', ephemeral: true }).catch(console.warn) },
-      onFinish() { interaction.followUp({ content: 'Now finished!', ephemeral: true }).catch(console.warn) },
+      onStart() { interaction.followUp({ content: 'Now playing!', ephemeral: true }).catch((err: Error) => log.warn({ err }, 'followUp error')) },
+      onFinish() { interaction.followUp({ content: 'Now finished!', ephemeral: true }).catch((err: Error) => log.warn({ err }, 'followUp error')) },
       onError(error: Error) {
-        console.warn(error)
-        interaction.followUp({ content: `Error: ${error.message}`, ephemeral: true }).catch(console.warn)
+        log.warn({ err: error }, 'Track error')
+        interaction.followUp({ content: `Error: ${error.message}`, ephemeral: true }).catch((err: Error) => log.warn({ err }, 'followUp error'))
       },
     })
     subscription.enqueue(track)
     await interaction.followUp(`Enqueued **${track.title}**`)
   } catch (error: any) {
-    console.warn(error)
+    log.warn({ err: error }, 'Failed to play track')
     let errorMessage = 'Failed to play track, please try again later!'
     if (error.message?.includes('Sign in to confirm')) errorMessage = 'YouTube is temporarily blocking requests. Please try again in a few minutes.'
     else if (error.message?.includes('Video unavailable')) errorMessage = 'This video is unavailable or private.'

@@ -5,6 +5,9 @@ import { contextInstance } from '../../context'
 import { speechToText, textCompletion, textToSpeech } from '../../ia/open-ai-api'
 import { runMusicBuffer } from '../music/play-resource-buffer'
 import { convertOggToMp3 } from '../../services/upload/CloudConvertService'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('RealTimeConversa')
 
 const listeningUsersId = new Set<string>()
 let channelRef: any = null
@@ -35,7 +38,7 @@ async function respond(filename: string): Promise<void> {
     await runMusicBuffer(channelRef, audioBuffer)
   } catch (error: any) {
     logMessageOnLixoChannel(`deu pau :/ ${error.message}`)
-    console.error(error)
+    log.error({ err: error }, 'Erro no ciclo de conversa em tempo real')
   }
 }
 
@@ -57,7 +60,7 @@ const realTimeConversaHandler = (message: any): void => {
     return
   }
   channelRef = channel
-  connectUserChannel(channel).then(listening).catch(console.error)
+  connectUserChannel(channel).then(listening).catch((err: Error) => log.error({ err }, 'Erro ao conectar ao canal de voz'))
 }
 
 export default realTimeConversaHandler

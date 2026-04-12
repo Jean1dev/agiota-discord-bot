@@ -4,6 +4,9 @@ import { isFeriadoHoje } from '../../shared/utils/feriados-br'
 import { saveYoutubeVideos } from '../../infrastructure/database/MongoRepository'
 import { youtubeRssService, sendToChannel } from '../../services'
 import { appEvents } from '../../shared/events/AppEvents'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('YoutubeRssJob')
 
 /**
  * Runs daily at 08:16, Monday to Saturday. Skips Brazilian holidays.
@@ -23,7 +26,7 @@ export class YoutubeRssJob implements IJob {
       
     } catch (err) {
       const msg = `[YouTube RSS] Erro no processamento: ${(err as Error).message}`
-      console.error(msg, err)
+      log.error({ err }, msg)
       sendToChannel(LIXO_CHANNEL, msg)
     }
   }

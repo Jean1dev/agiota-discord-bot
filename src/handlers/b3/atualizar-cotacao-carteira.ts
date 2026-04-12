@@ -3,6 +3,9 @@ import axios from 'axios'
 import type { Message } from 'discord.js'
 import fs from 'fs'
 import puppeteer, { type Browser, type Page } from 'puppeteer'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('AtualizarCotacaoCarteira')
 
 const baseUrl = 'https://carteira-14bc707a7fab.herokuapp.com/admin'
 const yahooQuoteUrl = 'https://query1.finance.yahoo.com/v7/finance/quote'
@@ -47,14 +50,13 @@ async function getLogoFromYahoo(papel: string): Promise<string | null> {
       ?.quoteResponse?.result?.[0]
     const url = result?.companyLogoUrl
     if (url && url.startsWith('http')) {
-      console.log('[Yahoo] Logo encontrada para', papel, '->', url)
+      log.debug({ papel, url }, 'Logo encontrada via Yahoo')
       return url
     }
-    console.log('[Yahoo] Sem logo para', papel)
+    log.debug({ papel }, 'Sem logo no Yahoo')
     return null
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.log('[Yahoo] Erro ao buscar', papel, msg)
+    log.warn({ err, papel }, 'Erro ao buscar logo no Yahoo')
     return null
   }
 }
@@ -63,7 +65,7 @@ async function getLogoFromYahooWithBrowser(page: Page, papel: string): Promise<s
   const symbol = toYahooSymbol(papel)
   try {
     const url = `https://finance.yahoo.com/quote/${symbol}`
-    console.log('[Yahoo+Puppeteer] Abrindo', url)
+    log.debug({ url }, 'Yahoo+Puppeteer: abrindo página')
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 })
     await new Promise(r => setTimeout(r, 2000))
     const logoUrl = await page.evaluate(() => {
@@ -85,13 +87,12 @@ async function getLogoFromYahooWithBrowser(page: Page, papel: string): Promise<s
       return null
     })
     if (logoUrl) {
-      console.log('[Yahoo+Puppeteer] Logo encontrada para', papel)
+      log.debug({ papel }, 'Yahoo+Puppeteer: logo encontrada')
       return logoUrl
     }
     return null
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.log('[Yahoo+Puppeteer] Erro', msg)
+    log.warn({ err, papel }, 'Yahoo+Puppeteer: erro')
     return null
   }
 }
@@ -99,7 +100,7 @@ async function getLogoFromYahooWithBrowser(page: Page, papel: string): Promise<s
 async function imgScrapeBing(page: Page, query: string): Promise<string[] | null> {
   try {
     const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(`${query} ação logo`)}&first=1`
-    console.log('[Bing] Buscando imagens para:', query)
+    log.debug({ query }, 'Bing: buscando imagens')
     await page.goto(searchUrl, { waitUntil: 'networkidle0', timeout: 20000 })
     await page.waitForSelector('.iusc', { timeout: 10000 }).catch(() => null)
     await new Promise(r => setTimeout(r, 1500))
@@ -117,18 +118,17 @@ async function imgScrapeBing(page: Page, query: string): Promise<string[] | null
       })
       return out.slice(0, 5)
     })
-    console.log('[Bing] Encontradas', urls.length, 'imagens para', query)
+    log.debug({ count: urls.length, query }, 'Bing: imagens encontradas')
     return urls.length ? urls : null
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.log('[Bing] Erro', msg)
+    log.warn({ err, query }, 'Bing: erro ao buscar imagens')
     return null
   }
 }
 
 async function imgScrapeGoogle(page: Page, query: string): Promise<string[] | null> {
   try {
-    console.log('[Google] Buscando imagens para:', query)
+    log.debug({ query }, 'Google: buscando imagens')
     await page.goto(
       `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(`${query} ação`)}`,
       { waitUntil: 'networkidle2', timeout: 25000 },
@@ -152,11 +152,10 @@ async function imgScrapeGoogle(page: Page, query: string): Promise<string[] | nu
     )
     const images = external.length ? external : thumbnails
     const result = images.slice(0, 3)
-    console.log('[Google] Encontradas', result.length, 'imagens para', query)
+    log.debug({ count: result.length, query }, 'Google: imagens encontradas')
     return result.length ? result : null
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.log('[Google] Erro', msg)
+    log.warn({ err, query }, 'Google: erro ao buscar imagens')
     return null
   }
 }
@@ -165,7 +164,7 @@ async function fetchImageWithBrowser(papel: string): Promise<string | null> {
   let browser: Browser | undefined
   let page: Page | undefined
   try {
-    console.log('[Browser] Iniciando...')
+    log.debug('Browser: iniciando Puppeteer')
     browser = await puppeteer.launch(getLaunchOptions())
     page = await browser.newPage()
     await page.setUserAgent(
@@ -184,8 +183,7 @@ async function fetchImageWithBrowser(papel: string): Promise<string | null> {
 
     return null
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error('[Browser] Erro:', msg)
+    log.error({ err }, 'Browser: erro ao buscar imagem')
     return null
   } finally {
     if (page) {
@@ -193,7 +191,7 @@ async function fetchImageWithBrowser(papel: string): Promise<string | null> {
     }
     if (browser) {
       await browser.close()
-      console.log('[Browser] Fechado.')
+      log.debug('Browser: fechado')
     }
   }
 }
@@ -205,14 +203,14 @@ function deleteMessageAfterTime(m: Message): void {
 }
 
 export default async function atualizarCotacaoCarteira(message: Message): Promise<void> {
-  console.log('[atualizar-carteira] Comando iniciado.')
+  log.info('Comando atualizar-carteira iniciado')
   void message.reply('momentinho vou verificar').then(m => deleteMessageAfterTime(m))
 
-  console.log('[atualizar-carteira] Disparando POST', baseUrl)
+  log.debug({ baseUrl }, 'Disparando POST')
   await axios.post(baseUrl)
 
   const { data: listaAtivos } = await axios.get<string[]>(`${baseUrl}/ativos-sem-image`)
-  console.log('[atualizar-carteira] Ativos sem imagem:', listaAtivos.length, listaAtivos)
+  log.info({ count: listaAtivos.length, ativos: listaAtivos }, 'Ativos sem imagem')
   if (listaAtivos.length === 0) {
     void message.reply('nenhum ativo para monitorar').then(m => deleteMessageAfterTime(m))
     return
@@ -221,33 +219,32 @@ export default async function atualizarCotacaoCarteira(message: Message): Promis
   const ativoComImagem: Array<{ papel: string; imagem: string }> = []
   for (const papel of listaAtivos) {
     try {
-      console.log('[atualizar-carteira] Processando papel:', papel)
+      log.info({ papel }, 'Processando papel')
       let imageUrl = await getLogoFromYahoo(papel)
       if (!imageUrl) {
         imageUrl = await fetchImageWithBrowser(papel)
       }
       if (!imageUrl) {
-        console.log('[atualizar-carteira] Sem imagem para', papel)
+        log.warn({ papel }, 'Sem imagem encontrada para o papel')
         void message.channel.send(`Nao consegui adicionar esse papel ${papel}`).then(m => deleteMessageAfterTime(m))
         continue
       }
       ativoComImagem.push({ papel, imagem: imageUrl })
-      console.log('[atualizar-carteira] Imagem obtida para', papel)
+      log.info({ papel }, 'Imagem obtida com sucesso')
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e)
-      console.error('[atualizar-carteira] Erro ao processar', papel, msg)
+      log.error({ err: e, papel }, 'Erro ao processar papel')
       void message.channel.send(`Nao consegui adicionar esse papel ${papel}`).then(m => deleteMessageAfterTime(m))
     }
   }
 
-  console.log('[atualizar-carteira] Atualizando', ativoComImagem.length, 'ativos na API...')
+  log.info({ count: ativoComImagem.length }, 'Atualizando ativos na API')
   for (const obj of ativoComImagem) {
     await axios.put(`${baseUrl}/atualizar-ativo`, {
       nome: obj.papel,
       imageUrl: obj.imagem,
     })
-    console.log('[atualizar-carteira] API atualizada:', obj.papel)
+    log.info({ papel: obj.papel }, 'API atualizada')
     void message.channel.send(`Atualizado ${obj.papel}`).then(m => deleteMessageAfterTime(m))
   }
-  console.log('[atualizar-carteira] Concluído.')
+  log.info('atualizar-carteira concluído')
 }

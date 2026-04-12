@@ -1,5 +1,8 @@
 import { contextInstance } from '../../context'
 import { asyncArbitrage, forceArbitrage } from './CryptoArbitrageService'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('AutoArbitrageService')
 
 const state = {
     isRunning: false,
@@ -39,7 +42,7 @@ export function startAutomateAfterNewSubscription(): void {
     }
 
     forceArbitrage(155, (message: string) => {
-        console.log(message)
+        log.info({ message }, 'Arbitragem forçada após nova assinatura')
     })
 }
 
@@ -50,6 +53,6 @@ export function startAutoArbitrage(): void {
 
     const quantities = randomNumberUntil(100)
     state.quantities = quantities
-    console.log(`Iniciando arbitragem com ${quantities} requisições`)
+    log.info({ quantities }, 'Iniciando arbitragem')
     execute(0)
 }

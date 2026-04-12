@@ -1,6 +1,9 @@
 import { google } from 'googleapis'
 import { env } from '../config/env'
 import { getGoogleOAuthToken, saveGoogleOAuthToken } from '../infrastructure/database/MongoRepository'
+import { createLogger } from '../shared/logger/Logger'
+
+const log = createLogger('GoogleOAuth')
 
 const oAuth2Client = new google.auth.OAuth2(
   env.GOOGLE_CLIENT_ID,
@@ -49,7 +52,7 @@ function setAuthToken(tokenOrUrl: unknown): Promise<typeof oAuth2Client> {
         saveGoogleOAuthToken(token)
           .then(() => {
             googleOAuthState.authorized = true
-            console.log('Token Google salvo no banco (expira em 7 dias)')
+            log.info('Token Google salvo no banco (expira em 7 dias)')
             resolve(oAuth2Client)
           })
           .catch(reject)
@@ -73,7 +76,7 @@ async function loadTokenFromDb(): Promise<void> {
     oAuth2Client.setCredentials(token as any)
     googleOAuthState.authorized = true
     googleOAuthState.authUrl = null
-    console.log('Token Google carregado do banco')
+    log.info('Token Google carregado do banco')
   } else {
     googleOAuthState.authorized = false
     googleOAuthState.authUrl = getAuthUrl()

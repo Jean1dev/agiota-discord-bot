@@ -6,6 +6,9 @@ import { sendEmail } from '../email/EmailService'
 import captureException from '../../observability/Sentry'
 import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { startAutomateAfterNewSubscription } from '../b3/AutoArbitrageService'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('SubscriptionService')
 
 async function migrateCollections(token: string): Promise<{ message: string; total: number }> {
     const config = {
@@ -199,7 +202,7 @@ async function cancelSubscription(email: string): Promise<void> {
     }
 
     await axios.request(config)
-    console.log(`Assinatura cancelada com sucesso para: ${email}`)
+    log.info({ email }, 'Assinatura cancelada com sucesso')
 }
 
 function sendCancellationEmail(name: string, email: string): void {
@@ -224,7 +227,7 @@ export async function addProtestByEvent(event: any): Promise<void> {
         await cancelSubscription(email)
         notifyDiscordCancellation(name, email)
     } catch (error: any) {
-        console.error(`Erro ao cancelar assinatura para ${email}:`, error.message)
+        log.error({ err: error, email }, 'Erro ao cancelar assinatura')
         captureException(error)
     }
 }

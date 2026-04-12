@@ -12,6 +12,9 @@ import conversationHistoryGpt from './services/ConversationHistoryGpt'
 import { googleOAuthState } from './adapters/google-Oauth'
 import { init as initWhatsApp } from './services/WhatsAppService'
 import { MongoConnection } from './infrastructure/database/MongoConnection'
+import { createLogger } from './shared/logger/Logger'
+
+const log = createLogger('bot')
 
 const client = new Client({
   partials: ['CHANNEL'],
@@ -27,7 +30,7 @@ const client = new Client({
 client.login(env.BOT_TOKEN)
 
 const prefix: string = process.env.NODE_ENV === 'dev' ? '!' : '$'
-console.log('Comando do bot ', prefix)
+log.info({ prefix }, 'Comando do bot')
 
 function avisarQueEstaOnline(): void {
   if (process.env.NODE_ENV === 'dev') return
@@ -35,7 +38,7 @@ function avisarQueEstaOnline(): void {
   if (channel?.send) {
     listarAsUltimasFeatures(channel)
   } else {
-    console.log('nao consegui enviar mensagem ::', channel)
+    log.warn({ channel }, 'nao consegui enviar mensagem')
   }
 }
 
@@ -43,7 +46,7 @@ client.on('ready', async () => {
   try {
     await MongoConnection.connect(env.MONGO_URL)
     await googleOAuthState.loadTokenFromDb()
-    initWhatsApp().catch((e: Error) => console.error('WhatsApp init', e))
+    initWhatsApp().catch((e: Error) => log.error({ err: e }, 'WhatsApp init error'))
     avisarQueEstaOnline()
 
     const context = createContext()

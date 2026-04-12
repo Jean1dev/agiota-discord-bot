@@ -2,6 +2,9 @@ import axios from 'axios'
 import { contextInstance } from '../../context'
 import { enviarAlertaParaUsuario } from '../../telegram/handlers/PublicHandler'
 import { sendEmail } from '../email/EmailService'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('CryptoArbitrageService')
 
 const URLS = {
     primary: 'https://crypto-svc-eur-0e4c4365b070.herokuapp.com',
@@ -17,7 +20,7 @@ async function makeRequest(
     data: any = null,
     options: Record<string, any> = {}
 ): Promise<any> {
-    console.log(method, ' . . ', `${currentUrl}${endpoint}`)
+    log.debug({ method, url: `${currentUrl}${endpoint}` }, 'HTTP request')
 
     const config: Record<string, any> = {
         method,
@@ -35,7 +38,7 @@ async function makeRequest(
         return response
     } catch (error: any) {
         if (error.response?.status === 503 && currentUrl === URLS.primary) {
-            console.log('Erro 503 detectado, trocando para URL reserva')
+            log.warn('Erro 503 detectado, trocando para URL reserva')
             currentUrl = URLS.backup
             return makeRequest(method, endpoint, data, options)
         }
@@ -47,9 +50,9 @@ function forceFutureArbitrage(): void {
     setTimeout(async () => {
         try {
             const response = await makeRequest('POST', '/v1/arbitrage/future')
-            console.log(response.data)
+            log.debug({ data: response.data }, 'Future arbitrage response')
         } catch (error) {
-            console.log(error)
+            log.error({ err: error }, 'Erro no future arbitrage')
         }
     }, 7000)
 }
@@ -93,7 +96,7 @@ async function executeSingleArbitrage(): Promise<void> {
         }
         forceFutureArbitrage()
     } catch (error: any) {
-        console.log('Error during arbitrage execution:', error.message)
+        log.error({ err: error }, 'Error during arbitrage execution')
     }
 }
 
@@ -103,7 +106,7 @@ async function runArbitrageTick(): Promise<void> {
         return
     }
 
-    console.log(`Executando arbitragem (${pendingArbitrageCount} restantes na fila)`)
+    log.info({ pendingArbitrageCount }, 'Executando arbitragem')
     await executeSingleArbitrage()
     pendingArbitrageCount--
 
@@ -134,7 +137,7 @@ export async function getHighYieldStatistics(): Promise<void> {
         const response = await makeRequest('GET', '/v1/statistics/high-yield-report')
         processStatisticsResponse(response.data)
     } catch (error: any) {
-        console.log('Erro na requisição:', error.message)
+        log.error({ err: error }, 'Erro ao buscar high yield statistics')
     }
 }
 
@@ -173,7 +176,7 @@ export async function getMediaSpread(): Promise<void> {
             `A média do spread é de ${response.data.average_spread.toFixed(2)}%`
         )
     } catch (error: any) {
-        console.log('Erro na requisição:', error.message)
+        log.error({ err: error }, 'Erro ao buscar media spread')
     }
 }
 
@@ -182,7 +185,7 @@ export async function getRankingExchanges(): Promise<any> {
         const response = await makeRequest('GET', '/v1/statistics/ranking')
         return response.data
     } catch (error: any) {
-        console.log('Erro na requisição:', error.message)
+        log.error({ err: error }, 'Erro ao buscar ranking exchanges')
         return null
     }
 }
@@ -190,9 +193,9 @@ export async function getRankingExchanges(): Promise<any> {
 export async function gerarRankingExchanges(): Promise<void> {
     try {
         await makeRequest('POST', '/v1/statistics/top3')
-        console.log('Ranking gerado com sucesso!')
+        log.info('Ranking gerado com sucesso')
     } catch (error: any) {
-        console.log('Erro na requisição:', error.message)
+        log.error({ err: error }, 'Erro ao gerar ranking exchanges')
     }
 }
 
@@ -245,9 +248,9 @@ async function consultar(id: string): Promise<void> {
         enviarMensagemAvisoCrypto(message)
     } catch (error: any) {
         if (error.code === 'ECONNABORTED') {
-            console.log('A requisição foi abortada por exceder o tempo limite de 4 segundos.')
+            log.warn({ id }, 'A requisição foi abortada por exceder o tempo limite')
         } else {
-            console.log('Erro na requisição:', error.message)
+            log.error({ err: error, id }, 'Erro ao consultar arbitragem')
         }
     }
 }
@@ -255,7 +258,7 @@ async function consultar(id: string): Promise<void> {
 function enviarMensagemDiscord(message: string): void {
     const ctx = contextInstance()
     if (!ctx) {
-        console.warn('[Discord] Context ainda não inicializado, mensagem ignorada.')
+        log.warn('Context Discord ainda não inicializado, mensagem ignorada')
         return
     }
     ctx.emitEvent('enviar-mensagem-discord', { message })
@@ -264,7 +267,7 @@ function enviarMensagemDiscord(message: string): void {
 function enviarMensagemTelegram(message: string): void {
     const ctx = contextInstance()
     if (!ctx) {
-        console.warn('[Telegram] Context ainda não inicializado, mensagem ignorada.')
+        log.warn('Context Telegram ainda não inicializado, mensagem ignorada')
         return
     }
     ctx.emitEvent('enviar-mensagem-telegram', { message, chatId: GROUP_ID })
@@ -301,7 +304,7 @@ export function processAMQPMessage(message: any, routingKey: string): void {
             break
         }
         case 'ALERT_SMS_PRIVATE_USER':
-            console.log(jsonContent?.content)
+            log.info({ content: jsonContent?.content }, 'ALERT_SMS_PRIVATE_USER recebido')
             break
     }
 }

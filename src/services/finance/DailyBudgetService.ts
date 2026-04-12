@@ -5,6 +5,9 @@ import { formatDate } from '../../shared/utils/discord-nicks-default'
 import { sleep, nowInSaoPaulo } from '../../shared/utils/utils'
 import { sendEmail } from '../email/EmailService'
 import { adicionarGasto, LIMIT } from './GastosCartaoService'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('DailyBudgetService')
 
 function getOrganizzeService() {
     return require('../finance/OrganizzeService').default ?? require('../finance/OrganizzeService')
@@ -53,7 +56,7 @@ async function categorizar(transactionData: { description: string }): Promise<an
     const descriptionCategories = state.categories.map(category => category.name)
     const { categorizarTransacao } = getTransactionCategorizationService()
     const result = await categorizarTransacao(descriptionCategories, transactionData.description)
-    console.log('result categorizar', result)
+    log.debug({ result }, 'result categorizar')
     return result
 }
 
@@ -249,7 +252,7 @@ export async function fillDaylyBudgetState(): Promise<void> {
             state.budget = (data[0] as any).budget
         }
 
-        console.log(collectionName, 'filled', 'new balance:', state.budget!.toFixed(2))
+        log.info({ collection: collectionName, balance: state.budget!.toFixed(2) }, 'Daily budget carregado')
     } catch (error) {
         captureException(error)
         throw new Error('Cannot load daily budget')
@@ -325,7 +328,7 @@ function calcularDiasAteHoje(data: Date): number {
 function processarHistoricoTransacoes(result: any[]): void {
     if (result.length === 0) return
 
-    console.log(`${collectionTransactionName} quantidade `, result.length)
+    log.info({ collection: collectionTransactionName, count: result.length }, 'Transacoes encontradas')
     const ultimoElemento = result[0]
     const diasAteHoje = calcularDiasAteHoje(ultimoElemento.date)
     const totalDespesas = result.map(it => Number(it.money)).reduce((sum, v) => sum + v, 0)
@@ -433,7 +436,7 @@ export async function spentMoney({
     description: string
 }): Promise<number | undefined> {
     money = Number(money)
-    console.log('spent money', money)
+    log.debug({ money }, 'spent money')
     if (isNaN(money)) {
         return
     }
@@ -449,7 +452,7 @@ export async function spentMoney({
 
 export function addMoneyToDailyBudget(money: number | string): number | undefined {
     money = Number(money)
-    console.log('add Money To Daily Budget', money)
+    log.debug({ money }, 'add Money To Daily Budget')
     if (isNaN(money)) {
         return
     }

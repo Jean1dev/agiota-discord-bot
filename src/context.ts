@@ -1,6 +1,9 @@
 import { Client } from 'discord.js'
 import { appEvents } from './shared/events/AppEvents'
 import { getContextState, saveContextState } from './infrastructure/database/MongoRepository'
+import { createLogger } from './shared/logger/Logger'
+
+const log = createLogger('Context')
 
 export interface AppContext {
     dividas: any[]
@@ -60,7 +63,7 @@ class Context implements AppContext {
 
             appEvents.emit('update-state-jogo-bixo', null)
         } catch (error) {
-            console.log(error)
+            log.error({ err: error }, 'Erro ao carregar estado do contexto')
         }
     }
 

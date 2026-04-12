@@ -2,8 +2,11 @@ import path from 'path'
 import { contextInstance } from '../../context'
 import connectUserChannel from '../../audio/connect-user-channel'
 import ListeningStream from '../../audio/listening-audio-stream'
+import { createLogger } from '../../shared/logger/Logger'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const audioconcat = require('audioconcat')
+
+const log = createLogger('RecordAudio')
 
 const recordable = new Set<string>()
 const files = new Set<string>()
@@ -22,12 +25,11 @@ function concatAudios(): void {
 
   audioconcat(songs)
     .concat(filenameOutput)
-    .on('start', (command: string) => console.log('ffmpeg process started:', command))
+    .on('start', (command: string) => log.debug({ command }, 'ffmpeg process started'))
     .on('error', (err: Error, _stdout: unknown, stderr: string) => {
-      console.error('Error:', err)
-      console.error('ffmpeg stderr:', stderr)
+      log.error({ err, stderr }, 'ffmpeg error')
     })
-    .on('end', () => console.log('✅ Audio created in:', filenameOutput))
+    .on('end', () => log.info({ filenameOutput }, 'Audio created'))
 }
 
 const recordAudioHandler = async (args: string[], message: any): Promise<void> => {
@@ -43,7 +45,7 @@ const recordAudioHandler = async (args: string[], message: any): Promise<void> =
 
       receiver.speaking.on('start', (userId: string) => {
         if (recordable.has(userId)) {
-          console.log('nao gravar o autor do comando')
+          log.debug({ userId }, 'nao gravar o autor do comando')
         } else {
           ListeningStream(receiver, userId, (client as any).users.cache.get(userId), addFile)
         }
@@ -57,7 +59,7 @@ const recordAudioHandler = async (args: string[], message: any): Promise<void> =
         concatAudios()
       }, timeoutMillis)
     } catch (error) {
-      console.error(error)
+      log.error({ err: error }, 'Erro ao gravar audio')
     }
   } else {
     message.reply('Join a voice channel then try again!')
