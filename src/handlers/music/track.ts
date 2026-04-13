@@ -1,6 +1,9 @@
 import { createAudioResource, demuxProbe } from '@discordjs/voice'
+import { createLogger } from '../../shared/logger/Logger'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { exec } = require('youtube-dl-exec')
+
+const log = createLogger('Track')
 
 const noop = (): void => { }
 
@@ -50,7 +53,7 @@ export class Track {
       const stream = process.stdout
       const onError = (error: Error): void => {
         if (!process.killed) process.kill()
-        console.log(error)
+        log.error({ err: error }, 'Audio resource error')
         stream.resume()
         reject(error)
       }
@@ -86,7 +89,7 @@ export class Track {
         break
       } catch (error: any) {
         retryCount++
-        console.warn(`youtube-dl-exec attempt ${retryCount} failed:`, error.message)
+        log.warn({ err: error, retryCount }, `youtube-dl-exec attempt ${retryCount} failed`)
         if (retryCount >= maxRetries) throw new Error('Failed to get video information. Please try again later.')
         await new Promise(r => setTimeout(r, 1000 * retryCount))
       }

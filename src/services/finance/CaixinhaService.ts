@@ -8,6 +8,9 @@ import { sendEmail } from '../email/EmailService'
 import { addSubcriptionByEvent, addProtestByEvent } from '../subscription/SubscriptionService'
 import { forceArbitrage } from '../b3/CryptoArbitrageService'
 import { appEvents } from '../../shared/events/AppEvents'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('CaixinhaService')
 
 function getFinanceService() {
     return require('./FinanceService').default ?? require('./FinanceService')
@@ -42,7 +45,7 @@ async function notifySms(payload: { message: string; phone?: string }): Promise<
                 desc: message,
                 recipients: [phone]
             })
-            console.log(response.data)
+            log.debug({ data: response.data }, 'SMS enviado')
             return
         }
 
@@ -51,7 +54,7 @@ async function notifySms(payload: { message: string; phone?: string }): Promise<
             desc: message,
             user: 'jeanlucafp@gmail.com'
         })
-        console.log(response.data)
+        log.debug({ data: response.data }, 'SMS enviado')
     } catch (error) {
         captureException(error)
     }

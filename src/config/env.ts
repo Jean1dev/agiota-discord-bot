@@ -1,4 +1,7 @@
 import { z } from 'zod'
+import { createLogger } from '../shared/logger/Logger'
+
+const log = createLogger('env')
 
 const DEFAULT_COMMUNICATION_SERVER_URL =
   'https://communication-service-4f4f57e0a956.herokuapp.com'
@@ -82,19 +85,17 @@ function loadEnv(): Env {
   const result = envSchema.safeParse(process.env)
 
   if (!result.success) {
-    console.error('❌ Configuração de ambiente inválida:')
-    for (const issue of result.error.issues) {
-      console.error(`   ${issue.path.join('.')}: ${issue.message}`)
-    }
+    log.error({ issues: result.error.issues }, '❌ Configuração de ambiente inválida')
     process.exit(1)
   }
 
   const data = result.data
-  console.log('[env] Variáveis de ambiente carregadas:')
-  console.log(`  NODE_ENV              = ${data.NODE_ENV}`)
-  console.log(`  GOOGLE_CLIENT_ID      = ${data.GOOGLE_CLIENT_ID ? '✓ configurado' : '✗ ausente'}`)
-  console.log(`  GOOGLE_CLIENT_SECRET  = ${data.GOOGLE_CLIENT_SECRET ? '✓ configurado' : '✗ ausente'}`)
-  console.log(`  YOUTUBE_WATCH_LATER_PLAYLIST_ID = ${data.YOUTUBE_WATCH_LATER_PLAYLIST_ID ? '✓ configurado' : '✗ ausente'}`)
+  log.info({
+    NODE_ENV: data.NODE_ENV,
+    GOOGLE_CLIENT_ID: data.GOOGLE_CLIENT_ID ? '✓ configurado' : '✗ ausente',
+    GOOGLE_CLIENT_SECRET: data.GOOGLE_CLIENT_SECRET ? '✓ configurado' : '✗ ausente',
+    YOUTUBE_WATCH_LATER_PLAYLIST_ID: data.YOUTUBE_WATCH_LATER_PLAYLIST_ID ? '✓ configurado' : '✗ ausente',
+  }, 'Variáveis de ambiente carregadas')
   return data
 }
 

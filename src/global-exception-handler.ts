@@ -1,8 +1,10 @@
 import captureException from './observability/Sentry'
+import { createLogger } from './shared/logger/Logger'
+
+const log = createLogger('GlobalExceptionHandler')
 
 process.on('uncaughtException', (err: Error) => {
-    console.error('Uncaught Exception:', err.message)
-    console.error(err.stack)
+    log.error({ err }, 'Uncaught Exception')
     captureException(err, true)
     setTimeout(() => {
         process.exit(1)
@@ -10,7 +12,6 @@ process.on('uncaughtException', (err: Error) => {
 })
 
 process.on('unhandledRejection', (err: unknown) => {
-    const e = err as Error
-    console.error('Unhandled Rejection at:', e.stack || err)
+    log.error({ err }, 'Unhandled Rejection')
     captureException(err, true)
 })

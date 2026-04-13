@@ -4,6 +4,9 @@ import { enviarMensagemParaMim, enviarMensagemParaUsuario } from '../TelegramUti
 import { getSubscriptionByEmailAllTenants } from '../../services/subscription/SubscriptionValidator'
 import { MongoConnection } from '../../infrastructure/database/MongoConnection'
 import { KEYBOARDS, SUBSCRIPTION_PURCHASE_URL } from '../TelegramConfig'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('PublicHandler')
 
 // ── Tipos ─────────────────────────────────────────────────────────────────
 
@@ -31,7 +34,7 @@ function setUserState(userId: number, state: string): void { userStates.set(user
 
 function getCollection() {
   const db = MongoConnection.getDb()
-  if (!db) { console.error('MongoDB não conectado'); return null }
+  if (!db) { log.error('MongoDB não conectado'); return null }
   return db.collection<TelegramUser>('telegram-users')
 }
 
@@ -160,10 +163,10 @@ async function findUserByEmail(email: string): Promise<TelegramUser | null> {
 
 export async function enviarAlertaParaUsuario(content: { email: string; message: string }): Promise<{ success: boolean; userId?: number } | void> {
   const { email, message } = content
-  if (!email || !message) { console.error('[Telegram] Email ou mensagem não fornecidos'); return }
+  if (!email || !message) { log.error('Email ou mensagem não fornecidos'); return }
   const user = await findUserByEmail(email)
-  if (!user) { console.log(`[Telegram] Usuário com email ${email} não encontrado`); return }
-  if (!user.isActive) { console.log(`[Telegram] Usuário ${email} sem assinatura ativa`); return }
+  if (!user) { log.info({ email }, 'Usuário não encontrado'); return }
+  if (!user.isActive) { log.info({ email }, 'Usuário sem assinatura ativa'); return }
   await enviarMensagemParaUsuario(user.userId, message)
   return { success: true, userId: user.userId }
 }

@@ -1,5 +1,8 @@
 import * as Sentry from '@sentry/node'
 import { env } from '../config/env'
+import { createLogger } from '../shared/logger/Logger'
+
+const log = createLogger('Sentry')
 
 const SENTRY_DNS: string | undefined = env.SENTRY_DNS
 
@@ -29,7 +32,7 @@ function captureException(ex: unknown, alreadyLogged = false): void {
 
     if (err['isAxiosError']) {
         const axiosErr = ex as AxiosErrorLike
-        console.error('HTTP Axios Error: ', {
+        log.error({
             message: axiosErr.message,
             name: axiosErr.name,
             code: axiosErr.code,
@@ -42,13 +45,13 @@ function captureException(ex: unknown, alreadyLogged = false): void {
                       data: axiosErr.response.data,
                   }
                 : null,
-        })
+        }, 'HTTP Axios Error')
     } else if (!alreadyLogged) {
-        console.error('Unknown Error: ', {
+        log.error({
             message: err['message'],
             name: err['name'],
             stack: err['stack'],
-        })
+        }, 'Unknown Error')
     }
 
     if (SENTRY_DNS) {

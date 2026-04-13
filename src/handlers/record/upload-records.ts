@@ -2,6 +2,9 @@ import { contextInstance } from '../../context'
 import { googleOAuthState } from '../../adapters/google-Oauth'
 import { google } from 'googleapis'
 import fs from 'fs'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('UploadRecords')
 
 const TOKEN_PATH = 'token.json'
 
@@ -34,13 +37,13 @@ const uploadRecordsHandler = (message: any): void => {
 
     drive.files.create({ requestBody: fileMetadata, fields: 'id' } as any, (err: any, file: any) => {
       if (err) {
-        console.error(err)
+        log.error({ err }, 'nao consegui criar o folder no drive')
         message.reply('nao consegui criar o folder no drive')
         fs.rm(TOKEN_PATH, () => { })
         return
       }
 
-      console.log('Folder Id: ', file.data.id)
+      log.info({ folderId: file.data.id }, 'Folder criado no Drive')
       for (const item of contextInstance().gravacoes) {
         drive.files.create(
           {
@@ -49,8 +52,8 @@ const uploadRecordsHandler = (message: any): void => {
             fields: 'id',
           } as any,
           (err2: any) => {
-            if (err2) { console.error(err2); fs.rm(TOKEN_PATH, () => { }) }
-            else { console.log('up'); message.reply('subi pai') }
+            if (err2) { log.error({ err: err2 }, 'Erro ao fazer upload do arquivo'); fs.rm(TOKEN_PATH, () => { }) }
+            else { log.info({ item }, 'Arquivo enviado com sucesso'); message.reply('subi pai') }
           }
         )
       }

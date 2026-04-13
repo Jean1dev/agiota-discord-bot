@@ -1,5 +1,8 @@
 import { contextInstance } from '../context'
 import { textCompletion } from '../ia/open-ai-api'
+import { createLogger } from '../shared/logger/Logger'
+
+const log = createLogger('ConversationHistoryGpt')
 
 const MAX_LENGTH = 2000
 
@@ -32,7 +35,7 @@ function continueConversation(conversationHistory: any, newMessage: string): voi
       conversationHistory.messages.push({ role: 'assistant', content: chatGPTResponse })
       gptResponseDisplay(conversationHistory.thread, chatGPTResponse)
     })
-    .catch((err: unknown) => console.error('ConversationHistoryGpt error', err))
+    .catch((err: unknown) => log.error({ err }, 'ConversationHistoryGpt error'))
 }
 
 const conversationHistoryGpt = (message: any): void => {

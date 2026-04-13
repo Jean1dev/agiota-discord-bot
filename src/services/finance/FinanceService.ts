@@ -4,6 +4,9 @@ import { env } from '../../config/env'
 import { contextInstance } from '../../context'
 import captureException from '../../observability/Sentry'
 import { CAIXINHA_CHANNEL } from '../../discord/DiscordConstants'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('FinanceService')
 
 const MAX_RETRY_TENTATIVES = 10
 
@@ -164,7 +167,7 @@ export default function handleFinanceMessage(message: { subtype: string; data: a
             cobrancaImediata(message.data)
             break
         default:
-            console.log('no function for handle')
+            log.warn({ subtype: message.subtype }, 'Nenhuma função mapeada para o subtype')
             break
     }
 }

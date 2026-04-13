@@ -2,8 +2,11 @@ import { pipeline } from 'node:stream'
 import { createWriteStream } from 'node:fs'
 import { EndBehaviorType, VoiceReceiver } from '@discordjs/voice'
 import path from 'path'
+import { createLogger } from '../shared/logger/Logger'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const prism = require('prism-media')
+
+const log = createLogger('ListeningStream')
 
 interface DiscordUser {
   username: string
@@ -40,11 +43,11 @@ export function ListeningStream(
   const filename = path.resolve(__dirname, `audio-${Date.now()}-${getDisplayName(userId, user)}.ogg`)
   const out = createWriteStream(filename)
 
-  console.log(`👂 Started recording ${filename}`)
+  log.info({ filename }, 'Started recording')
 
   pipeline(opusStream, oggStream, out, (err) => {
     if (err) {
-      console.warn(`❌ Error recording file ${filename} - ${err.message}`)
+      log.warn({ err, filename }, 'Error recording file')
     } else {
       callback(filename)
     }

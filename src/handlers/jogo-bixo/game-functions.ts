@@ -3,6 +3,9 @@ import { JOGO_BIXO_CHANNEL } from '../../discord/DiscordConstants'
 import bichos from './bicho'
 import { Jogo, Aposta } from './jogo'
 import { MongoConnection } from '../../infrastructure/database/MongoConnection'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('JogoBixo')
 
 interface GameState {
   jogoAberto: boolean
@@ -38,7 +41,7 @@ function verificarSeTerminouOTempoDeJogo(
 
 function monitorarFimDeJogo(): void {
   state.monitoramentoFimDeJogoRef = setInterval(() => {
-    console.log('verificando se o jogo terminou')
+    log.debug('verificando se o jogo terminou')
     const dataFimJogoMili = state.jogo!.dataInicioDetalhes.hourUTC + state.jogo!.duracao
     const dataAtualDetalhes = { hourUTC: new Date().getUTCHours(), day: new Date().getDay() }
 

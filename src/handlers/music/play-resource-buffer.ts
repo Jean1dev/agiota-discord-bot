@@ -8,6 +8,9 @@ import {
 } from '@discordjs/voice'
 import connectUserChannel from '../../audio/connect-user-channel'
 import audioPlayer from '../../audio/audio-player'
+import { createLogger } from '../../shared/logger/Logger'
+
+const log = createLogger('PlayResourceBuffer')
 
 async function playMusicByBuffer(buffer: Buffer): Promise<void> {
   const speechFile = path.resolve('./speech.mp3')
@@ -27,6 +30,6 @@ export async function runMusicBuffer(channel: any, buffer: Buffer): Promise<void
     await playMusicByBuffer(buffer)
     connection.subscribe(audioPlayer)
   } catch (error) {
-    console.error(error)
+    log.error({ err: error }, 'Erro ao reproduzir buffer de áudio')
   }
 }

@@ -1,6 +1,9 @@
 import { buildMessageElements } from './watson-utils'
 import { textCompletion } from './open-ai-api'
 import { env } from '../config/env'
+import { createLogger } from '../shared/logger/Logger'
+
+const log = createLogger('IA')
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const AssistantV2 = require('ibm-watson/assistant/v2')
@@ -22,20 +25,20 @@ async function fallbackToChatGpt(message: any): Promise<void> {
     const reply = response.choices[0]?.message.content.trim() ?? ''
     await message.channel.send(reply)
   } catch (err) {
-    console.error('ChatGPT fallback error', err)
+    log.error({ err }, 'ChatGPT fallback error')
     await message.channel.send('Não consegui processar sua mensagem.')
     void args
   }
 }
 
 function createSession(callback: () => void = () => { }): void {
-  console.warn('criando sessao no watson')
+  log.warn('criando sessao no watson')
   assistant.createSession({ assistantId: env.ASSISTANT_ID })
     .then((response: any) => {
       state.sessionId = response.result.session_id
       callback()
     })
-    .catch((err: unknown) => console.error('erro ao pegar sessao no watson', err))
+    .catch((err: unknown) => log.error({ err }, 'erro ao pegar sessao no watson'))
 }
 
 function sendMessage(message: any): void {
@@ -64,7 +67,7 @@ function sendMessage(message: any): void {
     })
     .catch((err: unknown) => {
       state.sessionId = undefined
-      console.error('erro ao enviar mensagem', err)
+      log.error({ err }, 'erro ao enviar mensagem')
     })
 }
 
