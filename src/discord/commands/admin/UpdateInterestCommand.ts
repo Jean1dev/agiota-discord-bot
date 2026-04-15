@@ -3,7 +3,7 @@ import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 import { getInterest, updateInterest } from '../../../services/finance/OrganizzeService'
 import { sendEmail } from '../../../services/email/EmailService'
-import { env } from '../../../config/env'
+import { ADMIN_EMAIL } from '../../../config/constants'
 
 const log = createLogger('UpdateInterestCommand')
 const schema = z.tuple([]).rest(z.string())
@@ -43,23 +43,15 @@ export class UpdateInterestCommand extends BaseCommand<typeof schema> {
     const valorFormatado = formatBRL(interest_cents)
     const nomeMes = MESES[month - 1] ?? `mês ${month}`
 
-    if (env.ADMIN_EMAIL) {
-      sendEmail({
-        to: env.ADMIN_EMAIL,
-        subject: `Juros de ${nomeMes}/${year} atualizados`,
-        body: `O gasto de juros referente a ${nomeMes}/${year} foi atualizado.\n\nValor: ${valorFormatado}`,
-      })
-      log.info({ to: env.ADMIN_EMAIL, valorFormatado, nomeMes, year }, 'E-mail de juros enviado')
-    } else {
-      log.warn('ADMIN_EMAIL não configurado — e-mail de notificação de juros não enviado')
-    }
-
-    const emailInfo = env.ADMIN_EMAIL
-      ? `\nE-mail de notificação enviado para ${env.ADMIN_EMAIL}.`
-      : '\nAVISO: ADMIN_EMAIL não configurado, nenhum e-mail foi enviado.'
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `Juros de ${nomeMes}/${year} atualizados`,
+      body: `O gasto de juros referente a ${nomeMes}/${year} foi atualizado.\n\nValor: ${valorFormatado}`,
+    })
+    log.info({ to: ADMIN_EMAIL, valorFormatado, nomeMes, year }, 'E-mail de juros enviado')
 
     await message.reply(
-      `Juros atualizados com sucesso!\nPeríodo: ${nomeMes}/${year}\nValor: ${valorFormatado}${emailInfo}`,
+      `Juros atualizados com sucesso!\nPeríodo: ${nomeMes}/${year}\nValor: ${valorFormatado}\nE-mail de notificação enviado para ${ADMIN_EMAIL}.`,
     )
   }
 

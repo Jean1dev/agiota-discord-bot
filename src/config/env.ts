@@ -70,12 +70,6 @@ const envSchema = z.object({
   ADMIN_KEYCLOACK_PASSWORD: z.string().optional(),
   ADMIN_KEYCLOACK_CLIENT_ID: z.string().optional(),
 
-  // ── Admin ──────────────────────────────────────────────────────────────
-  /**
-   * E-mail do administrador para receber notificações (ex.: relatório de juros).
-   */
-  ADMIN_EMAIL: z.string().email('ADMIN_EMAIL deve ser um e-mail válido').optional(),
-
   // ── Outros serviços ────────────────────────────────────────────────────
   SENTRY_DNS: z.string().optional(),
   GITHUB_API_TOKEN: z.string().optional(),
