@@ -6,6 +6,7 @@ import { sleep, nowInSaoPaulo } from '../../shared/utils/utils'
 import { sendEmail } from '../email/EmailService'
 import { adicionarGasto, LIMIT } from './GastosCartaoService'
 import { createLogger } from '../../shared/logger/Logger'
+import { ADMIN_EMAIL } from '../../config/constants'
 
 const log = createLogger('DailyBudgetService')
 
@@ -113,7 +114,7 @@ export async function gerarReportDosGastosDoUltimoFinalDeSemana(): Promise<void>
     const uploaded = await upload(caminho)
     if (uploaded) {
         const email = {
-            to: 'jeanlucafp@gmail.com',
+            to: ADMIN_EMAIL,
             subject: 'Gastos do final de semana',
             body: 'Segue em anexo ',
             attachmentLink: uploaded

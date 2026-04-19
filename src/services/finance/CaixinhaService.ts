@@ -9,6 +9,7 @@ import { addSubcriptionByEvent, addProtestByEvent } from '../subscription/Subscr
 import { forceArbitrage } from '../b3/CryptoArbitrageService'
 import { appEvents } from '../../shared/events/AppEvents'
 import { createLogger } from '../../shared/logger/Logger'
+import { ADMIN_EMAIL } from '../../config/constants'
 
 const log = createLogger('CaixinhaService')
 
@@ -52,7 +53,7 @@ async function notifySms(payload: { message: string; phone?: string }): Promise<
         const response = await axios.post(baseUrl, {
             types: ['sms'],
             desc: message,
-            user: 'jeanlucafp@gmail.com'
+            user: ADMIN_EMAIL
         })
         log.debug({ data: response.data }, 'SMS enviado')
     } catch (error) {
@@ -64,7 +65,7 @@ export async function getInfoUltimoEmprestimo(
     username: string
 ): Promise<{ error?: string; text?: string; link?: string }> {
     const dePara: Record<string, { name: string; email: string }> = {
-        jeanlucafp: { name: 'Jeanluca FP', email: 'jeanlucafp@gmail.com' },
+        jeanlucafp: { name: 'Jeanluca FP', email: ADMIN_EMAIL },
         augustosavi: { name: 'Augusto Savi', email: 'guto_savi@outlook.com' },
         ursodepilado: { name: 'Arnaldo Pagani Junior', email: 'dinhupagani@gmail.com' }
     }
@@ -99,7 +100,7 @@ function enviarAprovacao(caixinhaId: string, emprestimoUid: string): void {
         .post(url, { caixinhaId, emprestimoUid })
         .then(() => {
             sendEmail({
-                to: 'jeanlucafp@gmail.com',
+                to: ADMIN_EMAIL,
                 subject: 'Enviado aprovação de emprestimo via discord',
                 body: `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`
             })
@@ -280,7 +281,7 @@ function emprestimoAprovado(payload: any): void {
         })
         .then(() => {
             sendEmail({
-                to: 'jeanlucafp@gmail.com',
+                to: ADMIN_EMAIL,
                 subject: `Emprestimo do ${payload.memberName} foi aprovado`,
                 body: `caixinhaId: ${payload.caixinhaid}  emprestimoUid:${payload.emprestimoId}`
             })

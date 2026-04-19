@@ -5,6 +5,7 @@ import { criarPDFRetornarCaminho } from '../../../services/pdf/PdfService'
 import { upload } from '../../../services/upload/UploadService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
+import { ADMIN_EMAIL } from '../../../config/constants'
 
 const log = createLogger('BudgetReportCommand')
 const schema = z.tuple([]).rest(z.string())
@@ -49,7 +50,7 @@ export class BudgetReportCommand extends BaseCommand<typeof schema> {
     const url = await upload(pdfPath)
     if (url) {
       sendEmail({
-        to: 'jeanlucafp@gmail.com',
+        to: ADMIN_EMAIL,
         subject: 'Relatorio de despesas',
         body: 'Segue em anexo',
         attachmentLink: url,

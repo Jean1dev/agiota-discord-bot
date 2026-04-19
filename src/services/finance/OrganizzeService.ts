@@ -58,3 +58,27 @@ export async function getExpensesCategories(): Promise<Category[]> {
   const categories = await getCategories()
   return categories.filter(c => c.kind === 'expenses')
 }
+
+export interface Interest {
+  interest_cents: number
+  year: number
+  month: number
+}
+
+export async function getInterest(): Promise<Interest> {
+  try {
+    const { data } = await apiCall.get<Interest>('/interest')
+    return data
+  } catch (err) { handleError(err) }
+}
+
+export async function updateInterest(interest: Interest): Promise<unknown> {
+  try {
+    const { data } = await apiCall.post('/interest', {
+      amount_cents: interest.interest_cents,
+      year: interest.year,
+      month: interest.month,
+    })
+    return data
+  } catch (err) { handleError(err) }
+}
