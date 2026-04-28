@@ -45,8 +45,12 @@ async function playSong(
     await entersState(subscription.voiceConnection, VoiceConnectionStatus.Ready, 20e3)
   } catch (error) {
     log.warn({ err: error }, 'Failed to join voice channel within 20 seconds')
-    await interaction.followUp('Failed to join voice channel within 20 seconds, reiniciando processo')
-    process.exit(0)
+    try {
+      subscription.voiceConnection.destroy()
+    } catch (_) { /* ignore destroy errors */ }
+    subs.delete(interaction.guildId)
+    await interaction.followUp('Não foi possível conectar ao canal de voz. Tente novamente.')
+    return
   }
 
   try {

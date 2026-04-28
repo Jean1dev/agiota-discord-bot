@@ -142,6 +142,11 @@ export async function getHighYieldStatistics(): Promise<void> {
 }
 
 function processStatisticsResponse(data: any): void {
+    if (!data || !data.crypto_stats || !data.top_3_exchanges) {
+        log.warn({ data }, 'processStatisticsResponse: dados inválidos ou nulos, ignorando')
+        return
+    }
+
     const { crypto_stats, top_3_exchanges, total_operations, period } = data
 
     let cryptoMessage = `📊 *Estatísticas por Crypto (${period})*\n\n`
@@ -330,6 +335,10 @@ export function rotinaDiariaCrypto(): void {
 
     setTimeout(async () => {
         getRankingExchanges().then((data: any) => {
+            if (!data) {
+                log.warn('rotinaDiariaCrypto: ranking exchanges retornou nulo, ignorando')
+                return
+            }
             evidenciarRankingExchanges(data)
         })
     }, 15000)
