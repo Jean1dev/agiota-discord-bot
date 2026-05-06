@@ -171,8 +171,12 @@ async function gastosDoUltimoFimDeSemana(): Promise<any[]> {
 async function consultarTransacoesDoDiaForaDaCompetencia(
     dataProcurada: Date
 ): Promise<string[]> {
+    const startOfDay = new Date(dataProcurada)
+    startOfDay.setHours(0, 0, 0, 0)
+    const endOfDay = new Date(dataProcurada)
+    endOfDay.setHours(23, 59, 59, 999)
     const data = await searchTransactions({
-        date: { $gte: dataProcurada, $lte: dataProcurada }
+        date: { $gte: startOfDay, $lte: endOfDay }
     })
 
     return data
