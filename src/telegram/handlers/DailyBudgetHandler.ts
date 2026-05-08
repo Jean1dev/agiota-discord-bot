@@ -6,6 +6,7 @@ import {
   getMyDailyBudget,
   spentMoney,
 } from '../../services/finance/DailyBudgetService'
+import { fetchUsdToBrlRate } from '../../services/finance/CurrencyService'
 import { KEYBOARDS } from '../TelegramConfig'
 import { createLogger } from '../../shared/logger/Logger'
 
@@ -17,7 +18,22 @@ const state = {
   batchInserts: [] as { money: string; description: string }[],
 }
 
-function handleBatchResponse(ctx: Context, content: [string, string]) {
+async function resolveMoneyToBrl(rawMoney: string): Promise<{ brlValue: number; conversionInfo?: string }> {
+  const isUsd = rawMoney.toLowerCase().includes('usd')
+  if (!isUsd) {
+    return { brlValue: Number(rawMoney.trim()) }
+  }
+  const usdValue = Number(rawMoney.toLowerCase().replace('usd', '').trim())
+  if (isNaN(usdValue)) {
+    return { brlValue: NaN }
+  }
+  const rate = await fetchUsdToBrlRate()
+  const brlValue = parseFloat((usdValue * rate).toFixed(2))
+  const conversionInfo = `USD ${usdValue.toFixed(2)} → R$ ${brlValue.toFixed(2)} (cotação: R$ ${rate.toFixed(2)})`
+  return { brlValue, conversionInfo }
+}
+
+async function handleBatchResponse(ctx: Context, content: [string, string]) {
   if (content[0]?.toLowerCase() === 'fim') {
     state.awaitResponseSpentMoney = false
     state.batchResponse = false
@@ -28,8 +44,19 @@ function handleBatchResponse(ctx: Context, content: [string, string]) {
     state.batchInserts = []
     return
   }
+  try {
+    const { brlValue, conversionInfo } = await resolveMoneyToBrl(content[0] ?? '')
+    const moneyStr = String(brlValue)
+    state.batchInserts.push({ money: moneyStr, description: content[1] ?? '' })
+    if (conversionInfo) {
+      ctx.reply(`Conversão: ${conversionInfo}`)
+    }
+  } catch (err) {
+    log.error({ err }, 'Error resolving USD in batch')
+    ctx.reply('Erro ao buscar cotação do dólar. Tente novamente.')
+    return
+  }
   ctx.reply('digite fim para finalizar o batch, ou continue informando o valor e descricao separado por virgula')
-  state.batchInserts.push({ money: content[0] ?? '', description: content[1] ?? '' })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,10 +95,14 @@ export function registerDailyBudgetHandlers(bot: any): void {
   bot.on(message('text'), async (ctx: Context) => {
     if (!state.awaitResponseSpentMoney) return
     const text = (ctx.update as never as { message: { text: string } }).message.text
-    const [money, description] = text.split(',') as [string, string]
-    if (state.batchResponse) { handleBatchResponse(ctx, [money, description]); return }
+    const [rawMoney, description] = text.split(',') as [string, string]
+    if (state.batchResponse) { await handleBatchResponse(ctx, [rawMoney, description]); return }
     try {
-      const budget = await spentMoney({ money, description })
+      const { brlValue, conversionInfo } = await resolveMoneyToBrl(rawMoney ?? '')
+      if (conversionInfo) {
+        await ctx.reply(`Conversão: ${conversionInfo}`)
+      }
+      const budget = await spentMoney({ money: brlValue, description })
       ctx.reply(`your new daily budget is R$ ${budget}`)
     } catch (err) {
       log.error({ err }, 'Error processing spent money')
