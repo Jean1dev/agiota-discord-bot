@@ -15,8 +15,15 @@ export async function fetchUsdToBrlRate(): Promise<number> {
         log.debug({ rate: rateCache.rate }, 'USD to BRL rate from cache')
         return rateCache.rate
     }
-    const response = await axios.get('https://economia.awesomeapi.com.br/json/last/USD-BRL')
-    const rate = parseFloat(response.data.USDBRL.bid)
+    const response = await axios.get('https://api.arbitragem-crypto.cloud/v1/dollar', {
+        timeout: 25000,
+        headers: {
+            'accept': 'application/json, text/plain, */*',
+            'origin': 'https://arbitragem-crypto.cloud',
+            'referer': 'https://arbitragem-crypto.cloud/',
+        },
+    })
+    const rate = parseFloat(response.data.usd)
     rateCache = { rate, expiresAt: Date.now() + CACHE_TTL_MS }
     log.debug({ rate }, 'USD to BRL rate fetched')
     return rate
