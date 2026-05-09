@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { fetchUsdToBrlRate, resolveMoneyToBrl } from '../../../../src/services/finance/CurrencyService'
+import { clearRateCache, fetchUsdToBrlRate, resolveMoneyToBrl } from '../../../../src/services/finance/CurrencyService'
 
 jest.mock('axios')
 jest.mock('../../../../src/shared/logger/Logger', () => ({
@@ -7,6 +7,11 @@ jest.mock('../../../../src/shared/logger/Logger', () => ({
 }))
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
+
+beforeEach(() => {
+  jest.clearAllMocks()
+  clearRateCache()
+})
 
 describe('fetchUsdToBrlRate', () => {
   it('retorna a cotação do dólar corretamente', async () => {
@@ -20,6 +25,16 @@ describe('fetchUsdToBrlRate', () => {
     )
   })
 
+  it('usa cache na segunda chamada sem bater na API', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.50' } } })
+
+    await fetchUsdToBrlRate()
+    const rate = await fetchUsdToBrlRate()
+
+    expect(rate).toBe(5.5)
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1)
+  })
+
   it('propaga o erro quando a API falha', async () => {
     mockedAxios.get.mockRejectedValueOnce(new Error('network error'))
 
@@ -28,10 +43,6 @@ describe('fetchUsdToBrlRate', () => {
 })
 
 describe('resolveMoneyToBrl', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
   it('retorna o valor em BRL sem chamar a API quando não há usd', async () => {
     const result = await resolveMoneyToBrl('23.55')
 
@@ -47,6 +58,16 @@ describe('resolveMoneyToBrl', () => {
 
     expect(result.brlValue).toBe(128.92)
     expect(result.conversionInfo).toBe('USD 23.44 → R$ 128.92 (cotação: R$ 5.50)')
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1)
+  })
+
+  it('múltiplas conversões USD reutilizam o cache — API chamada apenas uma vez', async () => {
+    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.50' } } })
+
+    await resolveMoneyToBrl('10usd')
+    await resolveMoneyToBrl('20usd')
+    await resolveMoneyToBrl('30usd')
+
     expect(mockedAxios.get).toHaveBeenCalledTimes(1)
   })
 

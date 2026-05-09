@@ -480,6 +480,10 @@ export function batchInsert(
             description: i.description
         }))
 
+    if (itemsMapped.length === 0) {
+        return state.budget!
+    }
+
     itemsMapped.forEach(({ money, description }) =>
         state.transactions.push({ money, description })
     )
