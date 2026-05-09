@@ -15,18 +15,19 @@ beforeEach(() => {
 
 describe('fetchUsdToBrlRate', () => {
   it('retorna a cotação do dólar corretamente', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.50' } } })
+    mockedAxios.get.mockResolvedValueOnce({ data: { usd: 5.50 } })
 
     const rate = await fetchUsdToBrlRate()
 
     expect(rate).toBe(5.5)
     expect(mockedAxios.get).toHaveBeenCalledWith(
-      'https://economia.awesomeapi.com.br/json/last/USD-BRL'
+      'https://api.arbitragem-crypto.cloud/v1/dollar',
+      expect.objectContaining({ timeout: 25000 })
     )
   })
 
   it('usa cache na segunda chamada sem bater na API', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.50' } } })
+    mockedAxios.get.mockResolvedValueOnce({ data: { usd: 5.50 } })
 
     await fetchUsdToBrlRate()
     const rate = await fetchUsdToBrlRate()
@@ -52,7 +53,7 @@ describe('resolveMoneyToBrl', () => {
   })
 
   it('converte valor USD para BRL buscando a cotação online', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.50' } } })
+    mockedAxios.get.mockResolvedValueOnce({ data: { usd: 5.50 } })
 
     const result = await resolveMoneyToBrl('23.44usd')
 
@@ -62,7 +63,7 @@ describe('resolveMoneyToBrl', () => {
   })
 
   it('múltiplas conversões USD reutilizam o cache — API chamada apenas uma vez', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.50' } } })
+    mockedAxios.get.mockResolvedValueOnce({ data: { usd: 5.50 } })
 
     await resolveMoneyToBrl('10usd')
     await resolveMoneyToBrl('20usd')
@@ -72,7 +73,7 @@ describe('resolveMoneyToBrl', () => {
   })
 
   it('aceita usd em maiúsculas', async () => {
-    mockedAxios.get.mockResolvedValueOnce({ data: { USDBRL: { bid: '5.00' } } })
+    mockedAxios.get.mockResolvedValueOnce({ data: { usd: 5.00 } })
 
     const result = await resolveMoneyToBrl('10USD')
 
