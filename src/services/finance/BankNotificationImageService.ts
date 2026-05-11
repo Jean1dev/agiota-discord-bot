@@ -9,7 +9,8 @@ const log = createLogger('BankNotificationImageService')
 const transactionSchema = z.object({
   transactions: z.array(
     z.object({
-      money: z.number().describe('Valor da transação em BRL como número decimal (ex: 45.86)'),
+      money: z.number().describe('Valor numérico da transação sem símbolo de moeda (ex: 45.86)'),
+      currency: z.enum(['BRL', 'USD']).describe('Moeda da transação: BRL para reais, USD para dólares'),
       description: z.string().describe('Nome do estabelecimento ou descrição da transação'),
     })
   ).describe('Lista de transações bancárias encontradas na imagem'),
@@ -18,17 +19,20 @@ const transactionSchema = z.object({
 })
 
 export type BankNotificationResult = z.infer<typeof transactionSchema>
+export type ExtractedTransaction = BankNotificationResult['transactions'][number]
 
-const PROMPT = `Você é um agente especialista em extrair dados de notificações bancárias brasileiras.
+const PROMPT = `Você é um agente especialista em extrair dados de notificações bancárias.
 Analise a imagem e extraia TODAS as notificações de transações bancárias visíveis.
 
 Para cada transação extraia:
-- money: valor em BRL como número decimal (ex: 45.86 — sem R$, sem vírgula)
+- money: valor numérico sem símbolo de moeda (ex: 45.86 — use ponto decimal, sem R$ ou $)
+- currency: "BRL" se for em reais, "USD" se for em dólares americanos
 - description: nome do estabelecimento/loja
 
-A imagem pode conter uma ou mais notificações. Exemplos de padrões comuns:
-"Compra de R$ 45,86 APROVADA em SQ *BAREBOTTLE - SALES para o cartão com final 4545"
-"Débito de R$ 120,00 em SUPERMERCADO XYZ"
+A imagem pode conter uma ou mais notificações. Exemplos:
+"Compra de R$ 45,86 APROVADA em SQ *BAREBOTTLE - SALES" → money: 45.86, currency: "BRL"
+"Purchase of USD 12.50 at AMAZON" → money: 12.50, currency: "USD"
+"Débito de R$ 120,00 em SUPERMERCADO XYZ" → money: 120.00, currency: "BRL"
 
 Se a imagem não contiver nenhuma notificação bancária identificável, retorne success: false e descreva o motivo em reason.`
 

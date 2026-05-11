@@ -7,7 +7,7 @@ import {
   spentMoney,
 } from '../../services/finance/DailyBudgetService'
 import { resolveMoneyToBrl } from '../../services/finance/CurrencyService'
-import { extractTransactionsFromImage } from '../../services/finance/BankNotificationImageService'
+import { extractTransactionsFromImage, type ExtractedTransaction } from '../../services/finance/BankNotificationImageService'
 import { KEYBOARDS } from '../TelegramConfig'
 import { createLogger } from '../../shared/logger/Logger'
 
@@ -118,8 +118,22 @@ export function registerDailyBudgetHandlers(bot: any): void {
         return
       }
 
-      const newBudget = batchInsert(result.transactions)
-      const summary = result.transactions.map((t: { money: number; description: string }) => `- R$ ${t.money.toFixed(2)}: ${t.description}`).join('\n')
+      const conversionLines: string[] = []
+      const resolved = await Promise.all(
+        result.transactions.map(async (t: ExtractedTransaction) => {
+          const rawMoney = t.currency === 'USD' ? `${t.money} usd` : String(t.money)
+          const { brlValue, conversionInfo } = await resolveMoneyToBrl(rawMoney)
+          if (conversionInfo) conversionLines.push(conversionInfo)
+          return { money: brlValue, description: t.description }
+        })
+      )
+
+      if (conversionLines.length > 0) {
+        await ctx.reply(`Conversões:\n${conversionLines.join('\n')}`)
+      }
+
+      const newBudget = batchInsert(resolved)
+      const summary = resolved.map((t: { money: number; description: string }) => `- R$ ${t.money.toFixed(2)}: ${t.description}`).join('\n')
       await ctx.reply(`Transações registradas:\n${summary}`)
       await ctx.reply(`Seu novo saldo diário é R$ ${newBudget.toFixed(2)}`)
     } catch (err) {
