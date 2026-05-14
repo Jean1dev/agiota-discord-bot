@@ -82,3 +82,37 @@ export async function updateInterest(interest: Interest): Promise<unknown> {
     return data
   } catch (err) { handleError(err) }
 }
+
+export interface FoodSpendingItem {
+  id: number
+  description: string
+  date: string
+  amount_cents: number
+  category_id: number
+}
+
+export interface FoodSpending {
+  total_cents: number
+  total_brl: number
+  year: number
+  month: number
+  items: FoodSpendingItem[]
+}
+
+export async function getFoodSpending(): Promise<FoodSpending> {
+  try {
+    const { data } = await apiCall.get<FoodSpending>('/food-spending')
+    return data
+  } catch (err) { handleError(err) }
+}
+
+export async function updateFoodSpending(foodSpending: FoodSpending): Promise<unknown> {
+  try {
+    const { data } = await apiCall.post('/food-spending', {
+      amount_cents: foodSpending.total_cents,
+      year: foodSpending.year,
+      month: foodSpending.month,
+    })
+    return data
+  } catch (err) { handleError(err) }
+}
