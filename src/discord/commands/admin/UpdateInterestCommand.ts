@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
-import { getInterest, updateInterest } from '../../../services/finance/OrganizzeService'
+import { getInterest, updateInterest, getTransactions, TransactionItem } from '../../../services/finance/OrganizzeService'
 import { sendEmail } from '../../../services/email/EmailService'
 import { ADMIN_EMAIL } from '../../../config/constants'
 
@@ -20,6 +20,18 @@ function formatBRL(cents: number): string {
   return `R$ ${intFormatted},${decPart}`
 }
 
+function formatTransactionsTable(transactions: TransactionItem[]): string {
+  if (transactions.length === 0) return 'Nenhuma transação encontrada.'
+
+  const lines = transactions.map(t => {
+    const valor = formatBRL(t.amount_cents)
+    const data = t.date ? new Date(t.date).toLocaleDateString('pt-BR') : '-'
+    return `- ${data} | ${t.description} | ${valor}`
+  })
+
+  return lines.join('\n')
+}
+
 /**
  * $atualizar-juros (admin only)
  * Busca os juros do mês via GET /interest, atualiza via POST /interest
@@ -33,22 +45,31 @@ export class UpdateInterestCommand extends BaseCommand<typeof schema> {
   protected async handle(message: DiscordMessage): Promise<void> {
     await message.reply('Buscando dados de juros...')
 
-    const interest = await getInterest()
+    const [interest, transactions] = await Promise.all([getInterest(), getTransactions()])
     const { interest_cents, year, month } = interest
 
     log.info({ interest_cents, year, month }, 'Dados de juros obtidos')
+    log.info({ count: transactions.length }, 'Transações obtidas')
 
     await updateInterest(interest)
 
     const valorFormatado = formatBRL(interest_cents)
     const nomeMes = MESES[month - 1] ?? `mês ${month}`
+    const tabelaTransacoes = formatTransactionsTable(transactions)
 
     sendEmail({
       to: ADMIN_EMAIL,
       subject: `Juros de ${nomeMes}/${year} atualizados`,
-      body: `O gasto de juros referente a ${nomeMes}/${year} foi atualizado.\n\nValor: ${valorFormatado}`,
+      body: [
+        `O gasto de juros referente a ${nomeMes}/${year} foi atualizado.`,
+        ``,
+        `Valor: ${valorFormatado}`,
+        ``,
+        `--- Transações do período (${transactions.length}) ---`,
+        tabelaTransacoes,
+      ].join('\n'),
     })
-    log.info({ to: ADMIN_EMAIL, valorFormatado, nomeMes, year }, 'E-mail de juros enviado')
+    log.info({ to: ADMIN_EMAIL, valorFormatado, nomeMes, year, transacoes: transactions.length }, 'E-mail de juros enviado')
 
     await message.reply(
       `Juros atualizados com sucesso!\nPeríodo: ${nomeMes}/${year}\nValor: ${valorFormatado}\nE-mail de notificação enviado para ${ADMIN_EMAIL}.`,

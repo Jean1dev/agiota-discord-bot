@@ -46,6 +46,23 @@ export async function getCategory(id: number): Promise<Category> {
   } catch (err) { handleError(err) }
 }
 
+export interface TransactionItem {
+  id: number
+  description: string
+  date: string
+  amount_cents: number
+  category_id: number
+  notes?: string
+  [key: string]: unknown
+}
+
+export async function getTransactions(): Promise<TransactionItem[]> {
+  try {
+    const { data } = await apiCall.get<TransactionItem[]>('/transactions')
+    return data
+  } catch (err) { handleError(err) }
+}
+
 export async function createTransaction(transactionData: Transaction): Promise<unknown> {
   const { description, notes, category_id, amount_cents } = transactionData
   try {
