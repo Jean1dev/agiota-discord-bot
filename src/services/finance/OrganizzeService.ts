@@ -59,10 +59,20 @@ export async function getExpensesCategories(): Promise<Category[]> {
   return categories.filter(c => c.kind === 'expenses')
 }
 
+export interface InterestItem {
+  id: number
+  description: string
+  date: string
+  amount_cents: number
+  interest_cents: number
+}
+
 export interface Interest {
   interest_cents: number
+  interest_brl: number
   year: number
   month: number
+  items: InterestItem[]
 }
 
 export async function getInterest(): Promise<Interest> {
