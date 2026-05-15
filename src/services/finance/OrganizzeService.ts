@@ -46,33 +46,6 @@ export async function getCategory(id: number): Promise<Category> {
   } catch (err) { handleError(err) }
 }
 
-export interface TransactionItem {
-  id: number
-  description: string
-  date: string
-  amount_cents: number
-  category_id: number
-  notes?: string
-  [key: string]: unknown
-}
-
-export async function getTransactions(): Promise<TransactionItem[]> {
-  try {
-    const { data } = await apiCall.get<TransactionItem[]>('/transactions')
-    return data
-  } catch (err) { handleError(err) }
-}
-
-export async function getInterestTransactions(): Promise<TransactionItem[]> {
-  const [transactions, categories] = await Promise.all([getTransactions(), getCategories()])
-  const interestCategoryIds = new Set(
-    categories
-      .filter(c => c.name.toLowerCase().includes('juro'))
-      .map(c => c.id)
-  )
-  return transactions.filter(t => interestCategoryIds.has(t.category_id))
-}
-
 export async function createTransaction(transactionData: Transaction): Promise<unknown> {
   const { description, notes, category_id, amount_cents } = transactionData
   try {
@@ -86,10 +59,20 @@ export async function getExpensesCategories(): Promise<Category[]> {
   return categories.filter(c => c.kind === 'expenses')
 }
 
+export interface InterestItem {
+  id: number
+  description: string
+  date: string
+  amount_cents: number
+  interest_cents: number
+}
+
 export interface Interest {
   interest_cents: number
+  interest_brl: number
   year: number
   month: number
+  items: InterestItem[]
 }
 
 export async function getInterest(): Promise<Interest> {

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
-import { getInterest, updateInterest, getInterestTransactions, TransactionItem } from '../../../services/finance/OrganizzeService'
+import { getInterest, updateInterest, InterestItem } from '../../../services/finance/OrganizzeService'
 import { sendEmail } from '../../../services/email/EmailService'
 import { ADMIN_EMAIL } from '../../../config/constants'
 
@@ -20,16 +20,15 @@ function formatBRL(cents: number): string {
   return `R$ ${intFormatted},${decPart}`
 }
 
-function formatTransactionsTable(transactions: TransactionItem[]): string {
-  if (transactions.length === 0) return 'Nenhuma transação encontrada.'
+function formatInterestItems(items: InterestItem[]): string {
+  if (items.length === 0) return 'Nenhuma transação encontrada.'
 
-  const lines = transactions.map(t => {
-    const valor = formatBRL(t.amount_cents)
-    const data = t.date ? new Date(t.date).toLocaleDateString('pt-BR') : '-'
-    return `- ${data} | ${t.description} | ${valor}`
-  })
-
-  return lines.join('\n')
+  return items.map(t => {
+    const data = new Date(t.date).toLocaleDateString('pt-BR')
+    const valorTotal = formatBRL(Math.abs(t.amount_cents))
+    const juros = formatBRL(t.interest_cents)
+    return `- ${data} | ${t.description} | Total: ${valorTotal} | Juros: ${juros}`
+  }).join('\n')
 }
 
 /**
@@ -45,17 +44,15 @@ export class UpdateInterestCommand extends BaseCommand<typeof schema> {
   protected async handle(message: DiscordMessage): Promise<void> {
     await message.reply('Buscando dados de juros...')
 
-    const [interest, transactions] = await Promise.all([getInterest(), getInterestTransactions()])
-    const { interest_cents, year, month } = interest
+    const interest = await getInterest()
+    const { interest_cents, year, month, items } = interest
 
-    log.info({ interest_cents, year, month }, 'Dados de juros obtidos')
-    log.info({ count: transactions.length }, 'Transações obtidas')
+    log.info({ interest_cents, year, month, itemCount: items.length }, 'Dados de juros obtidos')
 
     await updateInterest(interest)
 
     const valorFormatado = formatBRL(interest_cents)
     const nomeMes = MESES[month - 1] ?? `mês ${month}`
-    const tabelaTransacoes = formatTransactionsTable(transactions)
 
     sendEmail({
       to: ADMIN_EMAIL,
@@ -63,13 +60,13 @@ export class UpdateInterestCommand extends BaseCommand<typeof schema> {
       body: [
         `O gasto de juros referente a ${nomeMes}/${year} foi atualizado.`,
         ``,
-        `Valor: ${valorFormatado}`,
+        `Valor total de juros: ${valorFormatado}`,
         ``,
-        `--- Transações do período (${transactions.length}) ---`,
-        tabelaTransacoes,
+        `--- Transações (${items.length}) ---`,
+        formatInterestItems(items),
       ].join('\n'),
     })
-    log.info({ to: ADMIN_EMAIL, valorFormatado, nomeMes, year, transacoes: transactions.length }, 'E-mail de juros enviado')
+    log.info({ to: ADMIN_EMAIL, valorFormatado, nomeMes, year, transacoes: items.length }, 'E-mail de juros enviado')
 
     await message.reply(
       `Juros atualizados com sucesso!\nPeríodo: ${nomeMes}/${year}\nValor: ${valorFormatado}\nE-mail de notificação enviado para ${ADMIN_EMAIL}.`,
