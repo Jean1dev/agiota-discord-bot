@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
-import { getInterest, updateInterest, getTransactions, TransactionItem } from '../../../services/finance/OrganizzeService'
+import { getInterest, updateInterest, getInterestTransactions, TransactionItem } from '../../../services/finance/OrganizzeService'
 import { sendEmail } from '../../../services/email/EmailService'
 import { ADMIN_EMAIL } from '../../../config/constants'
 
@@ -45,7 +45,7 @@ export class UpdateInterestCommand extends BaseCommand<typeof schema> {
   protected async handle(message: DiscordMessage): Promise<void> {
     await message.reply('Buscando dados de juros...')
 
-    const [interest, transactions] = await Promise.all([getInterest(), getTransactions()])
+    const [interest, transactions] = await Promise.all([getInterest(), getInterestTransactions()])
     const { interest_cents, year, month } = interest
 
     log.info({ interest_cents, year, month }, 'Dados de juros obtidos')

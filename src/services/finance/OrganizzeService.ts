@@ -63,6 +63,16 @@ export async function getTransactions(): Promise<TransactionItem[]> {
   } catch (err) { handleError(err) }
 }
 
+export async function getInterestTransactions(): Promise<TransactionItem[]> {
+  const [transactions, categories] = await Promise.all([getTransactions(), getCategories()])
+  const interestCategoryIds = new Set(
+    categories
+      .filter(c => c.name.toLowerCase().includes('juro'))
+      .map(c => c.id)
+  )
+  return transactions.filter(t => interestCategoryIds.has(t.category_id))
+}
+
 export async function createTransaction(transactionData: Transaction): Promise<unknown> {
   const { description, notes, category_id, amount_cents } = transactionData
   try {
