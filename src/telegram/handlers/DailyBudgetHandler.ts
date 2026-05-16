@@ -7,6 +7,7 @@ import {
   spentMoney,
 } from '../../services/finance/DailyBudgetService'
 import { resolveMoneyToBrl } from '../../services/finance/CurrencyService'
+import { extractTransactionsFromImage, type ExtractedTransaction } from '../../services/finance/BankNotificationImageService'
 import { KEYBOARDS } from '../TelegramConfig'
 import { createLogger } from '../../shared/logger/Logger'
 
@@ -95,6 +96,49 @@ export function registerDailyBudgetHandlers(bot: any): void {
       ctx.reply('An error occurred. Please try again.')
     } finally {
       state.awaitResponseSpentMoney = false
+    }
+  })
+
+  bot.on(message('photo'), async (ctx: Context) => {
+    const photos = (ctx.update as never as { message: { photo: Array<{ file_id: string }> } }).message.photo
+    const largestPhoto = photos[photos.length - 1]
+    if (!largestPhoto) {
+      await ctx.reply('Não foi possível obter a imagem.')
+      return
+    }
+
+    await ctx.reply('Analisando notificação bancária...')
+
+    try {
+      const fileLink = await ctx.telegram.getFileLink(largestPhoto.file_id)
+      const result = await extractTransactionsFromImage(fileLink.href)
+
+      if (!result.success || result.transactions.length === 0) {
+        await ctx.reply(`Não consegui identificar transações bancárias na imagem.${result.reason ? ` ${result.reason}` : ''}`)
+        return
+      }
+
+      const conversionLines: string[] = []
+      const resolved = await Promise.all(
+        result.transactions.map(async (t: ExtractedTransaction) => {
+          const rawMoney = t.currency === 'USD' ? `${t.money} usd` : String(t.money)
+          const { brlValue, conversionInfo } = await resolveMoneyToBrl(rawMoney)
+          if (conversionInfo) conversionLines.push(conversionInfo)
+          return { money: brlValue, description: t.description }
+        })
+      )
+
+      if (conversionLines.length > 0) {
+        await ctx.reply(`Conversões:\n${conversionLines.join('\n')}`)
+      }
+
+      const newBudget = batchInsert(resolved)
+      const summary = resolved.map((t: { money: number; description: string }) => `- R$ ${t.money.toFixed(2)}: ${t.description}`).join('\n')
+      await ctx.reply(`Transações registradas:\n${summary}`)
+      await ctx.reply(`Seu novo saldo diário é R$ ${newBudget.toFixed(2)}`)
+    } catch (err) {
+      log.error({ err }, 'Error processing bank notification image')
+      await ctx.reply('Ocorreu um erro ao processar a imagem. Tente novamente.')
     }
   })
 }
