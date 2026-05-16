@@ -15,7 +15,7 @@ const transactionSchema = z.object({
     })
   ).describe('Lista de transações bancárias encontradas na imagem'),
   success: z.boolean().describe('true se ao menos uma transação foi identificada com sucesso'),
-  reason: z.string().optional().describe('Motivo de falha quando success for false'),
+  reason: z.string().nullable().describe('Motivo de falha quando success for false, null caso contrário'),
 })
 
 export type BankNotificationResult = z.infer<typeof transactionSchema>
