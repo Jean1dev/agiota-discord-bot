@@ -304,7 +304,7 @@ export function processAMQPMessage(message: any, routingKey: string): void {
             sendEmail({
                 to: email,
                 subject: 'Alerta de arbitragem',
-                body: emailMessage
+                message: emailMessage
             })
             break
         }

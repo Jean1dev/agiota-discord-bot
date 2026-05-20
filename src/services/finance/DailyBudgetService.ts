@@ -116,7 +116,7 @@ export async function gerarReportDosGastosDoUltimoFinalDeSemana(): Promise<void>
         const email = {
             to: ADMIN_EMAIL,
             subject: 'Gastos do final de semana',
-            body: 'Segue em anexo ',
+            message: 'Segue em anexo ',
             attachmentLink: uploaded
         }
 

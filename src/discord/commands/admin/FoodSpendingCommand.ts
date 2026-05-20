@@ -45,7 +45,7 @@ export class FoodSpendingCommand extends BaseCommand<typeof schema> {
     sendEmail({
       to: ADMIN_EMAIL,
       subject: `Gastos com alimentação de ${nomeMes}/${year} atualizados`,
-      body: `O gasto com alimentação referente a ${nomeMes}/${year} foi atualizado.\n\nTotal: ${valorFormatado}\n\nItens:\n${itemLines}`,
+      message: `O gasto com alimentação referente a ${nomeMes}/${year} foi atualizado.\n\nTotal: ${valorFormatado}\n\nItens:\n${itemLines}`,
     })
     log.info({ to: ADMIN_EMAIL, valorFormatado, nomeMes, year }, 'E-mail de alimentação enviado')
 
