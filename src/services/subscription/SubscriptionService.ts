@@ -56,7 +56,7 @@ export function notifySms(fone: string): Promise<any> {
 export function notifySuccessWithEmail(email: string): void {
     sendEmail({
         subject: 'Assinatura ativa',
-        body: `Ola! este email confirma que sua assinatura esta ativa, se tiver alguma duvida pode entrar em contato comigo
+        message: `Ola! este email confirma que sua assinatura esta ativa, se tiver alguma duvida pode entrar em contato comigo
         *Informações*
                     • [Documentação](https://docs.arbitragem-crypto.cloud/introduction)
                     • [Site](https://market.arbitragem-crypto.cloud/)
@@ -70,7 +70,7 @@ export function notifySuccessWithEmail(email: string): void {
 export function sendEmailBoasVindas(email: string): void {
     sendEmail({
         subject: 'Acesso software de arbitragem',
-        body: `Fala mestre tudo bem, liberei o acesso ao software de arbitragem, estamos liberando novas features
+        message: `Fala mestre tudo bem, liberei o acesso ao software de arbitragem, estamos liberando novas features
 
                     Se tiver alguma opinião/comentário pode me acionar, o link do nosso grupo do WhatsApp https://chat.whatsapp.com/Fyd8t4sXknGHgxlPaaYzKB o grupo do Telegram tem o link na plataforma
 
@@ -207,7 +207,7 @@ async function cancelSubscription(email: string): Promise<void> {
 
 function sendCancellationEmail(name: string, email: string): void {
     const message = getCancellationEmailTemplate(name)
-    sendEmail({ subject: 'Assinatura cancelada', body: message, to: email })
+    sendEmail({ subject: 'Assinatura cancelada', message, to: email })
 }
 
 function notifyDiscordCancellation(name: string, email: string): void {

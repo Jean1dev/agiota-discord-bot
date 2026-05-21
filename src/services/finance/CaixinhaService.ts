@@ -102,7 +102,7 @@ function enviarAprovacao(caixinhaId: string, emprestimoUid: string): void {
             sendEmail({
                 to: ADMIN_EMAIL,
                 subject: 'Enviado aprovação de emprestimo via discord',
-                body: `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`
+                message: `caixinhaId: ${caixinhaId}  emprestimoUid:${emprestimoUid}`
             })
         })
         .catch(captureException)
@@ -283,7 +283,7 @@ function emprestimoAprovado(payload: any): void {
             sendEmail({
                 to: ADMIN_EMAIL,
                 subject: `Emprestimo do ${payload.memberName} foi aprovado`,
-                body: `caixinhaId: ${payload.caixinhaid}  emprestimoUid:${payload.emprestimoId}`
+                message: `caixinhaId: ${payload.caixinhaid}  emprestimoUid:${payload.emprestimoId}`
             })
         })
         .catch((e: any) => {

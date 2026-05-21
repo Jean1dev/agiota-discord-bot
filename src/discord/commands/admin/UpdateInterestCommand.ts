@@ -57,7 +57,7 @@ export class UpdateInterestCommand extends BaseCommand<typeof schema> {
     sendEmail({
       to: ADMIN_EMAIL,
       subject: `Juros de ${nomeMes}/${year} atualizados`,
-      body: [
+      message: [
         `O gasto de juros referente a ${nomeMes}/${year} foi atualizado.`,
         ``,
         `Valor total de juros: ${valorFormatado}`,

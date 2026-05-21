@@ -28,7 +28,7 @@ export class MeConecteiCommand extends BaseCommand<typeof schema> {
     sendEmail({
       to: email,
       subject: 'Conta criada no me-conectei',
-      body: `Sua conta foi criada.\nEmail: ${email}\nSenha: ${password}\n\nAlgere sua senha após o primeiro login.`,
+      message: `Sua conta foi criada.\nEmail: ${email}\nSenha: ${password}\n\nAlgere sua senha após o primeiro login.`,
     })
 
     log.info({ email }, 'Conta Me Conectei criada')

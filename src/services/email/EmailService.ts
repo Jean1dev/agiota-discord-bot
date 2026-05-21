@@ -9,7 +9,7 @@ const EMAIL_URL = `${COMMUNICATION_SERVER_URL}/email`
 export interface EmailPayload {
   to: string
   subject: string
-  body: string
+  message: string
   [key: string]: unknown
 }
 

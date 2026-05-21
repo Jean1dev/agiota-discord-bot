@@ -52,7 +52,7 @@ export class BudgetReportCommand extends BaseCommand<typeof schema> {
       sendEmail({
         to: ADMIN_EMAIL,
         subject: 'Relatorio de despesas',
-        body: 'Segue em anexo',
+        message: 'Segue em anexo',
         attachmentLink: url,
       })
     }
