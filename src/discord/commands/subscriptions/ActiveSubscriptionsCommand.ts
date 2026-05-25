@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { getActiveSubscriptions } from '../../../services/subscription/SubscriptionService'
+import { getActiveSubscriptions, expireOverduePlans } from '../../../services/subscription/SubscriptionService'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { createLogger } from '../../../shared/logger/Logger'
 
@@ -25,6 +25,9 @@ export class ActiveSubscriptionsCommand extends BaseCommand<typeof schema> {
     for (const sub of data.expiringSoon) {
       await message.reply(`${sub.email} — ${sub.expiresIn}`)
     }
+
+    await expireOverduePlans()
+    log.info('Expiração de planos vencidos executada')
   }
 
   protected getUsage() { return '`$ass`' }

@@ -232,4 +232,18 @@ export async function addProtestByEvent(event: any): Promise<void> {
     }
 }
 
+export async function expireOverduePlans(): Promise<void> {
+    const token = await getKeycloakToken()
+    const config = {
+        method: 'post',
+        url: 'https://o-auth-managment-server-6d5834301f7a.herokuapp.com/plano/expirar-planos-vencidos',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    }
+
+    await axios.request(config)
+    log.info('Planos vencidos expirados com sucesso')
+}
+
 export { migrateCollections }
