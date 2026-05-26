@@ -10,6 +10,11 @@ import { enviarMensagemParaMim, enviarMensagemHTML } from './telegram'
 
 const log = createLogger('AppEvents')
 
+const RECONNECT_BASE_MS = 5_000
+const RECONNECT_MAX_MS = 60_000
+
+let reconnectScheduled = false
+
 appEvents.on('update-state-jogo-bixo', () => {
   updateStateAfterDataLoad()
 })
@@ -40,7 +45,18 @@ function dispatchAmqpPayload(queue: string, msg: Message, kind: 'caixinha' | 'cr
   cryptoServiceProcessMessage(msg, msg.fields.routingKey ?? '')
 }
 
-function startAmqpConsumers(): void {
+function scheduleReconnect(attempt: number): void {
+  if (reconnectScheduled) return
+  reconnectScheduled = true
+  const delay = Math.min(RECONNECT_BASE_MS * 2 ** attempt, RECONNECT_MAX_MS)
+  log.info({ attempt, delayMs: delay }, 'AMQP reconexão agendada')
+  setTimeout(() => {
+    reconnectScheduled = false
+    startAmqpConsumers(attempt + 1)
+  }, delay)
+}
+
+function startAmqpConsumers(attempt = 0): void {
   const url = env.AMQP_CONNECTION
   if (!url) {
     log.warn('AMQP_CONNECTION ausente — consumidores não iniciados')
@@ -49,9 +65,27 @@ function startAmqpConsumers(): void {
 
   amqp.connect(url, (errConn, connection) => {
     if (errConn) {
-      log.error({ err: errConn }, 'AMQP connect falhou')
+      log.error({ err: errConn, attempt }, 'AMQP connect falhou')
+      broadcastDiscord(`⚠️ RabbitMQ: falha ao conectar (tentativa ${attempt + 1}) — ${errConn.message}`)
+      scheduleReconnect(attempt)
       return
     }
+
+    log.info('AMQP conectado')
+    if (attempt > 0) {
+      broadcastDiscord('✅ RabbitMQ: conexão restabelecida com sucesso.')
+    }
+
+    connection.on('error', (err) => {
+      log.error({ err }, 'AMQP connection error')
+      broadcastDiscord(`🔴 RabbitMQ: erro na conexão — ${err.message}`)
+    })
+
+    connection.on('close', () => {
+      log.warn('AMQP connection fechada')
+      broadcastDiscord('🔴 RabbitMQ: conexão encerrada inesperadamente. Reconectando...')
+      scheduleReconnect(0)
+    })
 
     connection.createChannel((errCh, channel) => {
       if (errCh) {
@@ -81,6 +115,8 @@ function startAmqpConsumers(): void {
         },
         { noAck: true },
       )
+
+      log.info('AMQP consumidores iniciados')
     })
   })
 }
