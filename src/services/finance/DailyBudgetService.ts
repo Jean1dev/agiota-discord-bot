@@ -68,7 +68,7 @@ async function createTransaction(
     const categorieId = state.categories.find(
         category => category.name === categorieDescription
     )?.id
-    const amountCents = transactionData.money * 100
+    const amountCents = Math.round(transactionData.money * 100)
     const organizzeService = getOrganizzeService()
     await organizzeService.createTransaction({
         description: transactionData.description.trim(),
