@@ -8,6 +8,7 @@ import {
 } from '../../services/finance/DailyBudgetService'
 import { resolveMoneyToBrl } from '../../services/finance/CurrencyService'
 import { extractTransactionsFromImage, type ExtractedTransaction } from '../../services/finance/BankNotificationImageService'
+import { analyzeMerchantReceipt } from '../../services/finance/MerchantReceiptService'
 import { KEYBOARDS } from '../TelegramConfig'
 import { createLogger } from '../../shared/logger/Logger'
 
@@ -16,6 +17,7 @@ const log = createLogger('DailyBudgetHandler')
 const state = {
   awaitResponseSpentMoney: false,
   batchResponse: false,
+  awaitCouponImage: false,
   batchInserts: [] as { money: string; description: string }[],
 }
 
@@ -73,6 +75,11 @@ export function registerDailyBudgetHandlers(bot: any): void {
     ctx.reply('informe o valor e descricao separado por virgula')
   })
 
+  bot.hears('adcionar cupom mercado', (ctx: Context) => {
+    state.awaitCouponImage = true
+    ctx.reply('Envie a imagem do cupom do mercado.')
+  })
+
   bot.hears(['Info', 'Links', 'Link'], (ctx: Context) => {
     ctx.replyWithMarkdownV2(
       `*Informações*\n• [Documentação](https://docs.arbitragem-crypto.cloud/introduction)\n• [Site](https://market.arbitragem-crypto.cloud/)\n• [Plataforma](https://arbitragem-crypto.cloud/)\n• [Comunidade](https://comunidade.arbitragem-crypto.cloud/)`,
@@ -104,6 +111,24 @@ export function registerDailyBudgetHandlers(bot: any): void {
     const largestPhoto = photos[photos.length - 1]
     if (!largestPhoto) {
       await ctx.reply('Não foi possível obter a imagem.')
+      return
+    }
+
+    if (state.awaitCouponImage) {
+      state.awaitCouponImage = false
+      await ctx.reply('Analisando cupom do mercado...')
+      try {
+        const fileLink = await ctx.telegram.getFileLink(largestPhoto.file_id)
+        const result = await analyzeMerchantReceipt(fileLink.href)
+        if (!result.success) {
+          await ctx.reply(`Não consegui analisar o cupom.${result.reason ? ` ${result.reason}` : ''}`)
+          return
+        }
+        await ctx.reply('Cupom do mercado registrado com sucesso!')
+      } catch (err) {
+        log.error({ err }, 'Error processing merchant receipt image')
+        await ctx.reply('Ocorreu um erro ao processar o cupom. Tente novamente.')
+      }
       return
     }
 
