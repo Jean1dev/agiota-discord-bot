@@ -19,7 +19,7 @@ export async function analyzeMerchantReceipt(imageUrl: string): Promise<Merchant
       RECEIPTS_ENDPOINT,
       { imageUrl },
       {
-        timeout: 30000,
+        timeout: 50000,
         headers: { 'Content-Type': 'application/json' },
       },
     )
