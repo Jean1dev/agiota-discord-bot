@@ -75,7 +75,7 @@ export function registerDailyBudgetHandlers(bot: any): void {
     ctx.reply('informe o valor e descricao separado por virgula')
   })
 
-  bot.hears('adcionar cupom mercado', (ctx: Context) => {
+  bot.hears('adicionar cupom mercado', (ctx: Context) => {
     state.awaitCouponImage = true
     ctx.reply('Envie a imagem do cupom do mercado.')
   })
