@@ -5,7 +5,7 @@ export const AUTHORIZED_CHAT_ID = 512142034
 
 export const KEYBOARDS = {
   dailyBudget: {
-    keyboard: [['My Daily budget'], ['spent money'], ['batch']] as string[][],
+    keyboard: [['My Daily budget'], ['spent money'], ['batch'], ['adicionar cupom mercado']] as string[][],
     resize_keyboard: true,
   },
   publicUser: {
