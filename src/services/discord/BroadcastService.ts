@@ -2,8 +2,8 @@ import { contextInstance } from '../../context'
 import { ALERT_CHANNEL } from '../../discord/DiscordConstants'
 import type { Client } from 'discord.js'
 
-function getClient(): Client {
-  return contextInstance().client
+function getClient(): Client | undefined {
+  return contextInstance()?.client
 }
 
 export function sendToChannel(channelName: string, message: string): void {
