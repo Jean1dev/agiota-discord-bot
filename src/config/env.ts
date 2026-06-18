@@ -53,6 +53,12 @@ const envSchema = z.object({
   CAIXINHA_KEY: z.string().optional(),
   CAIXINHA_SERVER_URL: z.string().optional(),
 
+  /**
+   * URL base do serviço de compras de mercado (merchant-receipt-analysis),
+   * que expõe o endpoint GET /reports/:month. Opcional — há default no código.
+   */
+  COMPRAS_MERCADO_API_URL: z.string().optional(),
+
   // ── Comunicação ────────────────────────────────────────────────────────
   TELEGRAM_API_KEY: z.string().optional(),
   AMQP_CONNECTION: z.string().optional(),
