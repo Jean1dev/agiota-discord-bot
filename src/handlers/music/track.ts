@@ -40,7 +40,7 @@ export class Track {
         {
           output: '-',
           quiet: true,
-          format: 'best[ext=opus]/best',
+          format: 'bestaudio[ext=webm]/bestaudio/best',
           noWarnings: true,
           noCallHome: true,
           addHeader: [
