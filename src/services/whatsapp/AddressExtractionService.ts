@@ -1,6 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai'
 import { StructuredOutputParser } from 'langchain/output_parsers'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
+import { nativeFetch } from '../../shared/http/native-fetch'
 import { z } from 'zod'
 import { env } from '../../config/env'
 import { createLogger } from '../../shared/logger/Logger'
@@ -32,7 +33,7 @@ export async function extractAddressFromText(text: string): Promise<Address | nu
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const outputParser = StructuredOutputParser.fromZodSchema(AddressSchema as any)
-  const model = new ChatOpenAI({ modelName: 'gpt-3.5-turbo', temperature: 0.2, apiKey: env.KEY_OPEN_AI })
+  const model = new ChatOpenAI({ modelName: 'gpt-3.5-turbo', temperature: 0.2, apiKey: env.KEY_OPEN_AI, configuration: { fetch: nativeFetch } })
   const prompt = ChatPromptTemplate.fromMessages([
     ['system', SYSTEM_PROMPT],
     ['human', 'Extraia o endereço do texto abaixo:\n\n{text}'],
