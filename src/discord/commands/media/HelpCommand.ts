@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import comandos from '../../../commands/comandos-struct'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 
@@ -18,15 +18,15 @@ export class HelpCommand extends BaseCommand<typeof schema> {
 
   protected async handle(message: DiscordMessage): Promise<void> {
     const embeds = comandos.map(cmd =>
-      new MessageEmbed()
+      new EmbedBuilder()
         .setTitle(cmd.comando)
         .setDescription(cmd.descricao)
-        .setColor('RANDOM')
+        .setColor('Random')
     )
 
     if (embeds.length > this.LIMITE_EMBEDS_DISCORD) {
       let counter = 0
-      let batch: MessageEmbed[] = []
+      let batch: EmbedBuilder[] = []
 
       for (const embed of embeds) {
         counter++

@@ -1,4 +1,4 @@
-import { Client, Intents, Message } from 'discord.js'
+import { Client, GatewayIntentBits, Partials, ChannelType, Message } from 'discord.js'
 import { createContext, contextInstance } from './context'
 import { CHAT_GERAL } from './discord/DiscordConstants'
 import captureException from './observability/Sentry'
@@ -17,13 +17,14 @@ import { createLogger } from './shared/logger/Logger'
 const log = createLogger('bot')
 
 const client = new Client({
-  partials: ['CHANNEL'],
+  partials: [Partials.Channel],
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.DIRECT_MESSAGES,
-    Intents.FLAGS.DIRECT_MESSAGE_TYPING,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.DirectMessages,
+    GatewayIntentBits.DirectMessageTyping,
   ],
 })
 
@@ -81,7 +82,7 @@ client.on('messageCreate', async (message: Message) => {
   registrarEntradaTexto(message as any)
   conversationHistoryGpt(message as any)
 
-  if (message.channel.type === 'DM') {
+  if (message.channel.type === ChannelType.DM) {
     return dmHandler(message, client)
   }
 

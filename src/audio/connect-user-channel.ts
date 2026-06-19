@@ -1,19 +1,12 @@
 import { VoiceConnectionStatus, joinVoiceChannel, entersState, VoiceConnection } from '@discordjs/voice'
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const createDiscordJSAdapter = require('../adapters/discord-adapter')
 
-interface VoiceChannel {
-  id: string
-  guild: { id: string; shard: { status: number; send(data: unknown): void } }
-  client: { user?: { id: string } }
-}
-
-export async function connectUserChannel(channel: VoiceChannel): Promise<VoiceConnection> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function connectUserChannel(channel: any): Promise<VoiceConnection> {
   const connection = joinVoiceChannel({
     channelId: channel.id,
     guildId: channel.guild.id,
     debug: true,
-    adapterCreator: createDiscordJSAdapter(channel),
+    adapterCreator: channel.guild.voiceAdapterCreator,
   })
 
   try {
