@@ -193,6 +193,40 @@ Avisos de `SABR streaming` / `No supported JavaScript runtime` são comuns; enqu
 - Confirme o ffmpeg: `node -e "console.log(require('@discordjs/voice').generateDependencyReport())"` deve mostrar `FFmpeg` e `libopus: yes`.
 - Adicione logs temporários em `subcription.ts` (`audioPlayer.on('stateChange')` e dentro de `processQueue`) para ver se o resource chega a `Playing` ou cai em `Idle`/erro.
 
+### B.5 — `Sign in to confirm you're not a bot` (muro anti-bot do YouTube)
+
+Sintoma exato no stderr do yt-dlp:
+```
+ERROR: [youtube] <id>: Sign in to confirm you're not a bot.
+Use --cookies-from-browser or --cookies for the authentication.
+```
+
+**Causa:** o YouTube marca **IPs de datacenter** (Heroku/VPS) como suspeitos e
+exige autenticação. Diferente do 403 (yt-dlp velho), aqui ele bloqueia já na
+extração de metadados (`Track.from`). Piora porque os clients `android`/`ios`
+passaram a exigir **PO token** e o `web` sem cookies num IP flagrado cai direto
+no muro — por isso o antigo `player_client=android,ios,web` deixou de ajudar.
+
+**Correção (implementada em `src/handlers/music/ytdlp-options.ts`):**
+
+1. **Cookies de uma conta logada** (forma confiável em IP de datacenter). Use,
+   de preferência, uma conta descartável:
+   - No navegador logado no YouTube, exporte `cookies.txt` (formato Netscape —
+     extensão "Get cookies.txt").
+   - `base64 -w0 cookies.txt` e cole o resultado na config var
+     **`YOUTUBE_COOKIES_B64`** (no Heroku: `heroku config:set YOUTUBE_COOKIES_B64=...`).
+   - Alternativa: aponte **`YOUTUBE_COOKIES_FILE`** para um cookies.txt no disco.
+   - O código materializa o arquivo no boot e passa `--cookies` ao yt-dlp.
+
+2. **Clients modernos** sem PO token: default `tv,web_safari` (sobrescreva com
+   **`YTDLP_PLAYER_CLIENT`** se precisar).
+
+3. **yt-dlp atualizado**: o `Dockerfile` baixa a release mais recente do yt-dlp
+   por cima do binário empacotado pelo `youtube-dl-exec` no build.
+
+> Cookies vencem/expiram. Se o muro voltar depois de semanas, **gere um
+> `cookies.txt` novo** e atualize a config var.
+
 ---
 
 ## C. Crash no boot: `Cannot read properties of null (reading 'client')`

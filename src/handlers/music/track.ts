@@ -1,5 +1,6 @@
 import { createAudioResource, demuxProbe } from '@discordjs/voice'
 import { createLogger } from '../../shared/logger/Logger'
+import { ytdlpCommonOptions } from './ytdlp-options'
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { exec } = require('youtube-dl-exec')
 
@@ -41,11 +42,7 @@ export class Track {
           output: '-',
           quiet: true,
           format: 'bestaudio[ext=webm]/bestaudio/best',
-          noWarnings: true,
-          extractorArgs: 'youtube:player_client=android,ios,web',
-          addHeader: [
-            'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          ],
+          ...ytdlpCommonOptions(),
         },
         { stdio: ['ignore', 'pipe', 'pipe'] },
       )
@@ -76,12 +73,8 @@ export class Track {
       try {
         const ytInfo = await exec(url, {
           dumpSingleJson: true,
-          noWarnings: true,
           preferFreeFormats: true,
-          extractorArgs: 'youtube:player_client=android,ios,web',
-          addHeader: [
-            'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          ],
+          ...ytdlpCommonOptions(),
         }, { stdio: ['ignore', 'pipe', 'pipe'] })
 
         const data = JSON.parse(ytInfo.stdout.toString())

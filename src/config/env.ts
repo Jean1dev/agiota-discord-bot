@@ -48,6 +48,16 @@ const envSchema = z.object({
     .optional()
     .transform(v => (v ? parseInt(v, 10) : 0)),
 
+  /**
+   * Player do YouTube (música) — driblar o anti-bot em IP de datacenter.
+   * - YOUTUBE_COOKIES_B64: cookies.txt (formato Netscape) em base64.
+   * - YOUTUBE_COOKIES_FILE: caminho de um cookies.txt já no disco.
+   * - YTDLP_PLAYER_CLIENT: override da lista de clients do yt-dlp.
+   */
+  YOUTUBE_COOKIES_B64: z.string().optional(),
+  YOUTUBE_COOKIES_FILE: z.string().optional(),
+  YTDLP_PLAYER_CLIENT: z.string().optional(),
+
   // ── Finanças ───────────────────────────────────────────────────────────
   FINANCE_API_AUTH: z.string().optional(),
   CAIXINHA_KEY: z.string().optional(),
