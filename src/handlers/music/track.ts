@@ -42,12 +42,12 @@ export class Track {
           quiet: true,
           format: 'bestaudio[ext=webm]/bestaudio/best',
           noWarnings: true,
-          noCallHome: true,
+          extractorArgs: 'youtube:player_client=android,ios,web',
           addHeader: [
             'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           ],
         },
-        { stdio: ['ignore', 'pipe', 'ignore'] },
+        { stdio: ['ignore', 'pipe', 'pipe'] },
       )
       if (!process.stdout) { reject(new Error('No stdout')); return }
       const stream = process.stdout
@@ -77,19 +77,19 @@ export class Track {
         const ytInfo = await exec(url, {
           dumpSingleJson: true,
           noWarnings: true,
-          noCallHome: true,
           preferFreeFormats: true,
+          extractorArgs: 'youtube:player_client=android,ios,web',
           addHeader: [
             'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           ],
-        }, { stdio: ['ignore', 'pipe', 'ignore'] })
+        }, { stdio: ['ignore', 'pipe', 'pipe'] })
 
         const data = JSON.parse(ytInfo.stdout.toString())
         title = data.title ?? 'Unknown Title'
         break
       } catch (error: any) {
         retryCount++
-        log.warn({ err: error, retryCount }, `youtube-dl-exec attempt ${retryCount} failed`)
+        log.warn({ err: error, stderr: error.stderr ?? '', exitCode: error.exitCode, retryCount }, `youtube-dl-exec attempt ${retryCount} failed`)
         if (retryCount >= maxRetries) throw new Error('Failed to get video information. Please try again later.')
         await new Promise(r => setTimeout(r, 1000 * retryCount))
       }
