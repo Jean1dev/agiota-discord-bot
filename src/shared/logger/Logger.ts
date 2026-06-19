@@ -22,7 +22,7 @@ const isProd = process.env.NODE_ENV === 'production'
  * tokens de acesso e o header Authorization. Sem isso, um `log.error({ err })`
  * despeja credenciais em texto claro nos logs (ex.: refresh do OAuth do Google).
  */
-const REDACT_PATHS = [
+export const REDACT_PATHS = [
   'err.config.data',
   'err.config.body',
   'err.config.headers.authorization',
