@@ -1,6 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai'
 import { HumanMessage } from '@langchain/core/messages'
 import { z } from 'zod'
+import { nativeFetch } from '../../shared/http/native-fetch'
 import { env } from '../../config/env'
 import { createLogger } from '../../shared/logger/Logger'
 
@@ -45,6 +46,7 @@ export async function extractTransactionsFromImage(imageUrl: string): Promise<Ba
     modelName: 'gpt-4o',
     temperature: 0,
     apiKey: env.KEY_OPEN_AI,
+    configuration: { fetch: nativeFetch },
   })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

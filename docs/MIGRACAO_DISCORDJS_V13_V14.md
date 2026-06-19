@@ -122,3 +122,33 @@ grep -rEn "MessageEmbed|MessageButton|MessageActionRow|MessageAttachment|Intents
 
 - Guia oficial de migração: https://discordjs.guide/additional-info/changes-in-v14.html
 - Message Content Intent: https://support-dev.discord.com/hc/articles/4404772028055
+
+---
+
+## 8. Auditoria de `node-fetch` em outras libs (jun/2026)
+
+O mesmo `ERR_STREAM_PREMATURE_CLOSE` voltou em produção, mas **fora do discord.js** —
+provando que o `node-fetch` é arrastado por várias dependências, não só por ele.
+Sintomas vistos: falha no refresh do OAuth do Google (`oauth2.googleapis.com/token`)
+e no `GET api.github.com/.../commits`.
+
+Bibliotecas que (ainda) dependem de `node-fetch` e como foram tratadas:
+
+| Lib | Caminho | node-fetch | Tratamento |
+|-----|---------|------------|------------|
+| `@octokit/core` | `GithubService` (commits) | v2 | **Removida.** Reescrito com `axios` (http nativo) + retry |
+| `googleapis` (`gaxios`) | OAuth Google + YouTube API | v3 | `googleapis@^173`; **`fetchImplementation` = `fetch` nativo** no transporter do OAuth2Client (cobre refresh do token *e* chamadas de dados, que passam por `authClient.request`) + `google.options({ fetchImplementation })` |
+| `openai` (direto) | `src/ia/open-ai-api.ts` | — | `openai@^6` já usa `fetch` nativo; nada a fazer |
+| `@langchain/openai` | `ChatOpenAI` (quiz, finance, whatsapp) | v2 (via `openai@4` interno) | Injetado `configuration: { fetch: nativeFetch }` (helper `src/shared/http/native-fetch.ts`) |
+| `telegraf@4.16.3` | bot Telegram | v2 | ⚠️ **Risco residual.** É a última versão da série 4.x e não expõe injeção de `fetch`. Sem upgrade que remova o `node-fetch`. Monitorar; migrar quando houver versão sobre `undici`/fetch nativo |
+| `@discordjs/node-pre-gyp` | build (node-gyp) | v2 | Irrelevante — só em build, nunca em request |
+
+**Padrão de correção:** sempre que uma lib aceitar injeção de `fetch`, passe o
+`nativeFetch` (`globalThis.fetch`, undici a partir do Node 18). Quando não aceitar,
+ou troque a lib (como no Octokit → axios) ou registre como risco residual.
+
+**Segurança:** o erro do gaxios/axios anexa `config.data`/`config.body` ao objeto
+de erro — que carregam `client_secret`, `refresh_token` e o header `Authorization`.
+Um `log.error({ err })` vazava isso em texto claro. O logger central
+(`src/shared/logger/Logger.ts`) agora aplica `redact` nesses caminhos. **Nunca**
+logue o objeto de erro HTTP cru sem garantir a redação.

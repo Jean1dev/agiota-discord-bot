@@ -11,6 +11,16 @@ const oAuth2Client = new google.auth.OAuth2(
   env.GOOGLE_OAUTH_REDIRECT_URI
 )
 
+// O googleapis (via gaxios) carrega o `node-fetch` por padrão, que quebra ao
+// descomprimir gzip no Node 24 (ERR_STREAM_PREMATURE_CLOSE) — foi o que fazia
+// o refresh do token em https://oauth2.googleapis.com/token falhar. Forçamos o
+// `fetch` nativo (undici), pela mesma razão da migração do discord.js p/ v14.
+const nativeFetch = globalThis.fetch
+;(oAuth2Client as unknown as {
+  transporter: { defaults: { fetchImplementation?: typeof fetch } }
+}).transporter.defaults.fetchImplementation = nativeFetch
+google.options({ fetchImplementation: nativeFetch } as never)
+
 const SCOPES = [
   'https://www.googleapis.com/auth/drive.metadata.readonly',
   'https://www.googleapis.com/auth/drive.file',

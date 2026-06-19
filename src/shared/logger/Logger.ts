@@ -14,8 +14,30 @@ const isProd = process.env.NODE_ENV === 'production'
  *   logger.warn({ channel }, 'Canal não encontrado')
  *   logger.debug({ data }, 'Payload recebido')
  */
+/**
+ * Campos que podem carregar segredos quando um erro HTTP é logado.
+ *
+ * Clients como gaxios/googleapis e axios anexam `config.data`/`config.body` ao
+ * objeto de erro — e essas strings contêm `client_secret`, `refresh_token`,
+ * tokens de acesso e o header Authorization. Sem isso, um `log.error({ err })`
+ * despeja credenciais em texto claro nos logs (ex.: refresh do OAuth do Google).
+ */
+const REDACT_PATHS = [
+  'err.config.data',
+  'err.config.body',
+  'err.config.headers.authorization',
+  'err.config.headers.Authorization',
+  'err.response.config.data',
+  'err.response.config.body',
+  'err.response.data',
+  'err.request.body',
+  'err.request.headers.authorization',
+  'err.request.headers.Authorization',
+]
+
 export const logger = pino({
   level: isProd ? 'info' : 'debug',
+  redact: { paths: REDACT_PATHS, censor: '[REDACTED]' },
   transport: !isProd
     ? {
         target: 'pino-pretty',

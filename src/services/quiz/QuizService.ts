@@ -1,6 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
+import { nativeFetch } from '../../shared/http/native-fetch'
 import { z } from 'zod'
 import { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js'
 import { env } from '../../config/env'
@@ -39,7 +40,8 @@ function createModel() {
     return new ChatOpenAI({
         modelName: 'gpt-3.5-turbo',
         temperature: 0.7,
-        apiKey: env.KEY_OPEN_AI
+        apiKey: env.KEY_OPEN_AI,
+        configuration: { fetch: nativeFetch }
     })
 }
 
