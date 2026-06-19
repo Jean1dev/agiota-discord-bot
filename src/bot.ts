@@ -27,7 +27,22 @@ const client = new Client({
   ],
 })
 
-client.login(env.BOT_TOKEN)
+async function startBot(retries = 5, delay = 2000): Promise<void> {
+  try {
+    await client.login(env.BOT_TOKEN)
+  } catch (err) {
+    log.error({ err, retriesLeft: retries }, 'Falha ao logar no Discord')
+    if (retries > 0) {
+      setTimeout(() => {
+        startBot(retries - 1, delay * 2)
+      }, delay)
+    } else {
+      captureException(err)
+    }
+  }
+}
+
+startBot()
 
 const prefix: string = process.env.NODE_ENV === 'dev' ? '!' : '$'
 log.info({ prefix }, 'Comando do bot')
