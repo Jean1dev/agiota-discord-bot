@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbed } from 'discord.js'
+import { GuildMember, EmbedBuilder, ApplicationCommandOptionType } from 'discord.js'
 import { joinVoiceChannel, entersState, VoiceConnectionStatus, AudioPlayerStatus } from '@discordjs/voice'
 import { Track } from './track'
 import { MusicSubscription } from './subcription'
@@ -86,17 +86,17 @@ const musicHandler = async (message: any): Promise<void> => {
   playerLigado = true
 
   await message.guild.commands.set([
-    { name: 'play', description: 'Plays a song', options: [{ name: 'song', type: 'STRING', description: 'The URL of the song to play', required: true }] },
+    { name: 'play', description: 'Plays a song', options: [{ name: 'song', type: ApplicationCommandOptionType.String, description: 'The URL of the song to play', required: true }] },
     { name: 'skip', description: 'Skip to the next song in the queue' },
     { name: 'queue', description: 'See the music queue' },
     { name: 'pause', description: 'Pauses the song that is currently playing' },
     { name: 'resume', description: 'Resume playback of the current song' },
     { name: 'leave', description: 'Leave the voice channel' },
     { name: 'random', description: 'Play random music' },
-    { name: 'talk-to-me', description: 'Conversa com o mamaco', options: [{ name: 'input', type: 'STRING', description: 'Sobre oq vamos conversar?', required: true }] },
+    { name: 'talk-to-me', description: 'Conversa com o mamaco', options: [{ name: 'input', type: ApplicationCommandOptionType.String, description: 'Sobre oq vamos conversar?', required: true }] },
   ])
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setTitle('Player de música ligado!')
     .setDescription('Use / para visualizar todas as opções')
     .setImage(gifDj)
@@ -105,7 +105,7 @@ const musicHandler = async (message: any): Promise<void> => {
 
   const context = contextInstance()
   context.client.on('interactionCreate', async (interaction: any) => {
-    if (!interaction.isCommand() || !interaction.guildId) return
+    if (!interaction.isChatInputCommand() || !interaction.guildId) return
     const subscription = subscriptions.get(interaction.guildId)
 
     if (interaction.commandName === 'play') {

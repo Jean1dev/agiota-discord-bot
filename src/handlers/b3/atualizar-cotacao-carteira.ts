@@ -216,6 +216,9 @@ export default async function atualizarCotacaoCarteira(message: Message): Promis
     return
   }
 
+  const channel = message.channel
+  if (!channel.isSendable()) return
+
   const ativoComImagem: Array<{ papel: string; imagem: string }> = []
   for (const papel of listaAtivos) {
     try {
@@ -226,14 +229,14 @@ export default async function atualizarCotacaoCarteira(message: Message): Promis
       }
       if (!imageUrl) {
         log.warn({ papel }, 'Sem imagem encontrada para o papel')
-        void message.channel.send(`Nao consegui adicionar esse papel ${papel}`).then(m => deleteMessageAfterTime(m))
+        void channel.send(`Nao consegui adicionar esse papel ${papel}`).then(m => deleteMessageAfterTime(m))
         continue
       }
       ativoComImagem.push({ papel, imagem: imageUrl })
       log.info({ papel }, 'Imagem obtida com sucesso')
     } catch (e) {
       log.error({ err: e, papel }, 'Erro ao processar papel')
-      void message.channel.send(`Nao consegui adicionar esse papel ${papel}`).then(m => deleteMessageAfterTime(m))
+      void channel.send(`Nao consegui adicionar esse papel ${papel}`).then(m => deleteMessageAfterTime(m))
     }
   }
 
@@ -244,7 +247,7 @@ export default async function atualizarCotacaoCarteira(message: Message): Promis
       imageUrl: obj.imagem,
     })
     log.info({ papel: obj.papel }, 'API atualizada')
-    void message.channel.send(`Atualizado ${obj.papel}`).then(m => deleteMessageAfterTime(m))
+    void channel.send(`Atualizado ${obj.papel}`).then(m => deleteMessageAfterTime(m))
   }
   log.info('atualizar-carteira concluído')
 }
