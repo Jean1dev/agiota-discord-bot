@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MessageEmbed, MessageButton, MessageActionRow } from 'discord.js'
+import { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js'
 import appConfig from '../../config'
 import { contextInstance } from '../../context'
 import captureException from '../../observability/Sentry'
@@ -150,13 +150,13 @@ function getChannelCaixinha(): any {
 
 function notifyDeposito(deposito: any): void {
     const channel = getChannelCaixinha()
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle(`Novo deposito do ${deposito.memberName}`)
         .setThumbnail(
             'https://img.freepik.com/vetores-premium/icone-plano-de-deposito-elemento-simples-de-cor-da-colecao-fintech-icone-de-deposito-criativo-para-infograficos-de-modelos-de-web-design-e-muito-mais_676904-971.jpg?w=2000'
         )
         .setDescription(`valor R$${deposito.value.value} \n`)
-        .setColor('RANDOM')
+        .setColor('Random')
 
     if (deposito.image) {
         embed.setImage(deposito.image)
@@ -197,25 +197,25 @@ function notifyEmprestimo(emprestimo: any): void {
     }
 
     const channel = getChannelCaixinha()
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle(`nova solicitação de emprestimo do ${emprestimo.memberName}`)
         .setThumbnail(
             'https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U'
         )
         .setDescription(getDescription())
-        .setColor('RANDOM')
+        .setColor('Random')
 
-    const aceitarButton = new MessageButton()
+    const aceitarButton = new ButtonBuilder()
         .setCustomId('aprovar')
         .setLabel('aprovar')
-        .setStyle('SUCCESS')
+        .setStyle(ButtonStyle.Success)
 
-    const rejeitarButton = new MessageButton()
+    const rejeitarButton = new ButtonBuilder()
         .setCustomId('rejeitar')
         .setLabel('Rejeitar')
-        .setStyle('DANGER')
+        .setStyle(ButtonStyle.Danger)
 
-    const actionRow = new MessageActionRow().addComponents(aceitarButton, rejeitarButton)
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(aceitarButton, rejeitarButton)
 
     const caixinhaId = emprestimo.boxId
     const emprestimoUid = emprestimo.uid
@@ -239,13 +239,13 @@ function notifyEmprestimo(emprestimo: any): void {
 
 function notifyRendimento(message: string): void {
     const channel = getChannelCaixinha()
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle('Atenção')
         .setThumbnail(
             'https://cdn.icon-icons.com/icons2/3253/PNG/512/income_money_dollar_upward_green_arrow_gain_appreciation_icon_205133.png'
         )
         .setDescription(message)
-        .setColor('RANDOM')
+        .setColor('Random')
 
     channel.send({ embeds: [embed] })
 }

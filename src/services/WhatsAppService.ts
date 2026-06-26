@@ -1,4 +1,4 @@
-import { MessageAttachment } from 'discord.js'
+import { AttachmentBuilder } from 'discord.js'
 import QRCode from 'qrcode'
 import { readDoc, writeDoc, hasStoredAuth, clearSession } from './whatsapp/MongoAuthStore'
 import { handle as handlePlanFlow } from './whatsapp/PlanFlowHandler'
@@ -128,7 +128,7 @@ export async function startPairing(discordChannel: { send(content: unknown): Pro
   const onQr = async (qr: string) => {
     try {
       const buf = await QRCode.toBuffer(qr, { type: 'png', margin: 2, width: 300 })
-      await discordChannel.send({ files: [new MessageAttachment(buf, 'whatsapp-qr.png')] })
+      await discordChannel.send({ files: [new AttachmentBuilder(buf, { name: 'whatsapp-qr.png' })] })
     } catch (e) { await discordChannel.send('Erro ao gerar QR: ' + (e as Error).message).catch(() => {}) }
   }
   const onOpen = async () => { await discordChannel.send('WhatsApp vinculado com sucesso.') }

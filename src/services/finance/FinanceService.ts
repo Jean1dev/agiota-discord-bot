@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { MessageEmbed } from 'discord.js'
+import { EmbedBuilder } from 'discord.js'
 import { env } from '../../config/env'
 import { contextInstance } from '../../context'
 import captureException from '../../observability/Sentry'
@@ -66,7 +66,7 @@ function verificarStatus(key: string, tentative = 0): void {
             }
 
             const channel = getChannelCaixinha()
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setTitle(`Status do pix ${statusPix}`)
                 .setThumbnail(
                     'https://play-lh.googleusercontent.com/zz-I1flXxoU24si5lu4hpUMEGWDLfT5Leyvg5skcV2GQiTkqEBiTtNxU81v8aOK8Y5U'
@@ -79,7 +79,7 @@ function verificarStatus(key: string, tentative = 0): void {
                             quando ${data.data.quando} \n
                 `
                 )
-                .setColor('RANDOM')
+                .setColor('Random')
 
             channel.send({ embeds: [embed] })
         })
@@ -116,13 +116,13 @@ function cobrancaImediata(contract: { nome: string; cpf: string; valor: number }
         })
         .then(({ data }) => {
             const { paymentUrl } = data
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setTitle(`Cobranca imedieta para ${contract.nome} - ${contract.cpf}`)
                 .setThumbnail(
                     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjUjtI3p1UZWNBBJHMDd9nqDjPIKQemaFDGg&usqp=CAU'
                 )
                 .setDescription(`pague atraves do link de pagamento ${paymentUrl}`)
-                .setColor('RANDOM')
+                .setColor('Random')
 
             channel.send({ embeds: [embed] })
         })
@@ -139,7 +139,7 @@ function cobrancaImediata(contract: { nome: string; cpf: string; valor: number }
         .then(({ data }) => {
             const { qrCode, txId, pixCopiaECola, chave } = data
             const urlQrCode = 'https://' + qrCode.replace('"', '')
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setTitle(`Cobranca imedieta para ${contract.nome} - ${contract.cpf}`)
                 .setThumbnail(urlQrCode)
                 .setImage(urlQrCode)
@@ -151,7 +151,7 @@ function cobrancaImediata(contract: { nome: string; cpf: string; valor: number }
                     pague atraves do link ${urlQrCode} \n
                 `
                 )
-                .setColor('RANDOM')
+                .setColor('Random')
 
             channel.send({ embeds: [embed] })
         })

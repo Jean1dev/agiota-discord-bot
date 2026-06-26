@@ -1,8 +1,9 @@
 import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
+import { nativeFetch } from '../../shared/http/native-fetch'
 import { z } from 'zod'
-import { MessageEmbed, MessageButton, MessageActionRow } from 'discord.js'
+import { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js'
 import { env } from '../../config/env'
 import { contextInstance } from '../../context'
 import { CHAT_GERAL } from '../../discord/DiscordConstants'
@@ -39,7 +40,8 @@ function createModel() {
     return new ChatOpenAI({
         modelName: 'gpt-3.5-turbo',
         temperature: 0.7,
-        apiKey: env.KEY_OPEN_AI
+        apiKey: env.KEY_OPEN_AI,
+        configuration: { fetch: nativeFetch }
     })
 }
 
@@ -61,26 +63,26 @@ async function gerarQuiz(): Promise<QuizResult> {
     return result as QuizResult
 }
 
-function gerarDiscordEmbed(quiz: QuizResult): { embed: MessageEmbed; actionRow: MessageActionRow } {
+function gerarDiscordEmbed(quiz: QuizResult): { embed: EmbedBuilder; actionRow: ActionRowBuilder<ButtonBuilder> } {
     const letras = ['a', 'b', 'c']
     const alternativasFormatadas = quiz.alternatives
         .map((alt, idx) => `**${letras[idx]})** ${alt}`)
         .join('\n\n')
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle('🧠 Quiz')
         .setDescription(`**Pergunta:**\n${quiz.question}\n\n${alternativasFormatadas}`)
         .setThumbnail('https://media.istockphoto.com/id/1616906708/pt/vetorial/vector-speech-bubble-with-quiz-time-words-trendy-text-balloon-with-geometric-grapic-shape.jpg?s=612x612&w=0&k=20&c=nEw2MiBcD18arANGA6n5Q0UPPLjVLpAmDMmt7mE7D4I=')
-        .setColor('RANDOM')
+        .setColor('Random')
 
     const messagesButtons = letras.map((letra, index) => {
-        return new MessageButton()
+        return new ButtonBuilder()
             .setCustomId(`alternative-${index}`)
             .setLabel(letra)
-            .setStyle('PRIMARY')
+            .setStyle(ButtonStyle.Primary)
     })
 
-    const actionRow = new MessageActionRow().addComponents(messagesButtons)
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(...messagesButtons)
     return { embed, actionRow }
 }
 
@@ -100,7 +102,7 @@ function handleChampion(interaction: any): void {
 }
 
 function publishAndListening(
-    { embed, actionRow }: { embed: MessageEmbed; actionRow: MessageActionRow },
+    { embed, actionRow }: { embed: EmbedBuilder; actionRow: ActionRowBuilder<ButtonBuilder> },
     quiz: QuizResult
 ): void {
     const channel: any = contextInstance().client.channels.cache.find(
