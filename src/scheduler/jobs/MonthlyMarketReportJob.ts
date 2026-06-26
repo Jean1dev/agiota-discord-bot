@@ -4,6 +4,9 @@ import {
   gerarPdfRelatorioMensalCompras,
   mesAnoLabel,
 } from '../../services/pdf/MonthlyMarketReportPdf'
+import {
+  getMonthlySummary,
+} from '../../services/finance/OrganizzeService'
 import { upload } from '../../services/upload/UploadService'
 import { sendEmail } from '../../services/email/EmailService'
 import { ADMIN_EMAIL } from '../../config/constants'
@@ -11,29 +14,23 @@ import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('MonthlyMarketReportJob')
 
-/**
- * Retorna true se `date` for o último dia do mês.
- * node-cron não suporta o coringa "L", então o job roda todo dia e este
- * guard garante que o relatório só é gerado no fechamento do mês.
- */
+const MESES = [
+  'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+]
+
 export function ehUltimoDiaDoMes(date: Date): boolean {
   const amanha = new Date(date)
   amanha.setDate(date.getDate() + 1)
   return amanha.getDate() === 1
 }
 
-/** Formata uma data como "YYYY-MM" (mês de referência do endpoint). */
 export function formatMonth(date: Date): string {
   const ano = date.getFullYear()
   const mes = String(date.getMonth() + 1).padStart(2, '0')
   return `${ano}-${mes}`
 }
 
-/**
- * Roda diariamente às 23:30 e, no último dia do mês, consome o endpoint
- * GET /reports/:month, monta um PDF visual, sobe para o storage e envia
- * como anexo no e-mail do admin.
- */
 export class MonthlyMarketReportJob implements IJob {
   readonly cronExpression = '30 23 * * *'
 
@@ -44,7 +41,39 @@ export class MonthlyMarketReportJob implements IJob {
     }
 
     const month = formatMonth(hoje)
-    log.info({ month }, 'Último dia do mês — gerando relatório de compras')
+    log.info({ month }, 'Último dia do mês — fechamento mensal')
+
+    await this.syncOrganizzeMonthlySummary(hoje)
+    await this.sendMarketReport(month)
+  }
+
+  private async syncOrganizzeMonthlySummary(hoje: Date): Promise<void> {
+    const year = hoje.getFullYear()
+    const month = hoje.getMonth() + 1
+
+    const { data } = await getMonthlySummary(year, month)
+    const entry = data.find(e => e.year === year && e.month === month)
+
+    const nomeMes = MESES[month - 1] ?? `mês ${month}`
+    const juros = formatBRLFromCents(entry?.interest_cents ?? null)
+    const comida = formatBRLFromCents(entry?.food_spending_cents ?? null)
+
+    sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `Resumo financeiro — ${nomeMes}/${year}`,
+      message: [
+        `Fechamento mensal de ${nomeMes}/${year}.`,
+        ``,
+        `Juros: ${juros}`,
+        `Gastos com alimentação: ${comida}`,
+      ].join('\n'),
+    })
+
+    log.info({ to: ADMIN_EMAIL, year, month }, 'E-mail do resumo mensal enviado')
+  }
+
+  private async sendMarketReport(month: string): Promise<void> {
+    log.info({ month }, 'Gerando relatório de compras')
 
     const report = await fetchMonthlyReport(month)
     if (!report) {
@@ -53,7 +82,6 @@ export class MonthlyMarketReportJob implements IJob {
     }
 
     const pdfPath = gerarPdfRelatorioMensalCompras(report, month)
-    // Garante que o stream do PDF terminou de escrever antes do upload.
     await new Promise(resolve => setTimeout(resolve, 1500))
 
     const attachmentLink = await upload(pdfPath)
@@ -86,4 +114,9 @@ function formatBRL(value: number): string {
     style: 'currency',
     currency: 'BRL',
   }).format(Number.isFinite(value) ? value : 0)
+}
+
+function formatBRLFromCents(cents: number | null): string {
+  if (cents === null) return '—'
+  return formatBRL(cents / 100)
 }

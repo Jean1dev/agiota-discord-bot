@@ -126,3 +126,27 @@ export async function updateFoodSpending(foodSpending: FoodSpending): Promise<un
     return data
   } catch (err) { handleError(err) }
 }
+
+export interface MonthlySummaryEntry {
+  year: number
+  month: number
+  interest_cents: number | null
+  food_spending_cents: number | null
+}
+
+export interface MonthlySummaryResponse {
+  data: MonthlySummaryEntry[]
+}
+
+export async function getMonthlySummary(
+  year?: number,
+  month?: number,
+): Promise<MonthlySummaryResponse> {
+  try {
+    const params: Record<string, number> = {}
+    if (year !== undefined) params.year = year
+    if (month !== undefined) params.month = month
+    const { data } = await apiCall.get<MonthlySummaryResponse>('/monthly-summary', { params })
+    return data
+  } catch (err) { handleError(err) }
+}
