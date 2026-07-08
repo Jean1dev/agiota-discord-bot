@@ -1,7 +1,7 @@
 import { contextInstance } from '../../context'
 import { appEvents } from '../../shared/events/AppEvents'
 
-export const LIMIT = 8400
+export const LIMIT = 8000
 
 export function atualizarTotalGasto(valor: number): void {
   const ctx = contextInstance()
