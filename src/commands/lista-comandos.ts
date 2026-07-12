@@ -3,7 +3,7 @@ import { addDividaHandler, pagarDividaHandler, cobrarDividaHandler } from '../di
 import { addDailyBudgetHandler, updateGastosCartaoHandler, relatorioMensalDeGastosHandler, buscarGastoNoDiaHandler, ultimoEmprestimoInfoHandler } from '../discord/commands/finance'
 import { jogoBixoHandler, estatisticasJogoBixoHandler } from '../discord/commands/game'
 import { chatGpt, changeIaMode } from '../discord/commands/ai'
-import { arbitragemHandler, changeAutoArbitragemHandler, crossingCountsHandler, atualizarCotacaoHandler } from '../discord/commands/b3'
+import { arbitragemHandler, changeAutoArbitragemHandler, atualizarCotacaoHandler } from '../discord/commands/b3'
 import { restartHandler, dbCleanHandler, meconecteiHandler, updateInterestHandler, foodSpendingHandler } from '../discord/commands/admin'
 import { assinaturasHandler, assinaturasAtivasHandler } from '../discord/commands/subscriptions'
 import { helpHandler, imgurHandler } from '../discord/commands/media'
@@ -35,7 +35,6 @@ registrarComando('gpt', chatGpt, 'Tire dúvidas com o ChatGPT :: $gpt <pergunta>
 registrarComando('ia', changeIaMode, 'Liga ou desliga a IA')
 registrarComando('arb', arbitragemHandler, 'Executa rounds de arbitragem :: $arb <quantidade>', true)
 registrarComando('auto-arb', changeAutoArbitragemHandler, 'Alterna auto-arbitragem (admin)')
-registrarComando('cr-counts', crossingCountsHandler, 'POST crossing-counts (admin)')
 registrarComando('acao', atualizarCotacaoHandler, 'Atualiza cotações da carteira')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (admin)')
 registrarComando('db-clean', dbCleanHandler, 'Limpa banco crypto (admin)')
