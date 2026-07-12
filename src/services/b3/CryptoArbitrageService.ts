@@ -82,6 +82,9 @@ function finishArbitrageQueue(): void {
         finalCallback(`Arbitragem concluida ultimo treshhold ${lastArbitrageThreshold}`)
         lastArbitrageCallback = null
     }
+    futureCrossingCounts().catch(error => {
+        log.error({ err: error }, 'Erro ao executar crossing-counts apos arbitragem concluida')
+    })
     getMediaSpread()
     getHighYieldStatistics()
 }
