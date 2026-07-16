@@ -5,6 +5,7 @@ const log = createLogger('env')
 
 const DEFAULT_COMMUNICATION_SERVER_URL =
   'https://communication-service-4f4f57e0a956.herokuapp.com'
+const DEFAULT_CRYPTO_DB_STORAGE_LIMIT_BYTES = 450 * 1024 * 1024
 
 /**
  * Schema de validação de todas as variáveis de ambiente.
@@ -81,6 +82,16 @@ const envSchema = z.object({
   GITHUB_API_TOKEN: z.string().optional(),
   CLOUD_CONVERT_API: z.string().optional(),
   CRYPTO_SERVICE_DB: z.string().optional(),
+  CRYPTO_DB_STORAGE_LIMIT_BYTES: z
+    .string()
+    .optional()
+    .transform(value => {
+      const normalized = value?.trim()
+      if (!normalized) return DEFAULT_CRYPTO_DB_STORAGE_LIMIT_BYTES
+
+      const parsed = Number(normalized)
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_CRYPTO_DB_STORAGE_LIMIT_BYTES
+    }),
   ME_CONECTEI_API_URL: z.string().optional(),
   FERIADOS_BR: z.string().optional(),
 })

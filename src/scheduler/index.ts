@@ -5,6 +5,7 @@ import { WeekendReportJob } from './jobs/WeekendReportJob'
 import { DailyBudgetJob } from './jobs/DailyBudgetJob'
 import { YoutubeRssJob } from './jobs/YoutubeRssJob'
 import { MonthlyMarketReportJob } from './jobs/MonthlyMarketReportJob'
+import { CryptoDatabaseStorageJob } from './jobs/CryptoDatabaseStorageJob'
 import { createLogger } from '../shared/logger/Logger'
 
 const log = createLogger('scheduler')
@@ -18,6 +19,7 @@ export function registerJobs(): void {
   scheduler.register(new DailyBudgetJob())
   scheduler.register(new YoutubeRssJob())
   scheduler.register(new MonthlyMarketReportJob())
+  scheduler.register(new CryptoDatabaseStorageJob())
 
   log.info('All jobs registered')
 }
