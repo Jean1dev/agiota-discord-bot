@@ -4,7 +4,7 @@ import { addDailyBudgetHandler, updateGastosCartaoHandler, relatorioMensalDeGast
 import { jogoBixoHandler, estatisticasJogoBixoHandler } from '../discord/commands/game'
 import { chatGpt, changeIaMode } from '../discord/commands/ai'
 import { arbitragemHandler, changeAutoArbitragemHandler, atualizarCotacaoHandler } from '../discord/commands/b3'
-import { restartHandler, meconecteiHandler, updateInterestHandler, foodSpendingHandler } from '../discord/commands/admin'
+import { restartHandler, meconecteiHandler, updateMonthlySpendingHandler } from '../discord/commands/admin'
 import { assinaturasHandler, assinaturasAtivasHandler } from '../discord/commands/subscriptions'
 import { helpHandler, imgurHandler } from '../discord/commands/media'
 import { configWhatsAppHandler, clearWhatsAppHandler, testWhatsAppHandler } from '../discord/commands/whatsapp'
@@ -38,8 +38,7 @@ registrarComando('auto-arb', changeAutoArbitragemHandler, 'Alterna auto-arbitrag
 registrarComando('acao', atualizarCotacaoHandler, 'Atualiza cotações da carteira')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (admin)')
 registrarComando('meconectei', meconecteiHandler, 'Cria conta admin no Me Conectei :: $meconectei <email> (admin)', true)
-registrarComando('atualizar-juros', updateInterestHandler, 'Atualiza o gasto mensal de juros e envia e-mail ao admin (admin)')
-registrarComando('food-spending', foodSpendingHandler, 'Atualiza o gasto mensal com alimentação e envia e-mail ao admin (admin)')
+registrarComando('atualizar-gastos', updateMonthlySpendingHandler, 'Atualiza gastos mensais de juros e alimentação e envia e-mails ao admin (admin)')
 registrarComando('sub', assinaturasHandler, 'Cria assinatura de 30 dias :: $sub <email> (admin)', true)
 registrarComando('ass', assinaturasAtivasHandler, 'Lista assinaturas ativas (admin)')
 registrarComando('rec', recordHandler, 'Grava áudio :: $rec <segundos>', true)
