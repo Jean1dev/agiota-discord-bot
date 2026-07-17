@@ -21,7 +21,7 @@ function formatUsage(usage: CryptoDatabaseUsage): string {
 }
 
 export class CryptoDatabaseStorageJob implements IJob {
-  readonly cronExpression = '*/30 * * * *'
+  readonly cronExpression = '*/20 * * * *'
 
   async run(): Promise<void> {
     const usage = await getCryptoDatabaseUsage()
