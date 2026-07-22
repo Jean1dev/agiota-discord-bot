@@ -23,10 +23,10 @@ describe('env', () => {
     jest.resetModules()
   })
 
-  it('usa 450 MB como default de CRYPTO_DB_STORAGE_LIMIT_BYTES', () => {
+  it('usa 512 MB como default de CRYPTO_DB_STORAGE_LIMIT_BYTES', () => {
     const { env } = loadEnv({ CRYPTO_DB_STORAGE_LIMIT_BYTES: undefined })
 
-    expect(env.CRYPTO_DB_STORAGE_LIMIT_BYTES).toBe(450 * 1024 * 1024)
+    expect(env.CRYPTO_DB_STORAGE_LIMIT_BYTES).toBe(512 * 1024 * 1024)
   })
 
   it('mantem valor configurado quando CRYPTO_DB_STORAGE_LIMIT_BYTES e valido', () => {

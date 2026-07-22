@@ -43,7 +43,7 @@ describe('CryptoDatabaseMaintenanceService', () => {
 
     mockConnect.mockResolvedValue(undefined)
     mockClose.mockResolvedValue(undefined)
-    mockStats.mockResolvedValue({ totalSize: 650, storageSize: 500, indexSize: 50 })
+    mockStats.mockResolvedValue({ dataSize: 650, totalSize: 400, storageSize: 350, indexSize: 50 })
     mockListCollectionsToArray.mockResolvedValue([])
     mockCollection.mockReset()
 
@@ -63,7 +63,7 @@ describe('CryptoDatabaseMaintenanceService', () => {
     mockMigrateCollections.mockResolvedValue({ message: 'migrado', total: 12 })
   })
 
-  it('calcula uso do banco crypto usando totalSize e o limite configurado', async () => {
+  it('calcula uso do banco crypto usando dataSize e o limite configurado', async () => {
     const usage = await getCryptoDatabaseUsage()
 
     expect(mockMongoClientConstructor).toHaveBeenCalledWith('mongodb://crypto-service')
@@ -85,7 +85,15 @@ describe('CryptoDatabaseMaintenanceService', () => {
     expect(mockMongoClientConstructor).not.toHaveBeenCalled()
   })
 
-  it('usa storageSize mais indexSize quando totalSize nao esta disponivel', () => {
+  it('prioriza dataSize sobre storageSize e totalSize', () => {
+    expect(getUsedBytesFromStats({ dataSize: 517, totalSize: 85, storageSize: 80, indexSize: 5 })).toBe(517)
+  })
+
+  it('usa totalSize quando dataSize nao esta disponivel', () => {
+    expect(getUsedBytesFromStats({ totalSize: 650, storageSize: 500, indexSize: 25 })).toBe(650)
+  })
+
+  it('usa storageSize mais indexSize quando dataSize e totalSize nao estao disponiveis', () => {
     expect(getUsedBytesFromStats({ storageSize: 500, indexSize: 25 })).toBe(525)
   })
 

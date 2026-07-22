@@ -5,7 +5,7 @@ const log = createLogger('env')
 
 const DEFAULT_COMMUNICATION_SERVER_URL =
   'https://communication-service-4f4f57e0a956.herokuapp.com'
-const DEFAULT_CRYPTO_DB_STORAGE_LIMIT_BYTES = 450 * 1024 * 1024
+const DEFAULT_CRYPTO_DB_STORAGE_LIMIT_BYTES = 512 * 1024 * 1024
 
 /**
  * Schema de validação de todas as variáveis de ambiente.
