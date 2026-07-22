@@ -35,6 +35,8 @@ function isPositiveNumber(value: unknown): value is number {
 }
 
 export function getUsedBytesFromStats(stats: MongoDbStats): number {
+  if (isPositiveNumber(stats.dataSize)) return stats.dataSize
+
   if (isPositiveNumber(stats.totalSize)) return stats.totalSize
 
   const storageSize = isPositiveNumber(stats.storageSize) ? stats.storageSize : 0
@@ -42,7 +44,7 @@ export function getUsedBytesFromStats(stats: MongoDbStats): number {
   const storageWithIndexes = storageSize + indexSize
   if (storageWithIndexes > 0) return storageWithIndexes
 
-  return isPositiveNumber(stats.dataSize) ? stats.dataSize : 0
+  return 0
 }
 
 export function formatBytes(bytes: number): string {
