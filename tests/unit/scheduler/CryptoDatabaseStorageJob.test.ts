@@ -30,8 +30,8 @@ describe('CryptoDatabaseStorageJob', () => {
     })
   })
 
-  it('roda a cada 30 minutos', () => {
-    expect(job.cronExpression).toBe('*/30 * * * *')
+  it('roda a cada 20 minutos', () => {
+    expect(job.cronExpression).toBe('*/20 * * * *')
   })
 
   it('nao alerta nem limpa abaixo de 50%', async () => {
