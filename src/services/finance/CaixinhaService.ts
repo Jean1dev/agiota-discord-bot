@@ -307,6 +307,48 @@ function emprestimoAprovado(payload: any): void {
         })
 }
 
+function receiptJobEvent(payload: any): void {
+    const jobId = payload?.jobId
+    const event = payload?.event
+
+    if (payload?.error !== undefined) {
+        appEvents.emit(
+            'enviar-mensagem-telegram',
+            `Recibo job ${jobId} (${event}) falhou: ${payload.error}`
+        )
+        return
+    }
+    if (payload?.purchaseId !== undefined) {
+        appEvents.emit(
+            'enviar-mensagem-telegram',
+            `Recibo job ${jobId} (${event}) concluido: compra ${payload.purchaseId}, ${payload.itemCount} itens`
+        )
+        return
+    }
+    if (payload?.storeName !== undefined) {
+        appEvents.emit(
+            'enviar-mensagem-telegram',
+            `Recibo job ${jobId} (${event}): loja ${payload.storeName}`
+        )
+        return
+    }
+    if (payload?.totalAmount !== undefined) {
+        appEvents.emit(
+            'enviar-mensagem-telegram',
+            `Recibo job ${jobId} (${event}): total R$ ${payload.totalAmount}`
+        )
+        return
+    }
+    if (payload?.itemCount !== undefined) {
+        appEvents.emit(
+            'enviar-mensagem-telegram',
+            `Recibo job ${jobId} (${event}): ${payload.itemCount} itens`
+        )
+        return
+    }
+    appEvents.emit('enviar-mensagem-telegram', `Recibo job ${jobId}: evento ${event}`)
+}
+
 function userLogged(payload: any): void {
     const email = typeof payload?.email === 'string' ? payload.email : ''
     const now = Date.now()
@@ -365,6 +407,9 @@ export function notificar(message: string): void {
                 break
             case 'USER_LOGGED':
                 userLogged(jsonMessage.data)
+                break
+            case 'RECEIPT_JOB_EVENT':
+                receiptJobEvent(jsonMessage.data)
                 break
             default:
                 break
