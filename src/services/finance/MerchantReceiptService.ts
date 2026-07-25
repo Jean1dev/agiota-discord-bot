@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { env } from '../../config/env'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('MerchantReceiptService')
@@ -17,7 +18,10 @@ export async function analyzeMerchantReceipt(imageUrl: string): Promise<Merchant
   try {
     const response = await axios.post(
       RECEIPTS_ENDPOINT,
-      { imageUrl },
+      {
+        imageUrl,
+        ...(env.RECEIPT_WEBHOOK_URL ? { webhookUrl: env.RECEIPT_WEBHOOK_URL } : {}),
+      },
       {
         timeout: 55000,
         headers: { 'Content-Type': 'application/json' },

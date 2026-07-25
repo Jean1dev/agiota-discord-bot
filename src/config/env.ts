@@ -60,6 +60,12 @@ const envSchema = z.object({
    */
   COMPRAS_MERCADO_API_URL: z.string().optional(),
 
+  /**
+   * URL de callback enviada ao serviço merchant-receipt-analysis (POST /receipts)
+   * para que ele notifique o andamento do job de análise do cupom.
+   */
+  RECEIPT_WEBHOOK_URL: z.string().optional(),
+
   // ── Comunicação ────────────────────────────────────────────────────────
   TELEGRAM_API_KEY: z.string().optional(),
   AMQP_CONNECTION: z.string().optional(),
