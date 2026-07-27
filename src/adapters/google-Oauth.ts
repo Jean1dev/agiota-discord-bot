@@ -1,4 +1,5 @@
-import { google } from 'googleapis'
+import { Auth, google } from 'googleapis'
+import crypto from 'crypto'
 import { env } from '../config/env'
 import { getGoogleOAuthToken, saveGoogleOAuthToken } from '../infrastructure/database/MongoRepository'
 import { createLogger } from '../shared/logger/Logger'
@@ -28,33 +29,91 @@ const SCOPES = [
   'https://www.googleapis.com/auth/youtube',
 ]
 
+const AUTH_SESSION_TTL_MS = 10 * 60 * 1000
+const authSessions = new Map<string, { codeVerifier: string; createdAt: number }>()
+let latestAuthState: string | null = null
+
+function base64Url(input: Buffer): string {
+  return input
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '')
+}
+
+function createPkcePair(): { codeVerifier: string; codeChallenge: string } {
+  const codeVerifier = base64Url(crypto.randomBytes(64))
+  const codeChallenge = base64Url(
+    crypto.createHash('sha256').update(codeVerifier).digest()
+  )
+  return { codeVerifier, codeChallenge }
+}
+
+function pruneExpiredAuthSessions(now = Date.now()): void {
+  for (const [state, session] of authSessions) {
+    if (now - session.createdAt > AUTH_SESSION_TTL_MS) authSessions.delete(state)
+  }
+  if (latestAuthState && !authSessions.has(latestAuthState)) latestAuthState = null
+}
+
+function consumeCodeVerifier(state: string | null): string | undefined {
+  pruneExpiredAuthSessions()
+  const resolvedState = state && authSessions.has(state) ? state : latestAuthState
+  if (!resolvedState) return undefined
+
+  const session = authSessions.get(resolvedState)
+  authSessions.delete(resolvedState)
+  if (latestAuthState === resolvedState) latestAuthState = null
+  return session?.codeVerifier
+}
+
 function getAuthUrl(): string {
+  pruneExpiredAuthSessions()
+  const { codeVerifier, codeChallenge } = createPkcePair()
+  const state = crypto.randomBytes(16).toString('hex')
+  authSessions.set(state, { codeVerifier, createdAt: Date.now() })
+  latestAuthState = state
+
   return oAuth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
     redirect_uri: env.GOOGLE_OAUTH_REDIRECT_URI,
+    include_granted_scopes: true,
+    prompt: 'consent',
+    state,
+    code_challenge: codeChallenge,
+    code_challenge_method: Auth.CodeChallengeMethod.S256,
   })
 }
 
-function extractCodeFromInput(input: unknown): string | null {
+function extractAuthResponseFromInput(input: unknown): { code: string; state: string | null } | null {
   const trimmed = String(input).trim()
   if (trimmed.includes('code=')) {
     try {
       const urlStr = trimmed.startsWith('http') ? trimmed : `http://${trimmed.replace(/^\?/, '')}`
       const url = new URL(urlStr)
-      return url.searchParams.get('code')
+      const code = url.searchParams.get('code')
+      return code ? { code, state: url.searchParams.get('state') } : null
     } catch (_) {
       const match = trimmed.match(/[?&]code=([^&\s]+)/)
-      return match ? match[1] ?? null : null
+      const stateMatch = trimmed.match(/[?&]state=([^&\s]+)/)
+      return match
+        ? { code: decodeURIComponent(match[1] ?? ''), state: stateMatch ? decodeURIComponent(stateMatch[1] ?? '') : null }
+        : null
     }
   }
-  return trimmed || null
+  return trimmed ? { code: trimmed, state: null } : null
 }
 
 function setAuthToken(tokenOrUrl: unknown): Promise<typeof oAuth2Client> {
-  const code = extractCodeFromInput(tokenOrUrl) ?? String(tokenOrUrl)
+  const authResponse = extractAuthResponseFromInput(tokenOrUrl) ?? { code: String(tokenOrUrl), state: null }
+  const codeVerifier = consumeCodeVerifier(authResponse.state)
   return new Promise((resolve, reject) => {
-    oAuth2Client.getToken(code, (err: Error | null, token: any) => {
+    oAuth2Client.getToken({
+      code: authResponse.code,
+      redirect_uri: env.GOOGLE_OAUTH_REDIRECT_URI,
+      ...(codeVerifier ? { codeVerifier } : {}),
+    }, (err: Error | null, token: any) => {
       if (err) {
         reject(err)
       } else {

@@ -42,3 +42,43 @@ describe('google-Oauth: transporter usa fetch nativo (undici), não node-fetch',
     expect(transporter.defaults.fetchImplementation).toBe(globalThis.fetch)
   })
 })
+
+describe('google-Oauth: fluxo PKCE para app instalado', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('gera URL com code_challenge S256, state e acesso offline', () => {
+    const authUrl = googleOAuthState.getAuthUrl()
+    const url = new URL(authUrl)
+
+    expect(url.searchParams.get('access_type')).toBe('offline')
+    expect(url.searchParams.get('prompt')).toBe('consent')
+    expect(url.searchParams.get('include_granted_scopes')).toBe('true')
+    expect(url.searchParams.get('code_challenge_method')).toBe('S256')
+    expect(url.searchParams.get('code_challenge')).toBeTruthy()
+    expect(url.searchParams.get('state')).toBeTruthy()
+    expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:3131')
+  })
+
+  it('usa o code_verifier correspondente ao state ao trocar o codigo', async () => {
+    const authUrl = googleOAuthState.getAuthUrl()
+    const state = new URL(authUrl).searchParams.get('state')
+    const getToken = jest
+      .spyOn(googleOAuthState.client, 'getToken')
+      .mockImplementation((options: any, callback: any) => {
+        callback(null, { access_token: 'access', refresh_token: 'refresh' })
+      })
+
+    await googleOAuthState.setAuthToken(`http://localhost:3131?state=${state}&code=test-code`)
+
+    expect(getToken).toHaveBeenCalledWith(
+      expect.objectContaining({
+        code: 'test-code',
+        redirect_uri: 'http://localhost:3131',
+        codeVerifier: expect.any(String),
+      }),
+      expect.any(Function)
+    )
+  })
+})
