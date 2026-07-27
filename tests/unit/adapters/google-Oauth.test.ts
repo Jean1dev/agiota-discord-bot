@@ -14,7 +14,7 @@ jest.mock('../../../src/config/env', () => ({
   env: {
     GOOGLE_CLIENT_ID: 'test-client-id',
     GOOGLE_CLIENT_SECRET: 'test-secret',
-    GOOGLE_OAUTH_REDIRECT_URI: 'http://localhost:3131',
+    GOOGLE_OAUTH_REDIRECT_URI: 'http://localhost',
   },
 }))
 
@@ -54,11 +54,11 @@ describe('google-Oauth: fluxo PKCE para app instalado', () => {
 
     expect(url.searchParams.get('access_type')).toBe('offline')
     expect(url.searchParams.get('prompt')).toBe('consent')
-    expect(url.searchParams.get('include_granted_scopes')).toBe('true')
+    expect(url.searchParams.has('include_granted_scopes')).toBe(false)
     expect(url.searchParams.get('code_challenge_method')).toBe('S256')
     expect(url.searchParams.get('code_challenge')).toBeTruthy()
     expect(url.searchParams.get('state')).toBeTruthy()
-    expect(url.searchParams.get('redirect_uri')).toBe('http://localhost:3131')
+    expect(url.searchParams.get('redirect_uri')).toBe('http://localhost')
   })
 
   it('usa o code_verifier correspondente ao state ao trocar o codigo', async () => {
@@ -70,15 +70,22 @@ describe('google-Oauth: fluxo PKCE para app instalado', () => {
         callback(null, { access_token: 'access', refresh_token: 'refresh' })
       })
 
-    await googleOAuthState.setAuthToken(`http://localhost:3131?state=${state}&code=test-code`)
+    await googleOAuthState.setAuthToken(`http://localhost?state=${state}&code=test-code`)
 
     expect(getToken).toHaveBeenCalledWith(
       expect.objectContaining({
         code: 'test-code',
-        redirect_uri: 'http://localhost:3131',
+        redirect_uri: 'http://localhost',
         codeVerifier: expect.any(String),
       }),
       expect.any(Function)
     )
+  })
+
+  it('permite gerar URL com escopos especificos para o YouTube', () => {
+    const authUrl = googleOAuthState.getAuthUrl(['https://www.googleapis.com/auth/youtube'])
+    const url = new URL(authUrl)
+
+    expect(url.searchParams.get('scope')).toBe('https://www.googleapis.com/auth/youtube')
   })
 })

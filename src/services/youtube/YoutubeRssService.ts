@@ -4,7 +4,7 @@ import { createLogger } from '../../shared/logger/Logger'
 const log = createLogger('YoutubeRssService')
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { googleOAuthState } = require('../../adapters/google-Oauth')
+const { googleOAuthState, GOOGLE_OAUTH_SCOPES } = require('../../adapters/google-Oauth')
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { google } = require('googleapis')
 
@@ -29,7 +29,7 @@ export function isAuthorized(): boolean {
 
 export function getAuthUrl(): string {
   return typeof googleOAuthState.getAuthUrl === 'function'
-    ? googleOAuthState.getAuthUrl()
+    ? googleOAuthState.getAuthUrl(GOOGLE_OAUTH_SCOPES.youtube)
     : googleOAuthState.authUrl
 }
 

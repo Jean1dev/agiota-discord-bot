@@ -23,11 +23,14 @@ const nativeFetch = globalThis.fetch
 google.options({ fetchImplementation: nativeFetch } as never)
 
 const SCOPES = [
-  'https://www.googleapis.com/auth/drive.metadata.readonly',
   'https://www.googleapis.com/auth/drive.file',
-  'https://www.googleapis.com/auth/youtube.readonly',
   'https://www.googleapis.com/auth/youtube',
 ]
+
+export const GOOGLE_OAUTH_SCOPES = {
+  all: SCOPES,
+  youtube: ['https://www.googleapis.com/auth/youtube'],
+}
 
 const AUTH_SESSION_TTL_MS = 10 * 60 * 1000
 const authSessions = new Map<string, { codeVerifier: string; createdAt: number }>()
@@ -67,7 +70,7 @@ function consumeCodeVerifier(state: string | null): string | undefined {
   return session?.codeVerifier
 }
 
-function getAuthUrl(): string {
+function getAuthUrl(scopes: string[] = GOOGLE_OAUTH_SCOPES.all): string {
   pruneExpiredAuthSessions()
   const { codeVerifier, codeChallenge } = createPkcePair()
   const state = crypto.randomBytes(16).toString('hex')
@@ -76,9 +79,8 @@ function getAuthUrl(): string {
 
   return oAuth2Client.generateAuthUrl({
     access_type: 'offline',
-    scope: SCOPES,
+    scope: scopes,
     redirect_uri: env.GOOGLE_OAUTH_REDIRECT_URI,
-    include_granted_scopes: true,
     prompt: 'consent',
     state,
     code_challenge: codeChallenge,

@@ -42,7 +42,7 @@ const envSchema = z.object({
   // ── Google ─────────────────────────────────────────────────────────────
   GOOGLE_CLIENT_ID: z.string().min(1).optional(),
   GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
-  GOOGLE_OAUTH_REDIRECT_URI: z.string().default('http://localhost:3131'),
+  GOOGLE_OAUTH_REDIRECT_URI: z.string().default('http://localhost'),
   YOUTUBE_WATCH_LATER_PLAYLIST_ID: z.string().optional(),
   YOUTUBE_MAX_CHANNELS: z
     .string()
