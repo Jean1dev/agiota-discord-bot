@@ -55,12 +55,16 @@ function pick(obj: Record<string, unknown>, keys: string[]): unknown {
  * Gera um PDF visual com o relatório mensal de compras de mercado
  * e retorna o caminho absoluto do arquivo.
  */
+export function nomeArquivoRelatorioCompras(month: string): string {
+  return `relatorio-compras-mercado-${month}.pdf`
+}
+
 export function gerarPdfRelatorioMensalCompras(
   report: MonthlyReport,
   month: string,
 ): string {
   const doc = new PDFDocument({ size: 'A4', margin: 48 })
-  const filename = `${randomUUID()}-relatorio-compras.pdf`
+  const filename = `${randomUUID()}-${nomeArquivoRelatorioCompras(month)}`
   const absolutePath = path.resolve(__dirname, '..', '..', '..', filename)
   doc.pipe(fs.createWriteStream(absolutePath))
 

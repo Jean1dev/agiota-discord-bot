@@ -3,6 +3,7 @@ import { fetchMonthlyReport } from '../../services/finance/ComprasMercadoReportS
 import {
   gerarPdfRelatorioMensalCompras,
   mesAnoLabel,
+  nomeArquivoRelatorioCompras,
 } from '../../services/pdf/MonthlyMarketReportPdf'
 import {
   getMonthlySummary,
@@ -43,8 +44,17 @@ export class MonthlyMarketReportJob implements IJob {
     const month = formatMonth(hoje)
     log.info({ month }, 'Último dia do mês — fechamento mensal')
 
-    await this.syncOrganizzeMonthlySummary(hoje)
-    await this.sendMarketReport(month)
+    try {
+      await this.syncOrganizzeMonthlySummary(hoje)
+    } catch (err) {
+      log.error({ err, month }, 'Falha no resumo Organizze — seguindo para relatório de compras')
+    }
+
+    try {
+      await this.sendMarketReport(month)
+    } catch (err) {
+      log.error({ err, month }, 'Falha no relatório de compras de mercado')
+    }
   }
 
   private async syncOrganizzeMonthlySummary(hoje: Date): Promise<void> {
@@ -103,6 +113,7 @@ export class MonthlyMarketReportJob implements IJob {
         `Itens comprados: ${report.itemCount}`,
       ].join('\n'),
       attachmentLink,
+      attachmentName: nomeArquivoRelatorioCompras(month),
     })
 
     log.info({ month, to: ADMIN_EMAIL }, 'E-mail do relatório mensal enviado')

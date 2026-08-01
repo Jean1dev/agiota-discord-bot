@@ -12,6 +12,7 @@ jest.mock('../../../src/services/finance/ComprasMercadoReportService')
 jest.mock('../../../src/services/pdf/MonthlyMarketReportPdf', () => ({
   gerarPdfRelatorioMensalCompras: jest.fn(() => '/tmp/report.pdf'),
   mesAnoLabel: jest.fn(() => 'junho/2026'),
+  nomeArquivoRelatorioCompras: jest.fn((month: string) => `relatorio-compras-mercado-${month}.pdf`),
 }))
 jest.mock('../../../src/services/upload/UploadService', () => ({
   upload: jest.fn(),
@@ -113,7 +114,49 @@ describe('MonthlyMarketReportJob', () => {
       expect.objectContaining({ subject: expect.stringContaining('Resumo financeiro') }),
     )
     expect(mockedSendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subject: expect.stringContaining('compras de mercado'),
+        attachmentName: 'relatorio-compras-mercado-2026-06.pdf',
+      }),
+    )
+  })
+
+  it('continua o relatório de compras se o resumo Organizze falhar', async () => {
+    mockedOrganizze.getMonthlySummary.mockRejectedValueOnce(new Error('timeout of 30000ms exceeded'))
+    mockedFetchMonthlyReport.mockResolvedValueOnce({
+      totalSpent: 1000,
+      purchaseCount: 5,
+      averageTicket: 200,
+      itemCount: 20,
+      topStore: { store: 'Mercado X', totalSpent: 600 },
+      storeRanking: [],
+      spendingByCategory: [],
+    })
+    mockedUpload.mockResolvedValueOnce('https://storage.example/report.pdf')
+
+    const runPromise = job.run()
+    await jest.runAllTimersAsync()
+    await runPromise
+
+    expect(mockedFetchMonthlyReport).toHaveBeenCalledWith('2026-06')
+    expect(mockedSendEmail).toHaveBeenCalledTimes(1)
+    expect(mockedSendEmail).toHaveBeenCalledWith(
       expect.objectContaining({ subject: expect.stringContaining('compras de mercado') }),
+    )
+  })
+
+  it('não impede o resumo Organizze se o relatório de compras falhar', async () => {
+    mockedOrganizze.getMonthlySummary.mockResolvedValueOnce({
+      data: [{ year: 2026, month: 6, interest_cents: 4200, food_spending_cents: 85000 }],
+    })
+    mockedFetchMonthlyReport.mockRejectedValueOnce(new Error('merchant unavailable'))
+
+    await job.run()
+
+    expect(mockedOrganizze.getMonthlySummary).toHaveBeenCalledWith(2026, 6)
+    expect(mockedSendEmail).toHaveBeenCalledTimes(1)
+    expect(mockedSendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: expect.stringContaining('Resumo financeiro') }),
     )
   })
 })
