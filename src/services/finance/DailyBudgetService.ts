@@ -7,8 +7,14 @@ import { sendEmail } from '../email/EmailService'
 import { adicionarGasto, LIMIT } from './GastosCartaoService'
 import { createLogger } from '../../shared/logger/Logger'
 import { ADMIN_EMAIL } from '../../config/constants'
+import { broadcastDiscord } from '../discord/BroadcastService'
 
 const log = createLogger('DailyBudgetService')
+
+// Categoria usada quando a IA não retorna uma categoria válida (falha ou nome
+// que não bate com nenhuma categoria cadastrada). Evita enviar category_id
+// ausente para o organizze-service, que rejeita o payload com 500.
+const FALLBACK_CATEGORY_NAME = 'Outros'
 
 function getOrganizzeService() {
     return require('../finance/OrganizzeService').default ?? require('../finance/OrganizzeService')
@@ -31,7 +37,7 @@ function getUpload() {
 const state: {
     budget: number | null
     transactions: Array<{ money: number; description: string }>
-    categories: Array<{ id: string; name: string }>
+    categories: Array<{ id: string; name: string; default?: boolean }>
 } = {
     budget: null,
     transactions: [],
@@ -56,26 +62,63 @@ async function categorizar(transactionData: { description: string }): Promise<an
     await fillCategoriesIfNecessary()
     const descriptionCategories = state.categories.map(category => category.name)
     const { categorizarTransacao } = getTransactionCategorizationService()
-    const result = await categorizarTransacao(descriptionCategories, transactionData.description)
-    log.debug({ result }, 'result categorizar')
-    return result
+    try {
+        const result = await categorizarTransacao(descriptionCategories, transactionData.description)
+        log.debug({ result }, 'result categorizar')
+        return result
+    } catch (err) {
+        captureException(err)
+        log.warn(
+            { err, description: transactionData.description },
+            'Falha na categorização automática, usando categoria fallback'
+        )
+        return { categoria: FALLBACK_CATEGORY_NAME, descricao: transactionData.description }
+    }
+}
+
+function resolveCategoryId(categorieDescription: string): string | undefined {
+    const exactMatch = state.categories.find(category => category.name === categorieDescription)
+    if (exactMatch) return exactMatch.id
+
+    log.warn(
+        { categorieDescription },
+        'Categoria sugerida não encontrada na lista de categorias, usando fallback'
+    )
+    const fallback =
+        state.categories.find(category => category.default) ??
+        state.categories.find(category => category.name === FALLBACK_CATEGORY_NAME)
+    return fallback?.id
 }
 
 async function createTransaction(
     transactionData: { description: string; money: number },
     categorieDescription: string
 ): Promise<void> {
-    const categorieId = state.categories.find(
-        category => category.name === categorieDescription
-    )?.id
+    const categorieId = resolveCategoryId(categorieDescription)
+    const description = transactionData.description.trim()
+
+    if (!categorieId) {
+        const message = `Não foi possível determinar category_id para "${description}" (categoria sugerida: "${categorieDescription}") e nenhuma categoria fallback foi encontrada. Transação NÃO foi enviada ao Organizze.`
+        log.error({ description, categorieDescription }, message)
+        broadcastDiscord(`⚠️ ${message}`)
+        return
+    }
+
     const amountCents = Math.round(transactionData.money * 100)
     const organizzeService = getOrganizzeService()
-    await organizzeService.createTransaction({
-        description: transactionData.description.trim(),
-        notes: 'Criado pelo bot',
-        category_id: categorieId,
-        amount_cents: amountCents
-    })
+    try {
+        await organizzeService.createTransaction({
+            description,
+            notes: 'Criado pelo bot',
+            category_id: categorieId,
+            amount_cents: amountCents
+        })
+    } catch (err) {
+        captureException(err)
+        const message = `Falha ao criar transação "${description}" (R$ ${transactionData.money.toFixed(2)}) no Organizze.`
+        log.error({ err, description, amountCents }, message)
+        broadcastDiscord(`⚠️ ${message}`)
+    }
 }
 
 async function categorizarTodos(
