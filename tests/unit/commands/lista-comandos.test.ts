@@ -66,6 +66,10 @@ describe('lista-comandos', () => {
       uploadRecordsHandler: handler,
       realTimeConversaHandler: handler,
     }))
+    jest.doMock('../../../src/discord/commands/reading', () => ({
+      registrarLeituraHandler: handler,
+      statusLeituraHandler: handler,
+    }))
 
     const comandos = require('../../../src/commands/comandos-struct').default as Comando[]
     require('../../../src/commands/lista-comandos')

@@ -11,6 +11,7 @@ import { configWhatsAppHandler, clearWhatsAppHandler, testWhatsAppHandler } from
 import { youtubeAuthHandler, youtubeWatchLaterHandler, youtubeWatchLaterClearHandler } from '../discord/commands/youtube'
 import { airDropHandler } from '../discord/commands/web3'
 import { musicPlayerHandler, recordHandler, uploadRecordsHandler, realTimeConversaHandler } from '../discord/commands/audio'
+import { registrarLeituraHandler, statusLeituraHandler } from '../discord/commands/reading'
 
 function registrarComando(
   comando: string,
@@ -54,3 +55,5 @@ registrarComando('zap-test', testWhatsAppHandler, 'Envia mensagem de teste via W
 registrarComando('yt-auth', youtubeAuthHandler, 'Autoriza o bot no YouTube')
 registrarComando('yt-wl', youtubeWatchLaterHandler, 'Envia vídeos para a playlist Watch Later')
 registrarComando('yt-clear', youtubeWatchLaterClearHandler, 'Remove todos os vídeos da playlist configurada')
+registrarComando('li', registrarLeituraHandler, 'Registra páginas lidas hoje, abatendo do débito :: $li <paginas>', true)
+registrarComando('paginas', statusLeituraHandler, 'Mostra o débito atual de páginas de leitura')
