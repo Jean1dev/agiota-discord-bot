@@ -23,7 +23,7 @@ const state = {
     reprovado: false
 }
 
-const USER_LOGGED_TELEGRAM_COOLDOWN_MS = 3 * 60 * 1000
+const USER_LOGGED_TELEGRAM_COOLDOWN_MS = 4 * 60 * 1000
 const lastUserLoggedTelegramAtByEmail = new Map<string, number>()
 
 function sendSmsToCaixinhaMembers(message: string): void {
