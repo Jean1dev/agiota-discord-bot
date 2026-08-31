@@ -13,12 +13,76 @@ import { KEYBOARDS } from '../TelegramConfig'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('DailyBudgetHandler')
+const RECEIPT_ALBUM_DEBOUNCE_MS = 1_000
+const MAX_RECEIPT_IMAGES = 10
+
+interface PendingReceiptAlbum {
+  mediaGroupId: string
+  photos: Array<{ fileId: string; messageId: number }>
+  ctx: Context
+  timer?: ReturnType<typeof setTimeout>
+}
+
+let pendingReceiptAlbum: PendingReceiptAlbum | undefined
 
 const state = {
   awaitResponseSpentMoney: false,
   batchResponse: false,
   awaitCouponImage: false,
   batchInserts: [] as { money: string; description: string }[],
+}
+
+async function processMerchantReceiptImages(ctx: Context, fileIds: string[]): Promise<void> {
+  await ctx.reply('Analisando cupom do mercado...')
+  try {
+    const fileLinks = await Promise.all(
+      fileIds.map(fileId => ctx.telegram.getFileLink(fileId)),
+    )
+    const result = await analyzeMerchantReceipt(fileLinks.map(link => link.href))
+    if (!result.success) {
+      await ctx.reply(`Não consegui analisar o cupom.${result.reason ? ` ${result.reason}` : ''}`)
+      return
+    }
+    await ctx.reply('Cupom do mercado registrado com sucesso!')
+  } catch (err) {
+    log.error({ err }, 'Error processing merchant receipt images')
+    await ctx.reply('Ocorreu um erro ao processar o cupom. Tente novamente.')
+  }
+}
+
+function scheduleReceiptAlbumProcessing(
+  ctx: Context,
+  mediaGroupId: string,
+  fileId: string,
+  messageId: number,
+): void {
+  if (pendingReceiptAlbum?.mediaGroupId === mediaGroupId) {
+    if (pendingReceiptAlbum.timer) clearTimeout(pendingReceiptAlbum.timer)
+    pendingReceiptAlbum.photos.push({ fileId, messageId })
+  } else {
+    if (pendingReceiptAlbum?.timer) clearTimeout(pendingReceiptAlbum.timer)
+    pendingReceiptAlbum = {
+      mediaGroupId,
+      photos: [{ fileId, messageId }],
+      ctx,
+    }
+  }
+
+  pendingReceiptAlbum.timer = setTimeout(() => {
+    const album = pendingReceiptAlbum
+    pendingReceiptAlbum = undefined
+    state.awaitCouponImage = false
+    if (!album) return
+
+    if (album.photos.length > MAX_RECEIPT_IMAGES) {
+      void album.ctx.reply(`Envie no máximo ${MAX_RECEIPT_IMAGES} imagens por cupom.`)
+      return
+    }
+    const orderedFileIds = album.photos
+      .sort((left, right) => left.messageId - right.messageId)
+      .map(photo => photo.fileId)
+    void processMerchantReceiptImages(album.ctx, orderedFileIds)
+  }, RECEIPT_ALBUM_DEBOUNCE_MS)
 }
 
 
@@ -76,8 +140,12 @@ export function registerDailyBudgetHandlers(bot: any): void {
   })
 
   bot.hears('adicionar cupom mercado', (ctx: Context) => {
+    if (pendingReceiptAlbum?.timer) {
+      clearTimeout(pendingReceiptAlbum.timer)
+    }
+    pendingReceiptAlbum = undefined
     state.awaitCouponImage = true
-    ctx.reply('Envie a imagem do cupom do mercado.')
+    ctx.reply('Envie uma imagem ou um álbum com até 10 imagens do mesmo cupom.')
   })
 
   bot.hears(['Info', 'Links', 'Link'], (ctx: Context) => {
@@ -107,7 +175,10 @@ export function registerDailyBudgetHandlers(bot: any): void {
   })
 
   bot.on(message('photo'), async (ctx: Context) => {
-    const photos = (ctx.update as never as { message: { photo: Array<{ file_id: string }> } }).message.photo
+    const photoMessage = (ctx.update as never as {
+      message: { message_id: number; photo: Array<{ file_id: string }>; media_group_id?: string }
+    }).message
+    const photos = photoMessage.photo
     const largestPhoto = photos[photos.length - 1]
     if (!largestPhoto) {
       await ctx.reply('Não foi possível obter a imagem.')
@@ -115,19 +186,16 @@ export function registerDailyBudgetHandlers(bot: any): void {
     }
 
     if (state.awaitCouponImage) {
-      state.awaitCouponImage = false
-      await ctx.reply('Analisando cupom do mercado...')
-      try {
-        const fileLink = await ctx.telegram.getFileLink(largestPhoto.file_id)
-        const result = await analyzeMerchantReceipt(fileLink.href)
-        if (!result.success) {
-          await ctx.reply(`Não consegui analisar o cupom.${result.reason ? ` ${result.reason}` : ''}`)
-          return
-        }
-        await ctx.reply('Cupom do mercado registrado com sucesso!')
-      } catch (err) {
-        log.error({ err }, 'Error processing merchant receipt image')
-        await ctx.reply('Ocorreu um erro ao processar o cupom. Tente novamente.')
+      if (photoMessage.media_group_id) {
+        scheduleReceiptAlbumProcessing(
+          ctx,
+          photoMessage.media_group_id,
+          largestPhoto.file_id,
+          photoMessage.message_id,
+        )
+      } else {
+        state.awaitCouponImage = false
+        await processMerchantReceiptImages(ctx, [largestPhoto.file_id])
       }
       return
     }
