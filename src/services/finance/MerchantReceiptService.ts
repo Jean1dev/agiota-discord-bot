@@ -14,12 +14,12 @@ export interface MerchantReceiptResult {
   reason?: string
 }
 
-export async function analyzeMerchantReceipt(imageUrl: string): Promise<MerchantReceiptResult> {
+export async function analyzeMerchantReceipt(imageUrls: string[]): Promise<MerchantReceiptResult> {
   try {
     const response = await axios.post(
       RECEIPTS_ENDPOINT,
       {
-        imageUrl,
+        imageUrls,
         ...(env.RECEIPT_WEBHOOK_URL ? { webhookUrl: env.RECEIPT_WEBHOOK_URL } : {}),
       },
       {
