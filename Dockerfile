@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y python3 && \
 
 WORKDIR /app
 
-COPY package*.json .env ./
+COPY package*.json ./
 
 RUN npm install
 
