@@ -34,4 +34,14 @@ describe('env', () => {
 
     expect(env.CRYPTO_DB_STORAGE_LIMIT_BYTES).toBe(1000)
   })
+
+  it('normaliza LITELLM_BASE_URL com sufixo /v1', () => {
+    const { env } = loadEnv({
+      LITELLM_BASE_URL: 'https://lite-llm-deploy-production.up.railway.app/',
+      LITELLM_API_KEY: 'sk-test',
+    })
+
+    expect(env.LITELLM_BASE_URL).toBe('https://lite-llm-deploy-production.up.railway.app/v1')
+    expect(env.LITELLM_API_KEY).toBe('sk-test')
+  })
 })

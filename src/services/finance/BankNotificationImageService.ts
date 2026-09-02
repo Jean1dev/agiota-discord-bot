@@ -1,9 +1,8 @@
-import { ChatOpenAI } from '@langchain/openai'
 import { HumanMessage } from '@langchain/core/messages'
 import { z } from 'zod'
-import { nativeFetch } from '../../shared/http/native-fetch'
-import { env } from '../../config/env'
 import { createLogger } from '../../shared/logger/Logger'
+import { createChatOpenAI } from '../llm/createChatOpenAI'
+import { isLiteLlmConfigured } from '../llm/LiteLlmClient'
 
 const log = createLogger('BankNotificationImageService')
 
@@ -38,16 +37,11 @@ A imagem pode conter uma ou mais notificações. Exemplos:
 Se a imagem não contiver nenhuma notificação bancária identificável, retorne success: false e descreva o motivo em reason.`
 
 export async function extractTransactionsFromImage(imageUrl: string): Promise<BankNotificationResult> {
-  if (!env.KEY_OPEN_AI) {
-    return { transactions: [], success: false, reason: 'Chave da OpenAI não configurada' }
+  if (!isLiteLlmConfigured()) {
+    return { transactions: [], success: false, reason: 'LiteLLM não configurado' }
   }
 
-  const model = new ChatOpenAI({
-    modelName: 'gpt-4o',
-    temperature: 0,
-    apiKey: env.KEY_OPEN_AI,
-    configuration: { fetch: nativeFetch },
-  })
+  const model = createChatOpenAI({ temperature: 0 })
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const structuredModel = (model as any).withStructuredOutput(transactionSchema)
