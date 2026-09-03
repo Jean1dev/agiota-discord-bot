@@ -11,6 +11,7 @@ export interface ContextState {
   jogo: unknown | null
   totalGastoCartao: number
   autoArbitragem: boolean
+  defaultChatModel: string | null
 }
 
 const DATA_COLLECTION = 'data'
@@ -21,7 +22,14 @@ export async function getContextState(): Promise<ContextState> {
 
   const row = rows[0]
   if (!row) {
-    return { dividas: [], jogoAberto: false, jogo: null, totalGastoCartao: 0, autoArbitragem: false }
+    return {
+      dividas: [],
+      jogoAberto: false,
+      jogo: null,
+      totalGastoCartao: 0,
+      autoArbitragem: false,
+      defaultChatModel: null,
+    }
   }
 
   return {
@@ -30,6 +38,7 @@ export async function getContextState(): Promise<ContextState> {
     jogo: row.jogo ?? null,
     totalGastoCartao: row.totalGastoCartao ?? 0,
     autoArbitragem: row.autoArbitragem ?? false,
+    defaultChatModel: typeof row.defaultChatModel === 'string' ? row.defaultChatModel : null,
   }
 }
 

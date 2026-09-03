@@ -16,6 +16,7 @@ export interface AppContext {
     totalGastoCartao: number
     autoArbitragem: boolean
     conversationHistory: any[]
+    defaultChatModel: string | null
     setClient(client: Client): void
     changeAutoArbitragem(): void
     emitEvent(eventName: string, payload: unknown): void
@@ -38,6 +39,7 @@ class Context implements AppContext {
     totalGastoCartao = 0
     autoArbitragem = false
     conversationHistory: any[] = []
+    defaultChatModel: string | null = null
 
     setClient(client: Client): void {
         this.client = client
@@ -60,6 +62,7 @@ class Context implements AppContext {
             this.jogo = data?.jogo
             this.totalGastoCartao = data?.totalGastoCartao || 0
             this.autoArbitragem = data.autoArbitragem
+            this.defaultChatModel = data.defaultChatModel ?? null
 
             appEvents.emit('update-state-jogo-bixo', null)
         } catch (error) {
@@ -74,6 +77,7 @@ class Context implements AppContext {
             jogo: this.jogo,
             totalGastoCartao: this.totalGastoCartao,
             autoArbitragem: this.autoArbitragem,
+            defaultChatModel: this.defaultChatModel,
         })
     }
 }

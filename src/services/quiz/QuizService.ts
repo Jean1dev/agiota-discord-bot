@@ -1,13 +1,11 @@
-import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
-import { nativeFetch } from '../../shared/http/native-fetch'
 import { z } from 'zod'
 import { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js'
-import { env } from '../../config/env'
 import { contextInstance } from '../../context'
 import { CHAT_GERAL } from '../../discord/DiscordConstants'
 import { rankingService } from '../ranking/RankingService'
+import { createChatOpenAI } from '../llm/createChatOpenAI'
 
 const SYSTEM_PROMPT_TEMPLATE = [
     'Você é um gerador de quiz técnico sobre tecnologia e desenvolvimento de software.',
@@ -37,12 +35,7 @@ function createQuizSchema() {
 }
 
 function createModel() {
-    return new ChatOpenAI({
-        modelName: 'gpt-3.5-turbo',
-        temperature: 0.7,
-        apiKey: env.KEY_OPEN_AI,
-        configuration: { fetch: nativeFetch }
-    })
+    return createChatOpenAI({ temperature: 0.7 })
 }
 
 async function gerarQuiz(): Promise<QuizResult> {

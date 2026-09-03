@@ -1,9 +1,7 @@
-import { ChatOpenAI } from '@langchain/openai'
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { StructuredOutputParser } from 'langchain/output_parsers'
-import { nativeFetch } from '../../shared/http/native-fetch'
 import { z } from 'zod'
-import { env } from '../../config/env'
+import { createChatOpenAI } from '../llm/createChatOpenAI'
 
 const SYSTEM_PROMPT = [
   'Você é um especialista em categorização de transações financeiras.',
@@ -26,7 +24,7 @@ export async function categorizarTransacao(
   categoriasDisponiveis: string[],
   descricaoTransacao: string,
 ): Promise<CategorizationResult> {
-  const model = new ChatOpenAI({ modelName: 'gpt-3.5-turbo', temperature: 0.3, apiKey: env.KEY_OPEN_AI, configuration: { fetch: nativeFetch } })
+  const model = createChatOpenAI({ temperature: 0.3 })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const outputParser = StructuredOutputParser.fromZodSchema(categorizationSchema as any)
   const prompt = ChatPromptTemplate.fromMessages([

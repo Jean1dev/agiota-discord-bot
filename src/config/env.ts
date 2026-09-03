@@ -32,8 +32,16 @@ const envSchema = z.object({
   // ── Banco de dados ─────────────────────────────────────────────────────
   MONGO_URL: z.string().min(1, 'MONGO_URL é obrigatório'),
 
-  // ── OpenAI ─────────────────────────────────────────────────────────────
-  KEY_OPEN_AI: z.string().optional(),
+  // ── LiteLLM gateway ────────────────────────────────────────────────────
+  LITELLM_BASE_URL: z
+    .string()
+    .optional()
+    .transform(v => {
+      if (!v?.trim()) return undefined
+      const trimmed = v.trim().replace(/\/+$/, '')
+      return trimmed.endsWith('/v1') ? trimmed : `${trimmed}/v1`
+    }),
+  LITELLM_API_KEY: z.string().optional(),
 
   // ── IBM Watson ─────────────────────────────────────────────────────────
   ASSISTANT_ID: z.string().optional(),

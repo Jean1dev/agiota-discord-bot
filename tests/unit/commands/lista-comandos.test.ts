@@ -27,6 +27,7 @@ describe('lista-comandos', () => {
     jest.doMock('../../../src/discord/commands/ai', () => ({
       chatGpt: handler,
       changeIaMode: handler,
+      modelo: handler,
     }))
     jest.doMock('../../../src/discord/commands/b3', () => ({
       arbitragemHandler: handler,
