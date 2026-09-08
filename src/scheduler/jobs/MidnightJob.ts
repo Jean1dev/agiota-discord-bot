@@ -2,6 +2,7 @@ import { IJob } from '../IJob'
 import { CHAT_GERAL, CANAIS_PARA_LIMPAR } from '../../discord/DiscordConstants'
 import { contextInstance } from '../../context'
 import { rankearUso, rotinaDiariaCrypto } from '../../services'
+import captureException from '../../observability/Sentry'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('MidnightJob')
@@ -34,7 +35,10 @@ export class MidnightJob implements IJob {
       const ch = channels.find((c: any) => c.name === channelName)
       ch?.bulkDelete(30)
         .then((messages: any) => log.info({ count: messages.size }, 'Bulk delete concluído'))
-        .catch((reason: unknown) => log.error({ err: reason }, 'Erro ao deletar mensagens em massa'))
+        .catch((reason: unknown) => {
+          log.error({ err: reason }, 'Erro ao deletar mensagens em massa')
+          captureException(reason, true)
+        })
     }
   }
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { GetReadingStatusUseCase } from '../../../application/reading/GetReadingStatusUseCase'
+import captureException from '../../../observability/Sentry'
 
 // Sem argumentos
 const schema = z.tuple([]).rest(z.string())
@@ -23,6 +24,7 @@ export class ReadingStatusCommand extends BaseCommand<typeof schema> {
     const result = await this.useCase.execute()
 
     if (!result.ok) {
+      captureException(result.error)
       await message.reply(`Erro ao buscar débito de leitura: ${result.error.message}`)
       return
     }

@@ -4,6 +4,7 @@ import { isFeriadoHoje } from '../../shared/utils/feriados-br'
 import { saveYoutubeVideos } from '../../infrastructure/database/MongoRepository'
 import { youtubeRssService, sendToChannel } from '../../services'
 import { appEvents } from '../../shared/events/AppEvents'
+import captureException from '../../observability/Sentry'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('YoutubeRssJob')
@@ -27,6 +28,7 @@ export class YoutubeRssJob implements IJob {
     } catch (err) {
       const msg = `[YouTube RSS] Erro no processamento: ${(err as Error).message}`
       log.error({ err }, msg)
+      captureException(err, true)
       sendToChannel(LIXO_CHANNEL, msg)
     }
   }
