@@ -1,4 +1,8 @@
 jest.mock('../../../src/config/env', () => ({ env: {} }))
+jest.mock('../../../src/observability/Sentry', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}))
 
 import { MonthlyMarketReportJob, ehUltimoDiaDoMes, formatMonth } from '../../../src/scheduler/jobs/MonthlyMarketReportJob'
 import * as OrganizzeService from '../../../src/services/finance/OrganizzeService'

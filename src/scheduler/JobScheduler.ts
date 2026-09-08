@@ -1,5 +1,6 @@
 import cron from 'node-cron'
 import { IJob } from './IJob'
+import captureException from '../observability/Sentry'
 import { createLogger } from '../shared/logger/Logger'
 
 const log = createLogger('JobScheduler')
@@ -14,6 +15,7 @@ export class JobScheduler {
         log.info({ cron: job.cronExpression }, `Job done: ${name}`)
       } catch (err) {
         log.error({ err, cron: job.cronExpression }, `Job failed: ${name}`)
+        captureException(err, true)
       }
     })
     log.info({ cron: job.cronExpression }, `Registered job: ${job.constructor.name}`)

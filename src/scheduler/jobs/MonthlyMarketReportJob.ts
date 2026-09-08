@@ -11,6 +11,7 @@ import {
 import { upload } from '../../services/upload/UploadService'
 import { sendEmail } from '../../services/email/EmailService'
 import { ADMIN_EMAIL } from '../../config/constants'
+import captureException from '../../observability/Sentry'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('MonthlyMarketReportJob')
@@ -48,12 +49,14 @@ export class MonthlyMarketReportJob implements IJob {
       await this.syncOrganizzeMonthlySummary(hoje)
     } catch (err) {
       log.error({ err, month }, 'Falha no resumo Organizze — seguindo para relatório de compras')
+      captureException(err, true)
     }
 
     try {
       await this.sendMarketReport(month)
     } catch (err) {
       log.error({ err, month }, 'Falha no relatório de compras de mercado')
+      captureException(err, true)
     }
   }
 
@@ -87,7 +90,9 @@ export class MonthlyMarketReportJob implements IJob {
 
     const report = await fetchMonthlyReport(month)
     if (!report) {
+      const err = new Error(`Relatório de compras vazio para ${month}`)
       log.error({ month }, 'Relatório vazio — abortando')
+      captureException(err, true)
       return
     }
 
@@ -96,7 +101,9 @@ export class MonthlyMarketReportJob implements IJob {
 
     const attachmentLink = await upload(pdfPath)
     if (!attachmentLink) {
+      const err = new Error(`Upload do PDF do relatório de compras falhou para ${month}`)
       log.error({ month }, 'Upload do PDF falhou — e-mail não enviado')
+      captureException(err, true)
       return
     }
 

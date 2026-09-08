@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { BaseCommand, DiscordMessage } from '../BaseCommand'
 import { RegisterPagesReadUseCase } from '../../../application/reading/RegisterPagesReadUseCase'
+import captureException from '../../../observability/Sentry'
 
 /**
  * $li <paginas>
@@ -33,6 +34,7 @@ export class RegisterPagesReadCommand extends BaseCommand<typeof schema> {
     const result = await this.useCase.execute({ pages })
 
     if (!result.ok) {
+      captureException(result.error)
       await message.reply(`Erro ao registrar leitura: ${result.error.message}`)
       return
     }

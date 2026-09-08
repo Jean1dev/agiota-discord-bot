@@ -19,8 +19,7 @@ export class BookPagesDailyGoalJob implements IJob {
     const result = await this.useCase.execute(DAILY_READING_GOAL_PAGES)
 
     if (!result.ok) {
-      log.error({ err: result.error }, 'Falha ao adicionar meta diária de páginas')
-      return
+      throw result.error
     }
 
     log.info({ debt: result.value.pagesDebt }, 'Meta diária de páginas adicionada')
