@@ -73,6 +73,35 @@ const envSchema = z.object({
    * para que ele notifique o andamento do job de análise do cupom.
    */
   RECEIPT_WEBHOOK_URL: z.string().optional(),
+  ORGANIZZE_API_BASE_URL: z
+    .string()
+    .optional()
+    .transform(v => {
+      const trimmed = v?.trim()
+      if (!trimmed) return 'https://api.organizze.com.br/rest/v2'
+      return trimmed.replace(/\/+$/, '')
+    }),
+  ORGANIZZE_BASIC_USERNAME: z
+    .string()
+    .optional()
+    .transform(v => {
+      const trimmed = v?.trim()
+      return trimmed ? trimmed : undefined
+    }),
+  ORGANIZZE_BASIC_PASSWORD: z
+    .string()
+    .optional()
+    .transform(v => {
+      const trimmed = v?.trim()
+      return trimmed ? trimmed : undefined
+    }),
+  ORGANIZZE_USER_AGENT: z
+    .string()
+    .optional()
+    .transform(v => {
+      const trimmed = v?.trim()
+      return trimmed ? trimmed : undefined
+    }),
 
   // ── Comunicação ────────────────────────────────────────────────────────
   TELEGRAM_API_KEY: z.string().optional(),

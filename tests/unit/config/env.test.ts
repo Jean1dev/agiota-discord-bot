@@ -44,4 +44,32 @@ describe('env', () => {
     expect(env.LITELLM_BASE_URL).toBe('https://lite-llm-deploy-production.up.railway.app/v1')
     expect(env.LITELLM_API_KEY).toBe('sk-test')
   })
+
+  it('usa a URL padrao da API oficial do Organizze quando a env esta ausente', () => {
+    const { env } = loadEnv({
+      ORGANIZZE_API_BASE_URL: undefined,
+      ORGANIZZE_BASIC_USERNAME: undefined,
+      ORGANIZZE_BASIC_PASSWORD: undefined,
+      ORGANIZZE_USER_AGENT: undefined,
+    })
+
+    expect(env.ORGANIZZE_API_BASE_URL).toBe('https://api.organizze.com.br/rest/v2')
+    expect(env.ORGANIZZE_BASIC_USERNAME).toBeUndefined()
+    expect(env.ORGANIZZE_BASIC_PASSWORD).toBeUndefined()
+    expect(env.ORGANIZZE_USER_AGENT).toBeUndefined()
+  })
+
+  it('trata credenciais Organizze em branco como ausentes e remove barra final da base URL', () => {
+    const { env } = loadEnv({
+      ORGANIZZE_API_BASE_URL: 'https://api.organizze.com.br/rest/v2/',
+      ORGANIZZE_BASIC_USERNAME: '  ',
+      ORGANIZZE_BASIC_PASSWORD: '',
+      ORGANIZZE_USER_AGENT: '  bot@example.com  ',
+    })
+
+    expect(env.ORGANIZZE_API_BASE_URL).toBe('https://api.organizze.com.br/rest/v2')
+    expect(env.ORGANIZZE_BASIC_USERNAME).toBeUndefined()
+    expect(env.ORGANIZZE_BASIC_PASSWORD).toBeUndefined()
+    expect(env.ORGANIZZE_USER_AGENT).toBe('bot@example.com')
+  })
 })
