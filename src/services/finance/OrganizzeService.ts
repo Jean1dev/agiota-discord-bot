@@ -1,13 +1,27 @@
-import axios from 'axios'
 import { createLogger } from '../../shared/logger/Logger'
+import {
+  fetchOfficialCategories,
+  fetchOfficialTransactions,
+} from './OrganizzeOfficialClient'
+import {
+  getMonthlySummaryFromMongo,
+  insertOrganizzeTransaction,
+  upsertMonthlyFoodSpending,
+  upsertMonthlyInterest,
+} from './OrganizzeMongoRepository'
+import {
+  monthlyRecargapayTransactions,
+  totalInterestCents,
+  transactionSummaryForConference,
+} from './interestCalculation'
+import {
+  monthlyFoodTransactions,
+  totalFoodSpendingCents,
+  transactionSummary as foodTransactionSummary,
+} from './foodSpendingCalculation'
+import { saoPauloMonthRange } from './saoPauloCalendar'
 
 const log = createLogger('OrganizzeService')
-
-const apiCall = axios.create({
-  baseURL: 'https://organizze-service-50474ce67034.herokuapp.com',
-  timeout: 30_000,
-  headers: { 'Content-Type': 'application/json', 'client-info': 'discord-bot' },
-})
 
 export interface Category {
   id: number
@@ -22,41 +36,6 @@ export interface Transaction {
   category_id: number
   amount_cents: number
   [key: string]: unknown
-}
-
-function handleError(err: unknown): never {
-  const e = err as { isAxiosError?: boolean; response?: { data: unknown }; message: string }
-  if (e.isAxiosError) {
-    log.error({ data: e.response?.data, message: e.message }, 'Organizze API error')
-  }
-  throw err
-}
-
-export async function getCategories(): Promise<Category[]> {
-  try {
-    const { data } = await apiCall.get<Category[]>('/categories')
-    return data
-  } catch (err) { handleError(err) }
-}
-
-export async function getCategory(id: number): Promise<Category> {
-  try {
-    const { data } = await apiCall.get<Category>(`/categories/${id}`)
-    return data
-  } catch (err) { handleError(err) }
-}
-
-export async function createTransaction(transactionData: Transaction): Promise<unknown> {
-  const { description, notes, category_id, amount_cents } = transactionData
-  try {
-    const { data } = await apiCall.post('/transactions', { description, notes, category_id, amount_cents })
-    return data
-  } catch (err) { handleError(err) }
-}
-
-export async function getExpensesCategories(): Promise<Category[]> {
-  const categories = await getCategories()
-  return categories.filter(c => c.kind === 'expenses')
 }
 
 export interface InterestItem {
@@ -75,24 +54,6 @@ export interface Interest {
   items: InterestItem[]
 }
 
-export async function getInterest(): Promise<Interest> {
-  try {
-    const { data } = await apiCall.get<Interest>('/interest')
-    return data
-  } catch (err) { handleError(err) }
-}
-
-export async function updateInterest(interest: Interest): Promise<unknown> {
-  try {
-    const { data } = await apiCall.post('/interest', {
-      amount_cents: interest.interest_cents,
-      year: interest.year,
-      month: interest.month,
-    })
-    return data
-  } catch (err) { handleError(err) }
-}
-
 export interface FoodSpendingItem {
   id: number
   description: string
@@ -109,24 +70,6 @@ export interface FoodSpending {
   items: FoodSpendingItem[]
 }
 
-export async function getFoodSpending(): Promise<FoodSpending> {
-  try {
-    const { data } = await apiCall.get<FoodSpending>('/food-spending')
-    return data
-  } catch (err) { handleError(err) }
-}
-
-export async function updateFoodSpending(foodSpending: FoodSpending): Promise<unknown> {
-  try {
-    const { data } = await apiCall.post('/food-spending', {
-      amount_cents: foodSpending.total_cents,
-      year: foodSpending.year,
-      month: foodSpending.month,
-    })
-    return data
-  } catch (err) { handleError(err) }
-}
-
 export interface MonthlySummaryEntry {
   year: number
   month: number
@@ -138,15 +81,108 @@ export interface MonthlySummaryResponse {
   data: MonthlySummaryEntry[]
 }
 
+function handleError(err: unknown): never {
+  const e = err as { isAxiosError?: boolean; response?: { data: unknown }; message: string }
+  if (e.isAxiosError) {
+    log.error({ data: e.response?.data, message: e.message }, 'Organizze API error')
+  }
+  throw err
+}
+
+export async function getCategories(): Promise<Category[]> {
+  try {
+    return await fetchOfficialCategories()
+  } catch (err) {
+    handleError(err)
+  }
+}
+
+export async function createTransaction(transactionData: Transaction): Promise<unknown> {
+  try {
+    return await insertOrganizzeTransaction(transactionData)
+  } catch (err) {
+    handleError(err)
+  }
+}
+
+export async function getExpensesCategories(): Promise<Category[]> {
+  const categories = await getCategories()
+  return categories.filter(c => c.kind === 'expenses')
+}
+
+export async function getInterest(): Promise<Interest> {
+  try {
+    const { year, month, startDate, endDate } = saoPauloMonthRange()
+    const transactions = await fetchOfficialTransactions(startDate, endDate)
+    const filtered = monthlyRecargapayTransactions(transactions, year, month)
+    const items = filtered.map(transactionSummaryForConference)
+    const interest_cents = totalInterestCents(filtered)
+    return {
+      interest_cents,
+      interest_brl: interest_cents / 100,
+      year,
+      month,
+      items,
+    }
+  } catch (err) {
+    handleError(err)
+  }
+}
+
+export async function updateInterest(interest: Interest): Promise<unknown> {
+  try {
+    await upsertMonthlyInterest({
+      amount_cents: interest.interest_cents,
+      year: interest.year,
+      month: interest.month,
+    })
+    return { ok: true }
+  } catch (err) {
+    handleError(err)
+  }
+}
+
+export async function getFoodSpending(): Promise<FoodSpending> {
+  try {
+    const { year, month, startDate, endDate } = saoPauloMonthRange()
+    const [categories, transactions] = await Promise.all([
+      fetchOfficialCategories(),
+      fetchOfficialTransactions(startDate, endDate),
+    ])
+    const foodTxs = monthlyFoodTransactions(categories, transactions, year, month)
+    const total_cents = totalFoodSpendingCents(foodTxs)
+    return {
+      total_cents,
+      total_brl: total_cents / 100,
+      year,
+      month,
+      items: foodTxs.map(foodTransactionSummary),
+    }
+  } catch (err) {
+    handleError(err)
+  }
+}
+
+export async function updateFoodSpending(foodSpending: FoodSpending): Promise<unknown> {
+  try {
+    await upsertMonthlyFoodSpending({
+      amount_cents: foodSpending.total_cents,
+      year: foodSpending.year,
+      month: foodSpending.month,
+    })
+    return { ok: true }
+  } catch (err) {
+    handleError(err)
+  }
+}
+
 export async function getMonthlySummary(
   year?: number,
   month?: number,
 ): Promise<MonthlySummaryResponse> {
   try {
-    const params: Record<string, number> = {}
-    if (year !== undefined) params.year = year
-    if (month !== undefined) params.month = month
-    const { data } = await apiCall.get<MonthlySummaryResponse>('/monthly-summary', { params })
-    return data
-  } catch (err) { handleError(err) }
+    return await getMonthlySummaryFromMongo(year, month)
+  } catch (err) {
+    handleError(err)
+  }
 }
