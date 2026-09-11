@@ -8,7 +8,7 @@ export class AddDailyGoalUseCase {
   async execute(pages: number): Promise<Result<ReadingTracker>> {
     return Result.fromAsync(async () => {
       const tracker = await this.readingRepo.get()
-      const updated = tracker.addDailyGoal(pages)
+      const updated = tracker.subtract(pages)
       await this.readingRepo.save(updated)
       return updated
     })
