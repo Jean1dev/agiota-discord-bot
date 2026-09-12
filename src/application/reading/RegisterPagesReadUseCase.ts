@@ -12,7 +12,7 @@ export class RegisterPagesReadUseCase {
   async execute(dto: RegisterPagesReadDto): Promise<Result<ReadingTracker>> {
     return Result.fromAsync(async () => {
       const tracker = await this.readingRepo.get()
-      const updated = tracker.registerPagesRead(dto.pages)
+      const updated = tracker.add(dto.pages)
       await this.readingRepo.save(updated)
       return updated
     })

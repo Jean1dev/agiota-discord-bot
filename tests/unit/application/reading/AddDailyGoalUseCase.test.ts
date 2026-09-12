@@ -5,7 +5,7 @@ import { ReadingTracker } from '../../../../src/domain/reading/ReadingTracker'
 // ── Stub simples em memória ──────────────────────────────────────────────
 
 class InMemoryReadingRepository implements IReadingRepository {
-  private tracker: ReadingTracker = new ReadingTracker([], [])
+  private tracker: ReadingTracker = new ReadingTracker()
 
   async get(): Promise<ReadingTracker> {
     return this.tracker

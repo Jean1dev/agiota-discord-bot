@@ -8,7 +8,7 @@ const log = createLogger('BookPagesDailyGoalJob')
 
 /**
  * Runs daily at 00:05.
- * Adiciona a meta diária de páginas ao débito de leitura.
+ * Subtrai a meta diária do saldo de leitura.
  */
 export class BookPagesDailyGoalJob implements IJob {
   readonly cronExpression = '5 0 * * *'
@@ -22,6 +22,6 @@ export class BookPagesDailyGoalJob implements IJob {
       throw result.error
     }
 
-    log.info({ debt: result.value.pagesDebt }, 'Meta diária de páginas adicionada')
+    log.info({ pages: result.value.pages }, 'Meta diária de páginas debitada')
   }
 }

@@ -42,11 +42,14 @@ export async function getContextState(): Promise<ContextState> {
   }
 }
 
-export function saveContextState(state: Record<string, unknown>): void {
+export async function saveContextState(state: Record<string, unknown>): Promise<void> {
   const col = MongoConnection.getCollection(DATA_COLLECTION)
-  col.deleteMany({}).then(() =>
-    col.insertOne(state).then(() => log.info('context state saved'))
-  ).catch(err => log.error({ err }, 'failed to save context state'))
+  try {
+    await col.updateOne({}, { $set: state }, { upsert: true })
+    log.info('context state saved')
+  } catch (err) {
+    log.error({ err }, 'failed to save context state')
+  }
 }
 
 // ── YouTube RSS ───────────────────────────────────────────────────────────
