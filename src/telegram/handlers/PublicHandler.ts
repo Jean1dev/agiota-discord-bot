@@ -4,6 +4,7 @@ import { enviarMensagemParaMim, enviarMensagemParaUsuario } from '../TelegramUti
 import { getSubscriptionByEmailAllTenants } from '../../services/subscription/SubscriptionValidator'
 import { MongoConnection } from '../../infrastructure/database/MongoConnection'
 import { KEYBOARDS, SUBSCRIPTION_PURCHASE_URL } from '../TelegramConfig'
+import { sendProductLinks } from '../ProductLinks'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('PublicHandler')
@@ -129,6 +130,10 @@ async function handleWaitingEmailState(ctx: Context, ud: UserData): Promise<void
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { await ctx.reply('❌ Email inválido. Por favor, envie um email válido:'); return }
   await ctx.reply('🔍 Buscando sua assinatura...')
   const sub = await getSubscriptionByEmailAllTenants(email)
+  if (sub.error) {
+    await ctx.reply('⚠️ Não foi possível verificar sua assinatura. Por favor, tente novamente enviando seu email.')
+    return
+  }
   if (sub.found) {
     await updateUserSubscription(ud.userId, sub.email!, sub.vigenteAte!, sub.isActive ?? false)
     const days = calcDaysRemaining(new Date(sub.vigenteAte!))
@@ -138,6 +143,7 @@ async function handleWaitingEmailState(ctx: Context, ud: UserData): Promise<void
   } else {
     await ctx.reply(`❌ Não encontramos uma assinatura com o email: ${email}\n\nVerifique se o email está correto.`)
     enviarMensagemParaMim(`Usuário tentou vincular email não encontrado:\nNome: ${ud.userName}\nEmail tentado: ${email}\nChat ID: ${ud.userId}`)
+    await sendProductLinks(ctx)
   }
 }
 
