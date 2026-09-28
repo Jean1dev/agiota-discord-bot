@@ -28,6 +28,24 @@ jest.mock('../../../src/shared/logger/Logger', () => ({
 
 const mockedAnalyzeMerchantReceipt = jest.mocked(analyzeMerchantReceipt)
 
+it('envia as informações do produto pelos comandos Info, Links e Link', async () => {
+  const handlers = new Map<string, (ctx: unknown) => unknown>()
+  registerDailyBudgetHandlers({
+    start: jest.fn(), on: jest.fn(),
+    hears: (events: string | string[], handler: (ctx: unknown) => unknown) => {
+      for (const event of Array.isArray(events) ? events : [events]) handlers.set(event, handler)
+    },
+  })
+  for (const command of ['Info', 'Links', 'Link']) {
+    const replyWithMarkdownV2 = jest.fn().mockResolvedValue(undefined)
+    await handlers.get(command)?.({ replyWithMarkdownV2 })
+    expect(replyWithMarkdownV2).toHaveBeenCalledTimes(1)
+    expect(replyWithMarkdownV2).toHaveBeenCalledWith(
+      '*Informações*\n• [Documentação](https://docs.arbitragem-crypto.cloud/introduction)\n• [Site](https://market.arbitragem-crypto.cloud/)\n• [Plataforma](https://arbitragem-crypto.cloud/)\n• [Comunidade](https://comunidade.arbitragem-crypto.cloud/)',
+    )
+  }
+})
+
 describe('DailyBudgetHandler - cupom com múltiplas imagens', () => {
   beforeEach(() => {
     jest.useFakeTimers()

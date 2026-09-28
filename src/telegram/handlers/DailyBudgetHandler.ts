@@ -10,6 +10,7 @@ import { resolveMoneyToBrl } from '../../services/finance/CurrencyService'
 import { extractTransactionsFromImage, type ExtractedTransaction } from '../../services/finance/BankNotificationImageService'
 import { analyzeMerchantReceipt } from '../../services/finance/MerchantReceiptService'
 import { KEYBOARDS } from '../TelegramConfig'
+import { sendProductLinks } from '../ProductLinks'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('DailyBudgetHandler')
@@ -148,11 +149,7 @@ export function registerDailyBudgetHandlers(bot: any): void {
     ctx.reply('Envie uma imagem ou um álbum com até 10 imagens do mesmo cupom.')
   })
 
-  bot.hears(['Info', 'Links', 'Link'], (ctx: Context) => {
-    ctx.replyWithMarkdownV2(
-      `*Informações*\n• [Documentação](https://docs.arbitragem-crypto.cloud/introduction)\n• [Site](https://market.arbitragem-crypto.cloud/)\n• [Plataforma](https://arbitragem-crypto.cloud/)\n• [Comunidade](https://comunidade.arbitragem-crypto.cloud/)`,
-    )
-  })
+  bot.hears(['Info', 'Links', 'Link'], sendProductLinks)
 
   bot.on(message('text'), async (ctx: Context) => {
     if (!state.awaitResponseSpentMoney) return
