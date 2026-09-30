@@ -181,20 +181,20 @@ export function buildUsageReport(
   }
 }
 
+/** LITELLM_BASE_URL sempre termina em /v1; o endpoint de atividade fica na raiz do gateway. */
 export function gatewayBaseUrl(): string | undefined {
-  if (env.LLM_GATEWAY_URL) return env.LLM_GATEWAY_URL
   return env.LITELLM_BASE_URL?.replace(/\/v1$/, '')
 }
 
 /**
- * Consome GET {LLM_GATEWAY_URL}/user/daily/activity (datas em UTC, inclusivas).
+ * Consome GET {gateway}/user/daily/activity (datas em UTC, inclusivas).
  * Sempre uma única página — o endpoint não pagina na prática.
  */
 export async function fetchDailyActivity(startDate: string, endDate: string): Promise<LlmDailyActivityResponse> {
   const baseUrl = gatewayBaseUrl()
-  const masterKey = env.LLM_GATEWAY_MASTER_KEY
-  if (!baseUrl || !masterKey) {
-    throw new Error('LiteLLM gateway não configurado: defina LLM_GATEWAY_URL (ou LITELLM_BASE_URL) e LLM_GATEWAY_MASTER_KEY')
+  const apiKey = env.LITELLM_API_KEY
+  if (!baseUrl || !apiKey) {
+    throw new Error('LiteLLM não configurado: defina LITELLM_BASE_URL e LITELLM_API_KEY')
   }
 
   const url = `${baseUrl}/user/daily/activity`
@@ -203,7 +203,7 @@ export async function fetchDailyActivity(startDate: string, endDate: string): Pr
   try {
     const { data } = await axios.get<LlmDailyActivityResponse>(url, {
       params: { start_date: startDate, end_date: endDate },
-      headers: { Authorization: `Bearer ${masterKey}` },
+      headers: { Authorization: `Bearer ${apiKey}` },
       timeout: 30_000,
     })
     return data

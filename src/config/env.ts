@@ -42,19 +42,6 @@ const envSchema = z.object({
       return trimmed.endsWith('/v1') ? trimmed : `${trimmed}/v1`
     }),
   LITELLM_API_KEY: z.string().optional(),
-  /**
-   * URL base do gateway LiteLLM para endpoints administrativos (sem /v1),
-   * ex.: GET /user/daily/activity. Se ausente, usa LITELLM_BASE_URL sem o /v1.
-   */
-  LLM_GATEWAY_URL: z
-    .string()
-    .optional()
-    .transform(v => {
-      const trimmed = v?.trim()
-      return trimmed ? trimmed.replace(/\/+$/, '') : undefined
-    }),
-  /** Master key do LiteLLM, usada no relatório semanal de uso. */
-  LLM_GATEWAY_MASTER_KEY: z.string().optional(),
 
   // ── IBM Watson ─────────────────────────────────────────────────────────
   ASSISTANT_ID: z.string().optional(),

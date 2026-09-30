@@ -132,11 +132,9 @@ describe('buildUsageReport', () => {
 })
 
 describe('gatewayBaseUrl', () => {
-  it('prefere LLM_GATEWAY_URL e cai para LITELLM_BASE_URL sem /v1', () => {
+  it('usa LITELLM_BASE_URL sem o /v1', () => {
     mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
     expect(gatewayBaseUrl()).toBe('https://gw.example.com')
-    mockEnv.LLM_GATEWAY_URL = 'https://admin.example.com'
-    expect(gatewayBaseUrl()).toBe('https://admin.example.com')
   })
 })
 
@@ -146,9 +144,9 @@ describe('fetchDailyActivity', () => {
     expect(mockedAxios.get).not.toHaveBeenCalled()
   })
 
-  it('chama o endpoint com master key e datas', async () => {
-    mockEnv.LLM_GATEWAY_URL = 'https://gw.example.com'
-    mockEnv.LLM_GATEWAY_MASTER_KEY = 'sk-master'
+  it('chama o endpoint com a api key e datas', async () => {
+    mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
+    mockEnv.LITELLM_API_KEY = 'sk-master'
     mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } })
 
     await fetchDailyActivity('2026-09-24', '2026-09-30')
@@ -163,8 +161,8 @@ describe('fetchDailyActivity', () => {
   })
 
   it('traduz erro da API com a mensagem do gateway', async () => {
-    mockEnv.LLM_GATEWAY_URL = 'https://gw.example.com'
-    mockEnv.LLM_GATEWAY_MASTER_KEY = 'bad'
+    mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
+    mockEnv.LITELLM_API_KEY = 'bad'
     const err = Object.assign(new Error('Request failed'), {
       response: { status: 401, data: { error: { message: 'invalid key', type: 'auth', code: '401' } } },
     })
@@ -177,8 +175,8 @@ describe('fetchDailyActivity', () => {
 
 describe('fetchUsageReport', () => {
   it('busca os últimos 7 dias e monta o relatório', async () => {
-    mockEnv.LLM_GATEWAY_URL = 'https://gw.example.com'
-    mockEnv.LLM_GATEWAY_MASTER_KEY = 'sk-master'
+    mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
+    mockEnv.LITELLM_API_KEY = 'sk-master'
     mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } })
 
     const report = await fetchUsageReport(7, new Date('2026-09-28T11:15:00Z'))
