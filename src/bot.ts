@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits, Partials, ChannelType, Message } from 'discord.js'
 import { createContext, contextInstance } from './context'
-import { CHAT_GERAL } from './discord/DiscordConstants'
+import { LIXO_CHANNEL } from './discord/DiscordConstants'
 import captureException from './observability/Sentry'
 import { env } from './config/env'
 import commandDispatcher from './commands/index'
@@ -50,7 +50,7 @@ log.info({ prefix }, 'Comando do bot')
 
 function avisarQueEstaOnline(): void {
   if (process.env.NODE_ENV === 'dev') return
-  const channel: any = (client.channels.cache as any).find((ch: any) => ch.name === CHAT_GERAL)
+  const channel: any = (client.channels.cache as any).find((ch: any) => ch.name === LIXO_CHANNEL)
   if (channel?.send) {
     listarAsUltimasFeatures(channel)
   } else {

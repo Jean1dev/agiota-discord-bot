@@ -1,5 +1,5 @@
 import { IJob } from '../IJob'
-import { CHAT_GERAL, CANAIS_PARA_LIMPAR } from '../../discord/DiscordConstants'
+import { LIXO_CHANNEL, CANAIS_PARA_LIMPAR } from '../../discord/DiscordConstants'
 import { contextInstance } from '../../context'
 import { rankearUso, rotinaDiariaCrypto } from '../../services'
 import captureException from '../../observability/Sentry'
@@ -26,7 +26,7 @@ export class MidnightJob implements IJob {
     const context = contextInstance()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const channels = context.client.channels.cache as any
-    const channel = channels.find((ch: any) => ch.name === CHAT_GERAL)
+    const channel = channels.find((ch: any) => ch.name === LIXO_CHANNEL)
     channel?.send('Iniciando tarefa agendada para limpar o canal 🤖').then((msg: any) => {
       msg.delete({ timeout: 60000 })
     })

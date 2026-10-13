@@ -1,4 +1,3 @@
-export const CHAT_GERAL = '🧵-geral'
 export const JOGO_BIXO_CHANNEL = '🐒-jogo-do-bixo'
 export const CAIXINHA_CHANNEL = '💰-caixinha'
 export const LIXO_CHANNEL = '🧻-lixo'

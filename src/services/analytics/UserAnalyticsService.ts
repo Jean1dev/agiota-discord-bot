@@ -1,6 +1,6 @@
 import { contextInstance } from '../../context'
 import { MongoConnection } from '../../infrastructure/database/MongoConnection'
-import { CHAT_GERAL } from '../../discord/DiscordConstants'
+import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { rankingService } from '../ranking/RankingService'
 import { createLogger } from '../../shared/logger/Logger'
 import type { Client } from 'discord.js'
@@ -57,7 +57,7 @@ function executarRegraPontuacao(chars: number, anexos: number): number {
 
 async function exibirDadosUsuarioERankear(userId: string, mensagens: DiscordMessageData[]): Promise<void> {
   const client = getClient()
-  const chatGeral = client.channels.cache.find(ch => (ch as { name: string }).name === CHAT_GERAL) as { send(m: string): void } | undefined
+  const canal = client.channels.cache.find(ch => (ch as { name: string }).name === LIXO_CHANNEL) as { send(m: string): void } | undefined
 
   let chars = 0, anexos = 0
   for (const m of mensagens) {
@@ -69,7 +69,7 @@ async function exibirDadosUsuarioERankear(userId: string, mensagens: DiscordMess
   await rankingService.criarOuAtualizarRanking({ userId, pontuacao, operacao: 'ADICIONAR' })
 
   if (pontuacao > 100) {
-    chatGeral?.send(`<@${userId}> nessa rodada vc conseguiu ${pontuacao} pontos`)
+    canal?.send(`<@${userId}> nessa rodada vc conseguiu ${pontuacao} pontos`)
   }
 }
 
@@ -91,11 +91,11 @@ export async function rankearUso(): Promise<void> {
 
 export function exibirRankingNoChat(): void {
   const client = getClient()
-  const chatGeral = client.channels.cache.find(ch => (ch as { name: string }).name === CHAT_GERAL) as { send(m: string): void } | undefined
+  const canal = client.channels.cache.find(ch => (ch as { name: string }).name === LIXO_CHANNEL) as { send(m: string): void } | undefined
 
   rankingService.listagem().then(data => {
     data
       .sort((a, b) => b.pontuacao - a.pontuacao)
-      .forEach(item => chatGeral?.send(`<@${item.userId}> voce tem um total de ${item.pontuacao}`))
+      .forEach(item => canal?.send(`<@${item.userId}> voce tem um total de ${item.pontuacao}`))
   })
 }

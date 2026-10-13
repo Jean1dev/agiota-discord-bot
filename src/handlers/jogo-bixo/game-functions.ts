@@ -19,7 +19,7 @@ const state: GameState = {
   monitoramentoFimDeJogoRef: null,
 }
 
-function mandarMensagemNoChatGeral(message: string): void {
+function mandarMensagemNoCanalDoJogo(message: string): void {
   const channel = (contextInstance().client.channels.cache as any).find(
     (ch: any) => ch.name === JOGO_BIXO_CHANNEL
   )
@@ -63,7 +63,7 @@ function monitorarFimDeJogo(): void {
 
 function calcularVencedores(apostas: Aposta[]): { bichoVencedor: any; apostadoresVencedores?: Aposta[] } {
   if (!apostas.length) {
-    mandarMensagemNoChatGeral('Não teve nenhuma aposta, entao nao existem ganhadores')
+    mandarMensagemNoCanalDoJogo('Não teve nenhuma aposta, entao nao existem ganhadores')
     return { bichoVencedor: null }
   }
 
@@ -76,18 +76,18 @@ function calcularVencedores(apostas: Aposta[]): { bichoVencedor: any; apostadore
   })
 
   if (!apostadoresVencedores.length) {
-    mandarMensagemNoChatGeral(`não houve ganhadores, o bixo sorteado foi ${bichoVencedor.emoj}`)
-    mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
+    mandarMensagemNoCanalDoJogo(`não houve ganhadores, o bixo sorteado foi ${bichoVencedor.emoj}`)
+    mandarMensagemNoCanalDoJogo(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
     return { bichoVencedor }
   }
 
   for (const vencedor of apostadoresVencedores) {
     if (vencedor.numero === numeroVencedor) {
-      mandarMensagemNoChatGeral(`Parabens <@${vencedor.autor}> voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
+      mandarMensagemNoCanalDoJogo(`Parabens <@${vencedor.autor}> voce acertou em cheio no bixo ${bichoVencedor.emoj}`)
     } else {
-      mandarMensagemNoChatGeral(`Parabens <@${vencedor.autor}> voce acertou no bixo ${bichoVencedor.emoj}`)
+      mandarMensagemNoCanalDoJogo(`Parabens <@${vencedor.autor}> voce acertou no bixo ${bichoVencedor.emoj}`)
     }
-    mandarMensagemNoChatGeral(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
+    mandarMensagemNoCanalDoJogo(`numero sorteado foi ${numeroVencedor} o animal ${bichoVencedor.nome} tem os seguintes numeros ${bichoVencedor.valores.join(',')}`)
   }
 
   return { bichoVencedor, apostadoresVencedores }
@@ -95,7 +95,7 @@ function calcularVencedores(apostas: Aposta[]): { bichoVencedor: any; apostadore
 
 function finalizarJogo(message: string): void {
   if (!state.jogoAberto) return
-  mandarMensagemNoChatGeral(message)
+  mandarMensagemNoCanalDoJogo(message)
   const vencedor = calcularVencedores(contextInstance().jogo.apostas)
 
   MongoConnection.getCollection('jogo_bixo_registros')
@@ -111,7 +111,7 @@ function finalizarJogo(message: string): void {
 export function criarNovoJogo(): void {
   if (state.jogoAberto) return
   if (new Date().getUTCHours() + 8 > 24) {
-    mandarMensagemNoChatGeral('Não é possivel criar um jogo depois das 14h horario de brasilia')
+    mandarMensagemNoCanalDoJogo('Não é possivel criar um jogo depois das 14h horario de brasilia')
     return
   }
   contextInstance().jogoAberto = true
@@ -119,7 +119,7 @@ export function criarNovoJogo(): void {
   contextInstance().save()
   updateState()
   monitorarFimDeJogo()
-  mandarMensagemNoChatGeral('Salve salve RAPAZEADA ta rolando jogo do bixo, façam suas apostas')
+  mandarMensagemNoCanalDoJogo('Salve salve RAPAZEADA ta rolando jogo do bixo, façam suas apostas')
 }
 
 export function registrarAposta(aposta: Aposta): { status: boolean; message: string | null } {

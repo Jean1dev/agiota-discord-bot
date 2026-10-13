@@ -3,7 +3,7 @@ import { StructuredOutputParser } from 'langchain/output_parsers'
 import { z } from 'zod'
 import { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js'
 import { contextInstance } from '../../context'
-import { CHAT_GERAL } from '../../discord/DiscordConstants'
+import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
 import { rankingService } from '../ranking/RankingService'
 import { createChatOpenAI } from '../llm/createChatOpenAI'
 
@@ -99,7 +99,7 @@ function publishAndListening(
     quiz: QuizResult
 ): void {
     const channel: any = contextInstance().client.channels.cache.find(
-        (ch: any) => ch.name === CHAT_GERAL,
+        (ch: any) => ch.name === LIXO_CHANNEL,
     )
     if (!channel) return
     channel
