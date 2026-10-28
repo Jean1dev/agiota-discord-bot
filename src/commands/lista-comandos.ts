@@ -3,7 +3,7 @@ import { addDividaHandler, pagarDividaHandler, cobrarDividaHandler } from '../di
 import { addDailyBudgetHandler, updateGastosCartaoHandler, relatorioMensalDeGastosHandler, buscarGastoNoDiaHandler, ultimoEmprestimoInfoHandler } from '../discord/commands/finance'
 import { jogoBixoHandler, estatisticasJogoBixoHandler } from '../discord/commands/game'
 import { chatGpt, changeIaMode, modelo } from '../discord/commands/ai'
-import { arbitragemHandler, changeAutoArbitragemHandler, atualizarCotacaoHandler } from '../discord/commands/b3'
+import { arbitragemHandler, atualizarCotacaoHandler } from '../discord/commands/b3'
 import { restartHandler, meconecteiHandler, updateMonthlySpendingHandler } from '../discord/commands/admin'
 import { assinaturasHandler, assinaturasAtivasHandler } from '../discord/commands/subscriptions'
 import { helpHandler, imgurHandler } from '../discord/commands/media'
@@ -36,7 +36,6 @@ registrarComando('gpt', chatGpt, 'Tire dúvidas com o ChatGPT :: $gpt <pergunta>
 registrarComando('ia', changeIaMode, 'Liga ou desliga a IA')
 registrarComando('modelo', modelo, 'Lista modelos LiteLLM e define o padrão :: $modelo | $modelo atual')
 registrarComando('arb', arbitragemHandler, 'Executa rounds de arbitragem :: $arb <quantidade>', true)
-registrarComando('auto-arb', changeAutoArbitragemHandler, 'Alterna auto-arbitragem (admin)')
 registrarComando('acao', atualizarCotacaoHandler, 'Atualiza cotações da carteira')
 registrarComando('rs', restartHandler, 'Reinicia a aplicação (admin)')
 registrarComando('meconectei', meconecteiHandler, 'Cria conta admin no Me Conectei :: $meconectei <email> (admin)', true)

@@ -5,7 +5,7 @@ import { getKeycloakToken } from '../auth/KeycloakService'
 import { sendEmail } from '../email/EmailService'
 import captureException from '../../observability/Sentry'
 import { LIXO_CHANNEL } from '../../discord/DiscordConstants'
-import { startAutomateAfterNewSubscription } from '../b3/AutoArbitrageService'
+import { forceArbitrage } from '../b3/CryptoArbitrageService'
 import { createLogger } from '../../shared/logger/Logger'
 
 const log = createLogger('SubscriptionService')
@@ -171,7 +171,9 @@ export async function addSubcriptionByEvent(event: any): Promise<void> {
     if (!channel) return
     channel.send(`Novo plano de assinatura: ${product} - ${status} - ${name} - ${email}`)
 
-    startAutomateAfterNewSubscription()
+    forceArbitrage(155, (message: string) => {
+        log.info({ message }, 'Arbitragem forçada após nova assinatura')
+    })
     channel.send('Iniciando arbitragem após nova assinatura')
 }
 

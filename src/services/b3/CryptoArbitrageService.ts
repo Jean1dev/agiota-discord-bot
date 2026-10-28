@@ -68,11 +68,6 @@ let lastArbitrageCallback: ((msg: string) => void) | null = null
 let lastArbitrageThreshold = 0
 let finalCallback: ((msg: string) => void) | null = null
 
-export async function asyncArbitrage(): Promise<void> {
-    await makeRequest('POST', '/v1/arbitrage')
-    forceFutureArbitrage()
-}
-
 function finishArbitrageQueue(): void {
     if (arbitrageIntervalId !== null) {
         clearInterval(arbitrageIntervalId)
