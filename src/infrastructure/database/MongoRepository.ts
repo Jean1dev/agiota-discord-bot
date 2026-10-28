@@ -10,7 +10,6 @@ export interface ContextState {
   jogoAberto: boolean
   jogo: unknown | null
   totalGastoCartao: number
-  autoArbitragem: boolean
   defaultChatModel: string | null
 }
 
@@ -27,7 +26,6 @@ export async function getContextState(): Promise<ContextState> {
       jogoAberto: false,
       jogo: null,
       totalGastoCartao: 0,
-      autoArbitragem: false,
       defaultChatModel: null,
     }
   }
@@ -37,7 +35,6 @@ export async function getContextState(): Promise<ContextState> {
     jogoAberto: row.jogoAberto ?? false,
     jogo: row.jogo ?? null,
     totalGastoCartao: row.totalGastoCartao ?? 0,
-    autoArbitragem: row.autoArbitragem ?? false,
     defaultChatModel: typeof row.defaultChatModel === 'string' ? row.defaultChatModel : null,
   }
 }
