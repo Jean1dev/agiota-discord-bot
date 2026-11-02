@@ -39,10 +39,12 @@ describe('env', () => {
     const { env } = loadEnv({
       LITELLM_BASE_URL: 'https://lite-llm-deploy-production.up.railway.app/',
       LITELLM_API_KEY: 'sk-test',
+      LITELLM_MASTER_KEY: 'master-secret',
     })
 
     expect(env.LITELLM_BASE_URL).toBe('https://lite-llm-deploy-production.up.railway.app/v1')
     expect(env.LITELLM_API_KEY).toBe('sk-test')
+    expect(env.LITELLM_MASTER_KEY).toBe('master-secret')
   })
 
   it('usa a URL padrao da API oficial do Organizze quando a env esta ausente', () => {

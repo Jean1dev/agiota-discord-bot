@@ -192,9 +192,9 @@ export function gatewayBaseUrl(): string | undefined {
  */
 export async function fetchDailyActivity(startDate: string, endDate: string): Promise<LlmDailyActivityResponse> {
   const baseUrl = gatewayBaseUrl()
-  const apiKey = env.LITELLM_API_KEY
-  if (!baseUrl || !apiKey) {
-    throw new Error('LiteLLM não configurado: defina LITELLM_BASE_URL e LITELLM_API_KEY')
+  const masterKey = env.LITELLM_MASTER_KEY
+  if (!baseUrl || !masterKey) {
+    throw new Error('LiteLLM não configurado: defina LITELLM_BASE_URL e LITELLM_MASTER_KEY')
   }
 
   const url = `${baseUrl}/user/daily/activity`
@@ -203,7 +203,7 @@ export async function fetchDailyActivity(startDate: string, endDate: string): Pr
   try {
     const { data } = await axios.get<LlmDailyActivityResponse>(url, {
       params: { start_date: startDate, end_date: endDate },
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers: { Authorization: `Bearer ${masterKey}` },
       timeout: 30_000,
     })
     return data

@@ -144,9 +144,9 @@ describe('fetchDailyActivity', () => {
     expect(mockedAxios.get).not.toHaveBeenCalled()
   })
 
-  it('chama o endpoint com a api key e datas', async () => {
+  it('chama o endpoint com a master key e datas', async () => {
     mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
-    mockEnv.LITELLM_API_KEY = 'sk-master'
+    mockEnv.LITELLM_MASTER_KEY = 'master-secret'
     mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } })
 
     await fetchDailyActivity('2026-09-24', '2026-09-30')
@@ -155,14 +155,21 @@ describe('fetchDailyActivity', () => {
       'https://gw.example.com/user/daily/activity',
       expect.objectContaining({
         params: { start_date: '2026-09-24', end_date: '2026-09-30' },
-        headers: { Authorization: 'Bearer sk-master' },
+        headers: { Authorization: 'Bearer master-secret' },
       }),
     )
   })
 
+  it('ignora LITELLM_API_KEY (virtual) e exige LITELLM_MASTER_KEY', async () => {
+    mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
+    mockEnv.LITELLM_API_KEY = 'sk-virtual'
+    await expect(fetchDailyActivity('2026-09-24', '2026-09-30')).rejects.toThrow('LITELLM_MASTER_KEY')
+    expect(mockedAxios.get).not.toHaveBeenCalled()
+  })
+
   it('traduz erro da API com a mensagem do gateway', async () => {
     mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
-    mockEnv.LITELLM_API_KEY = 'bad'
+    mockEnv.LITELLM_MASTER_KEY = 'bad'
     const err = Object.assign(new Error('Request failed'), {
       response: { status: 401, data: { error: { message: 'invalid key', type: 'auth', code: '401' } } },
     })
@@ -176,7 +183,7 @@ describe('fetchDailyActivity', () => {
 describe('fetchUsageReport', () => {
   it('busca os últimos 7 dias e monta o relatório', async () => {
     mockEnv.LITELLM_BASE_URL = 'https://gw.example.com/v1'
-    mockEnv.LITELLM_API_KEY = 'sk-master'
+    mockEnv.LITELLM_MASTER_KEY = 'master-secret'
     mockedAxios.get.mockResolvedValueOnce({ data: { results: [] } })
 
     const report = await fetchUsageReport(7, new Date('2026-09-28T11:15:00Z'))
