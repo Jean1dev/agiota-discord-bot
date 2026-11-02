@@ -42,6 +42,7 @@ const envSchema = z.object({
       return trimmed.endsWith('/v1') ? trimmed : `${trimmed}/v1`
     }),
   LITELLM_API_KEY: z.string().optional(),
+  LITELLM_MASTER_KEY: z.string().optional(),
 
   // ── IBM Watson ─────────────────────────────────────────────────────────
   ASSISTANT_ID: z.string().optional(),
