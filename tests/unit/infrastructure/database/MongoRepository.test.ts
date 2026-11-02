@@ -61,7 +61,6 @@ describe('saveContextState', () => {
       jogoAberto: false,
       jogo: null,
       totalGastoCartao: 100,
-      autoArbitragem: false,
       defaultChatModel: null,
     })
 
@@ -76,7 +75,6 @@ describe('saveContextState', () => {
           jogoAberto: false,
           jogo: null,
           totalGastoCartao: 100,
-          autoArbitragem: false,
           defaultChatModel: null,
         },
       },

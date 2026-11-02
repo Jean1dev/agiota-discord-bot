@@ -36,7 +36,7 @@ See proposal.md for motivation. Today LLM usage is split across `src/ia/open-ai-
 
 ### 3. Persist `defaultChatModel` on existing context Mongo document
 
-- **Choice:** Add `defaultChatModel` to the context state loaded/saved with `fillState` / `save`, same pattern as `autoArbitragem`.
+- **Choice:** Add `defaultChatModel` to the context state loaded/saved with `fillState` / `save`, same pattern as other bot-wide context fields.
 - **Why:** Minimal new infra; already used for bot-wide settings.
 - **Alternatives:** Dedicated `llm_settings` collection — cleaner long-term, more files for one field. Acceptable follow-up if context doc grows further.
 

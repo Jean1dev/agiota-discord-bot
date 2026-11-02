@@ -31,7 +31,6 @@ describe('lista-comandos', () => {
     }))
     jest.doMock('../../../src/discord/commands/b3', () => ({
       arbitragemHandler: handler,
-      changeAutoArbitragemHandler: handler,
       atualizarCotacaoHandler: handler,
     }))
     jest.doMock('../../../src/discord/commands/admin', () => ({

@@ -46,9 +46,6 @@ export const organizzeService = _organizze
 import * as _txCat from './finance/TransactionCategorizationService'
 export const transactionCategorizationService = _txCat
 
-// Auto Arbitrage
-export { startAutoArbitrage } from './b3/AutoArbitrageService'
-
 // YouTube RSS
 import * as _youtubeRss from './youtube/YoutubeRssService'
 export const youtubeRssService = _youtubeRss

@@ -31,7 +31,6 @@ interface DataDocument {
   jogoAberto?: boolean
   jogo?: unknown
   totalGastoCartao?: number
-  autoArbitragem?: boolean
 }
 
 const COLLECTION = 'data'
@@ -90,7 +89,7 @@ export class MongoDebtRepository implements IDebtRepository {
 
   /**
    * Atualiza apenas o campo `dividas` do documento de estado,
-   * preservando jogoAberto, jogo, totalGastoCartao e autoArbitragem.
+   * preservando jogoAberto, jogo e totalGastoCartao.
    */
   private async persistDividas(users: DebtUser[]): Promise<void> {
     const stored = users.map(toStored)
