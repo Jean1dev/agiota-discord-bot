@@ -7,7 +7,7 @@ import { migrateCollections } from '../subscription/SubscriptionService'
 const log = createLogger('CryptoDatabaseMaintenanceService')
 
 export const CRYPTO_DATABASE_NAME = 'crypto'
-export const CRYPTO_DATABASE_COLLECTION_WHITELIST = new Set(['releases'])
+export const CRYPTO_DATABASE_COLLECTION_WHITELIST = new Set(['releases', 'digest_preferences'])
 
 type MongoDbStats = {
   dataSize?: number
