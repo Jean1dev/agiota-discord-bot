@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { type AxiosRequestConfig } from 'axios'
 import { env } from '../../../../src/config/env'
 import {
   createTransaction,
@@ -160,7 +160,8 @@ describe('OrganizzeService', () => {
   it('calcula alimentacao pelas categorias oficiais e persiste snapshot', async () => {
     const { year, month } = saoPauloMonthRange()
     const date = `${year}-${String(month).padStart(2, '0')}-10`
-    mockedAxios.get.mockImplementation(async (url: string, config?: { params?: { page?: number } }) => {
+    mockedAxios.get.mockImplementation(async (url: string, config?: AxiosRequestConfig) => {
+      const page = (config?.params as { page?: number } | undefined)?.page
       if (String(url).endsWith('/categories')) {
         return {
           data: [
@@ -169,7 +170,7 @@ describe('OrganizzeService', () => {
           ],
         }
       }
-      if ((config?.params?.page ?? 1) > 1) {
+      if ((page ?? 1) > 1) {
         return { data: [] }
       }
       return {
